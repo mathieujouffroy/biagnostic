@@ -1,2 +1,2 @@
 # Brain_tumor_segmentation
-Trying out different transformer models on BRATS dataset
+3D Brain Tumor segmentation of MRI images from BRATS dataset.
