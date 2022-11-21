@@ -47,7 +47,8 @@ class BratsDatasetGenerator:
         self.release = experiment_data["release"]
         self.reference = experiment_data["reference"]
         self.tensorImageSize = experiment_data["tensorImageSize"]
-        self.numFiles = experiment_data["numTraining"]
+        #self.numFiles = experiment_data["numTraining"]
+        self.numFiles = 8
 
         self.filenames = {}
         for idx in range(self.numFiles):
@@ -147,6 +148,10 @@ class BratsDatasetGenerator:
         """
         orig_x, orig_y = self.img_shape[0], self.img_shape[1]
         output_x, output_y = self.crop_size[0], self.crop_size[1]
+        print(orig_x)
+        print(orig_y)
+        print(output_x)
+        print(output_y)
         output_z = 32
 
         idx = idx.numpy()
@@ -162,24 +167,24 @@ class BratsDatasetGenerator:
         while tries < max_tries:
             # randomly sample sub-volume by sampling the corner voxel (make sure to leave enough room for the output dimensions)
 
-            start_x = np.random.randint(20 , (orig_x - output_x + 1)//2)
-            start_y = np.random.randint(20 , (orig_y - output_y + 1)//2)
+            #start_x = np.random.randint(20 , (orig_x - output_x + 1)//2)
+            #start_y = np.random.randint(30 , (orig_y - output_y + 1)//2)
+            start_x = (orig_y - output_y + 1)//2
+            start_y = (orig_y - output_y + 1)//2
             min_z = min(np.where(label != 0)[2])
-            if (min_z >= 70):
-                start_z = min_z
-            else:
-                start_z = np.random.randint(min_z, 80)
+            max_z = max(np.where(label != 0)[2])
+            start_z = np.random.randint(min_z+10, max_z-42)
 
             min_label_x = min(np.where(label != 0)[0])
             min_label_y = min(np.where(label != 0)[1])
             max_label_x = max(np.where(label != 0)[0])
             max_label_y = max(np.where(label != 0)[1])
+            print(f"Start X: {start_x}, min_label_x: {min_label_x}, max_x: {max_label_x}")
+            print(f"Start y: {start_y}, min_label_y: {min_label_y}, max_y: {max_label_y}")
 
 
             if (start_x < min_label_x) and (start_y < min_label_y) and (start_x + output_x > max_label_x) and (start_y+output_y > max_label_y):
-                print(f"Start X: {start_x}")
-                print(f"Start y: {start_y}")
-                print(f"Start Z: {start_z}")
+                print(f"Start z: {start_z}, min_label_z: {min_z}, max_z: {max(np.where(label != 0)[2])}")
 
                 y = label[start_x: start_x + output_x,
                           start_y: start_y + output_y,
@@ -192,7 +197,9 @@ class BratsDatasetGenerator:
                 bgrd_ratio = np.sum(y[:,:,:,0]) / (output_x * output_y * output_z)
 
                 tries += 1
+                print(f"background_ratio: {bgrd_ratio}")
                 if bgrd_ratio < background_threshold:
+                    
                     X = np.copy(image[start_x: start_x + output_x,
                                       start_y: start_y + output_y,
                                       start_z: start_z + output_z, :])
@@ -204,6 +211,8 @@ class BratsDatasetGenerator:
                     y = y[1:, :, :, :]
                     X = self.standardize(X)
                     return X, y
+
+        print("No valid sub volume")
 
 
     def get_dataset(self):
@@ -224,10 +233,10 @@ class BratsDatasetGenerator:
         ds_val = ds_val.map(lambda x: tf.py_function(self.get_sub_volume, [x], [tf.float32, tf.float32]), num_parallel_calls=tf.data.experimental.AUTOTUNE)
         ds_test = ds_test.map(lambda x: tf.py_function(self.get_sub_volume, [x], [tf.float32, tf.float32]), num_parallel_calls=tf.data.experimental.AUTOTUNE)
 
-        ds_train = ds_train.batch(self.batch_size)
+        ds_train = ds_train.batch(1)
         ds_train = ds_train.prefetch(tf.data.experimental.AUTOTUNE)
 
-        ds_val = ds_val.batch(self.batch_size)
+        ds_val = ds_val.batch(1)
         ds_val = ds_val.prefetch(tf.data.experimental.AUTOTUNE)
 
         ds_test = ds_test.batch(1)
@@ -245,8 +254,6 @@ class BratsDatasetGenerator:
 
 
     def visualize_patch(self, image, mask, m_chan=0):
-        print(image.shape)
-        print(mask.shape)
         # Flair channel
         image = image[0, :, :, :]
         # enhanced tumor

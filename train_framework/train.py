@@ -31,7 +31,7 @@ def train_model(args, m_name, model, train_set, valid_set):
                                          save_best_only=True)
 
     callback_lst = [checkpoint]
-    logs_dir = os.path.join("logs", datetime.datetime.now().strftime("%Y%m%d-%H%M%S"))
+    logs_dir = os.path.join("logs", datetime.datetime.now().strftime("%Y%m%d-%H%M"))
 
     if args.wandb:
         # monitor the val_loss to save the best model
