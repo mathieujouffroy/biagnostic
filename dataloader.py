@@ -1,5 +1,6 @@
 import os
 import json
+import cv2
 import numpy as np
 import nibabel as nib
 import nilearn as nl
@@ -16,7 +17,7 @@ class BratsDatasetGenerator:
         self.ds_path = args.ds_path
         self.batch_size = args.batch_size
         self.crop_size = args.crop_size
-        self.train_test_split = args.train_test_split
+        self.train_val_split = args.train_val_split
         self.val_test_split = args.val_test_split
         self.n_classes = args.n_classes
         self.seed = args.seed
@@ -104,7 +105,7 @@ class BratsDatasetGenerator:
         plt.show()
 
 
-    def standardize(image):
+    def standardize(self, image):
         """
         Standardize mean and standard deviation of each channel and z_dimension.
 
@@ -146,7 +147,7 @@ class BratsDatasetGenerator:
         """
         orig_x, orig_y = self.img_shape[0], self.img_shape[1]
         output_x, output_y = self.crop_size[0], self.crop_size[1]
-        output_z = self.batch_size
+        output_z = 32
 
         idx = idx.numpy()
         imgFile = self.filenames[idx][0]
@@ -163,7 +164,12 @@ class BratsDatasetGenerator:
 
             start_x = np.random.randint(20 , (orig_x - output_x + 1)//2)
             start_y = np.random.randint(20 , (orig_y - output_y + 1)//2)
-            start_z = np.random.randint(25 , 70)
+            min_z = min(np.where(label != 0)[2])
+            if (min_z >= 70):
+                start_z = min_z
+            else:
+                start_z = np.random.randint(min_z, 80)
+
             min_label_x = min(np.where(label != 0)[0])
             min_label_y = min(np.where(label != 0)[1])
             max_label_x = max(np.where(label != 0)[0])
@@ -171,6 +177,10 @@ class BratsDatasetGenerator:
 
 
             if (start_x < min_label_x) and (start_y < min_label_y) and (start_x + output_x > max_label_x) and (start_y+output_y > max_label_y):
+                print(f"Start X: {start_x}")
+                print(f"Start y: {start_y}")
+                print(f"Start Z: {start_z}")
+
                 y = label[start_x: start_x + output_x,
                           start_y: start_y + output_y,
                           start_z: start_z + output_z]
@@ -196,7 +206,7 @@ class BratsDatasetGenerator:
                     return X, y
 
 
-    def get_training_set(self):
+    def get_dataset(self):
         ds = tf.data.Dataset.range(self.numFiles).shuffle(self.numFiles, self.seed) # Shuffle the dataset
 
         self.train_size = int(self.numFiles * self.train_val_split)
@@ -234,22 +244,101 @@ class BratsDatasetGenerator:
         return self.ds_test
 
 
-    def visualize_patch(image, mask):
+    def visualize_patch(self, image, mask, m_chan=0):
+        print(image.shape)
+        print(mask.shape)
         # Flair channel
         image = image[0, :, :, :]
         # enhanced tumor
-        mask = mask[2, :, :, :]
-        print(image.shape)
-        print(mask.shape)
+        mask = mask[m_chan, :, :, :]
         for i in range(image.shape[-1]):
-            fig, ax = plt.subplots(1, 2, figsize=[10, 5], squeeze=False)
-            ax[0][0].imshow(X[:, :, i], cmap='Greys_r')
+            fig, ax = plt.subplots(1, 2, figsize=[6, 4], squeeze=False)
+            ax[0][0].imshow(image[:, :, i])#, cmap='Greys_r')
             ax[0][0].set_yticks([])
             ax[0][0].set_xticks([])
             ax[0][0].set_title('MRI Flair')
-            ax[0][1].imshow(mask[:, :, i], cmap='Greys_r')
+            ax[0][1].imshow(mask[:, :, i])#, cmap='Greys_r')
             ax[0][1].set_xticks([])
             ax[0][1].set_yticks([])
             ax[0][1].set_title('Enhanced Tumor')
             fig.subplots_adjust(wspace=0, hspace=0)
             fig.suptitle(f'Inspection on depth {i}')
+
+
+    def colorize_labels_image_flair(self, idx):
+        
+        # load the image and label file, get the image content and return a numpy array for each
+        image, label = self.load_one_example(idx)
+        
+        # one hot encode labels
+        label = to_categorical(label, num_classes=4).astype(np.uint8)
+
+        # Normalize Flair channel
+        image = cv2.normalize(image[:, :, :, 0], None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_32F).astype(np.uint8)
+
+        un, cn = np.unique(image, return_counts=True)
+        #print(np.asarray((un, cn)).T)
+
+        # create array without taking into account the background label
+        labeled_image = np.zeros_like(label[:, :, :, 1:])
+
+        # remove tumor part from image
+        # (remember we removed the background, so index 0 -> 'edema')
+        # label[:, :, :, 0] -> background, all 1 for background
+        labeled_image[:, :, :, 0] = image * (label[:, :, :, 0])
+        labeled_image[:, :, :, 1] = image * (label[:, :, :, 0])
+        labeled_image[:, :, :, 2] = image * (label[:, :, :, 0])
+
+        labeled_image += (label[:, :, :, 1:] * 255)
+
+        return labeled_image
+
+
+    def plot_image_grid(self, idx):
+        image = self.colorize_labels_image_flair(idx)
+
+        data_all = []
+        data_all.append(image)
+
+        fig, ax = plt.subplots(3, 6, figsize=[16, 9])
+
+        # coronal plane
+        # transpose : batch, h, w, depth, channel -> height, depth, width, channel, batch
+        coronal = np.transpose(data_all, [1, 3, 2, 4, 0])
+        coronal = np.rot90(coronal, k=1)
+
+        # transversal plane
+        # transpose : batch, h, w, depth, channel -> width, height, depth, channel, batch
+        transversal = np.transpose(data_all, [2, 1, 3, 4, 0])
+        transversal = np.rot90(transversal, k=2)
+
+        # sagittal plane
+        # transpose : batch, h, w, depth, channel -> width, depth, height, channel, batch
+        sagittal = np.transpose(data_all, [2, 3, 1, 4, 0])
+        sagittal = np.rot90(sagittal, k=1)
+
+        for i in range(6):
+            n = np.random.randint(40, coronal.shape[2]-40)
+            ax[0][i].imshow(np.squeeze(coronal[:, :, n, :]))
+            ax[0][i].set_xticks([])
+            ax[0][i].set_yticks([])
+            if i == 0:
+                ax[0][i].set_ylabel('Coronal', fontsize=15)
+
+        for i in range(6):
+            n = np.random.randint(40, transversal.shape[2]-40)
+            ax[1][i].imshow(np.squeeze(transversal[:, :, n, :]))
+            ax[1][i].set_xticks([])
+            ax[1][i].set_yticks([])
+            if i == 0:
+                ax[1][i].set_ylabel('Transversal', fontsize=15)
+
+        for i in range(6):
+            n = np.random.randint(40, sagittal.shape[2]-40)
+            ax[2][i].imshow(np.squeeze(sagittal[:, :, n, :]))
+            ax[2][i].set_xticks([])
+            ax[2][i].set_yticks([])
+            if i == 0:
+                ax[2][i].set_ylabel('Sagittal', fontsize=15)
+
+        fig.subplots_adjust(wspace=0, hspace=0)

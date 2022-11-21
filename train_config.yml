@@ -3,7 +3,7 @@
 ds_path: "resources/Task01_BrainTumour/"
 batch_size: 3
 crop_size: [128, 128]
-train_test_split: 0.80
+train_val_split: 0.80
 val_test_split: 0.50
 n_classes: 4
 seed: 42
@@ -13,3 +13,5 @@ learning_rate: 0.00001
 
 
 wandb: False
+
+output_dir: "BRATS_3D_UNET"
