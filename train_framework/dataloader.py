@@ -76,8 +76,8 @@ class BratsDatasetGenerator:
         self.numFiles = 8
 
         self.len_train = int(self.numFiles * self.train_val_split)
-        self.val_test_len = self.numFiles - self.len_train
-        self.len_val = int(self.val_test_len * self.val_test_split)
+        val_test_len = self.numFiles - self.len_train
+        self.len_val = int(val_test_len * self.val_test_split)
         self.len_test = self.numFiles - self.len_train - self.len_val
         self.train_ids = range(self.len_train)
         self.val_ids = range(self.len_train, self.len_train+self.len_val)
