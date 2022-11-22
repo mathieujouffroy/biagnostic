@@ -13,7 +13,7 @@ from tensorflow.keras.utils import to_categorical
 def store_hdf5(name, images, masks):
     """
     Stores an array of images to HDF5.
-    
+
     Args:
         name(str):				filename
         images(numpy.array):    images array
@@ -98,10 +98,6 @@ class BratsDatasetGenerator:
             if idx == 0:
                 self.img_shape = np.array(nib.load(self.filenames[idx][0]).get_fdata()).shape
                 self.label_shape = np.array(nib.load(self.filenames[idx][1]).get_fdata()).shape
-
-
-        with open(f'resources/BRATS_ds/config.json', 'w') as f:
-            json.dump(elem, f, indent=4)
 
     def print_info(self):
         """ Print the dataset information """
@@ -233,7 +229,7 @@ class BratsDatasetGenerator:
                 tries += 1
                 print(f"background_ratio: {bgrd_ratio}")
                 if bgrd_ratio < background_threshold:
-                    
+
                     X = np.copy(image[start_x: start_x + output_x,
                                       start_y: start_y + output_y,
                                       start_z: start_z + output_z, :])
@@ -249,38 +245,40 @@ class BratsDatasetGenerator:
         print("No valid sub volume")
 
 
-    def create_volume_sets(self, set_type):
+    def create_volume_sets(self):
+        train_dir_name = '../resources/BRATS_ds/Train'
+        val_dir_name = '../resources/BRATS_ds/Validation'
+        test_dir_name = '../resources/BRATS_ds/Test'
 
-        if set_type == "train":
-            dir_name = '../resources/BRATS_ds/Train'
-            id_lst = self.train_ids
-        elif set_type == "val":
-            dir_name = '../resources/BRATS_ds/Validation'
-            id_lst = self.val_ids
-        elif set_type == "val":
-            dir_name = '../resources/BRATS_ds/Test'
-            id_lst = self.test_ids
-        
-        if not os.path.exists(dir_name):
-            os.makedirs(dir_name)
+        dir_paths = [train_dir_name, val_dir_name, train_dir_name]
+        id_set_lst = [self.train_ids, self.val_ids, self.test_ids]
+        set_lens = [self.len_train, self.len_val, self.len_test]
 
-        print(dir_name)
-        for i in id_lst:
-            if i >= 100:
-                name = f"BRATS_{i}"
-            elif i >= 10:
-                name = f"BRATS_0{i}"
-            else:
-                name = f"BRATS_00{i}"
-            
-            print(name)
-            image, label, start_x, start_y, start_z = self.get_sub_volume(tf.constant(i))
-            name = name + f"_{start_x}_{start_y}_{start_z}.h5"
+        ds_dict = dict()
+        for dir_name, id_lst, s_len in zip(dir_paths, id_set_lst, set_lens):
+            id_file_dict = dict()
+            set_type = dir_name.split('/')[-1]
+            if not os.path.exists(dir_name):
+                os.makedirs(dir_name)
+            for i in id_lst:
+                if i >= 100:
+                    name = f"BRATS_{i}"
+                elif i >= 10:
+                    name = f"BRATS_0{i}"
+                else:
+                    name = f"BRATS_00{i}"
 
-            print(name)
-            path_name = os.path.join(dir_name, name)
-            print(path_name)
-            store_hdf5(path_name, image, label)
+                image, label, start_x, start_y, start_z = self.get_sub_volume(tf.constant(i))
+                name = name + f"_{start_x}_{start_y}_{start_z}.h5"
+                path_name = os.path.join(dir_name, name)
+                store_hdf5(path_name, image, label)
+                id_file_dict[i] = name
+
+            ds_dict[set_type] = {"len": s_len, "files":id_file_dict}
+
+        with open(f'resources/BRATS_ds/config.json', 'w') as f:
+            json.dump(ds_dict, f, indent=4)
+
 
 
     def get_dataset(self):
