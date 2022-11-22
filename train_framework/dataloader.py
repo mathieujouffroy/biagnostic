@@ -99,6 +99,7 @@ class BratsDatasetGenerator:
                 self.img_shape = np.array(nib.load(self.filenames[idx][0]).get_fdata()).shape
                 self.label_shape = np.array(nib.load(self.filenames[idx][1]).get_fdata()).shape
 
+
     def print_info(self):
         """ Print the dataset information """
 
@@ -250,7 +251,7 @@ class BratsDatasetGenerator:
         val_dir_name = '../resources/BRATS_ds/Validation'
         test_dir_name = '../resources/BRATS_ds/Test'
 
-        dir_paths = [train_dir_name, val_dir_name, train_dir_name]
+        dir_paths = [train_dir_name, val_dir_name, test_dir_name]
         id_set_lst = [self.train_ids, self.val_ids, self.test_ids]
         set_lens = [self.len_train, self.len_val, self.len_test]
 
@@ -276,7 +277,7 @@ class BratsDatasetGenerator:
 
             ds_dict[set_type] = {"len": s_len, "files":id_file_dict}
 
-        with open(f'resources/BRATS_ds/config.json', 'w') as f:
+        with open(f'../resources/BRATS_ds/config.json', 'w') as f:
             json.dump(ds_dict, f, indent=4)
 
 
