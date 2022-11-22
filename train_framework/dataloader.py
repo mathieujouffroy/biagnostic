@@ -25,8 +25,8 @@ def store_hdf5(name, images, masks):
 
     # Create a new HDF5 file
     file = h5py.File(name, "w")
-    print(f"Train Images:     {np.shape(images)}  -- dtype: {images.dtype}")
-    print(f"Train masks:    {np.shape(masks)} -- dtype: {masks.dtype}")
+    #print(f"Train Images:     {np.shape(images)}  -- dtype: {images.dtype}")
+    #print(f"Train masks:    {np.shape(masks)} -- dtype: {masks.dtype}")
 
     # Images are store as uint8 -> 0-255
     file.create_dataset("images", np.shape(images),h5py.h5t.STD_U8BE, data=images)
@@ -72,12 +72,12 @@ class BratsDatasetGenerator:
         self.release = experiment_data["release"]
         self.reference = experiment_data["reference"]
         self.tensorImageSize = experiment_data["tensorImageSize"]
-        #self.numFiles = experiment_data["numTraining"]
-        self.numFiles = 8
+        self.numFiles = experiment_data["numTraining"]
+        #self.numFiles = 20
 
         self.len_train = int(self.numFiles * self.train_val_split)
-        val_test_len = self.numFiles - self.len_train
-        self.len_val = int(val_test_len * self.val_test_split)
+        self.val_test_len = self.numFiles - self.len_train
+        self.len_val = int(self.val_test_len * self.val_test_split)
         self.len_test = self.numFiles - self.len_train - self.len_val
         self.train_ids = range(self.len_train)
         self.val_ids = range(self.len_train, self.len_train+self.len_val)
@@ -245,7 +245,7 @@ class BratsDatasetGenerator:
         return standardized_image
 
 
-    def get_sub_volume(self, idx, max_tries = 1000, background_threshold=0.965):
+    def get_sub_volume(self, idx, max_tries = 150, background_threshold=0.96):
         """
         Extract random sub-volume from original images.
 
@@ -275,25 +275,61 @@ class BratsDatasetGenerator:
             # randomly sample sub-volume by sampling the corner voxel (make sure to leave enough room for the output dimensions)
             start_x = (orig_x - output_x + 1)//2
             start_y = (orig_y - output_y + 1)//2
+            
             min_z = min(np.where(label != 0)[2])
             max_z = max(np.where(label != 0)[2])
-            start_z = np.random.randint(min_z+10, max_z-output_z-10)
-
+            
             min_label_x = min(np.where(label != 0)[0])
-            min_label_y = min(np.where(label != 0)[1])
             max_label_x = max(np.where(label != 0)[0])
+            
+            min_label_y = min(np.where(label != 0)[1])
             max_label_y = max(np.where(label != 0)[1])
 
+            len_z = max_z - min_z
+            
             if start_x > min_label_x - 8:
                 start_x = min_label_x - 8
             if start_y > min_label_y - 8:
                 start_y = min_label_y - 8
 
+            if (max_z - min_z <= 60):
+                if (max_z - min_z <= 32):
+                    start_z = min_z
+                else:
+                    start_z = np.random.randint(min_z, max_z-output_z)
+
+                #print(f"Start X: {start_x}, end_X: {start_x+output_x}, min_label_x: {min_label_x}, max_x: {max_label_x}")
+                #print(f"Start Y: {start_y}, end_Y: {start_y+output_y}, min_label_y: {min_label_y}, max_y: {max_label_y}")
+                #print(f"Start Z: {start_z}, end_Z: {start_z+output_z}, min_label_z: {min_z}, max_z: {max_z}, len_Z: {max_z-min_z}")
+                y = label[start_x: start_x + output_x,
+                          start_y: start_y + output_y,
+                          start_z: start_z + output_z]
+                
+                # One-hot encode the categories -> (output_x, output_y, output_z, n_classes)
+                y = to_categorical(y, num_classes = self.n_classes)
+                
+                X = np.copy(image[start_x: start_x + output_x,
+                                      start_y: start_y + output_y,
+                                      start_z: start_z + output_z, :])
+                # change dimension from (x_dim, y_dim, z_dim, n_channels)  to (n_channels, x_dim, y_dim, z_dim)
+                X = np.moveaxis(X,3,0)
+                # change dimension from (x_dim, y_dim, z_dim, n_classes) to (n_classes, x_dim, y_dim, z_dim)
+                y = np.moveaxis(y,3,0)
+                # take a subset of y that excludes the background class in the 'n_classes' dimension
+                y = y[1:, :, :, :]
+                X = self.standardize(X)
+                return X, y, start_x, start_y, start_z
+
+            else:
+                start_z = np.random.randint(min_z, max_z-output_z)
+
+            if len_z <= 75:
+                background_threshold=0.9865
+            elif len_z >= 75 and len_z <= 85:
+                background_threshold=0.969
+
 
             if (start_x + output_x > max_label_x) and (start_y+output_y > max_label_y):
-                print(f"Start X: {start_x}, min_label_x: {min_label_x}, max_x: {max_label_x}")
-                print(f"Start y: {start_y}, min_label_y: {min_label_y}, max_y: {max_label_y}")
-                print(f"Start z: {start_z}, min_label_z: {min_z}, max_z: {max(np.where(label != 0)[2])}")
 
                 y = label[start_x: start_x + output_x,
                           start_y: start_y + output_y,
@@ -307,6 +343,9 @@ class BratsDatasetGenerator:
 
                 tries += 1
                 print(f"background_ratio: {bgrd_ratio}")
+                #print(f"Start X: {start_x}, end_X: {start_x+output_x}, min_label_x: {min_label_x}, max_x: {max_label_x}")
+                #print(f"Start Y: {start_y}, end_Y: {start_y+output_y}, min_label_y: {min_label_y}, max_y: {max_label_y}")
+                #print(f"Start Z: {start_z}, end_Z: {start_z+output_z}, min_label_z: {min_z}, max_z: {max_z}, len_Z: {max_z-min_z}")
                 if bgrd_ratio < background_threshold:
 
                     X = np.copy(image[start_x: start_x + output_x,
@@ -319,9 +358,11 @@ class BratsDatasetGenerator:
                     # take a subset of y that excludes the background class in the 'n_classes' dimension
                     y = y[1:, :, :, :]
                     X = self.standardize(X)
+                    print("\n\n --------- BIIIM -------- \n\n")
                     return X, y, start_x, start_y, start_z
 
         print("No valid sub volume")
+        print(f"Start Z: {start_z}, end_Z: {start_z+output_z}, min_label_z: {min_z}, max_z: {max_z}, len_Z: {max_z-min_z}")
 
 
     def create_volume_sets(self):
@@ -337,6 +378,7 @@ class BratsDatasetGenerator:
         for dir_name, id_lst, s_len in zip(dir_paths, id_set_lst, set_lens):
             names = []
             set_type = dir_name.split('/')[-1]
+
             if not os.path.exists(dir_name):
                 os.makedirs(dir_name)
             for i in id_lst:
@@ -346,7 +388,7 @@ class BratsDatasetGenerator:
                 path_name = os.path.join(dir_name, name)
                 names.append(name)
                 store_hdf5(path_name, image, label)
-
+            print("\n -- SET DONE ---")
             ds_dict[set_type] = {"len": s_len, "files":names}
 
         with open('../resources/BRATS_ds/config.json', 'w') as f:
