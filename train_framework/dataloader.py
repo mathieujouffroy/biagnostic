@@ -225,7 +225,7 @@ class BratsDatasetGenerator:
         Standardize mean and standard deviation of each channel and z_dimension.
 
         Args:
-            image (np.array): input image, shape (num_channels, dim_x, dim_y, dim_z)
+            image (np.array): input image, shape (n_channels, dim_x, dim_y, dim_z)
 
         Returns:
             standardized_image (np.array): standardized version of input image
@@ -256,9 +256,9 @@ class BratsDatasetGenerator:
 
         returns:
             X (np.array): sample of original image of dimension
-                (num_channels, output_x, output_y, output_z)
+                (n_channels, output_x, output_y, output_z)
             y (np.array): labels which correspond to X, of dimension
-                (num_classes, output_x, output_y, output_z)
+                (n_classes, output_x, output_y, output_z)
         """
         orig_x, orig_y = self.img_shape[0], self.img_shape[1]
         output_x, output_y = self.crop_size[0], self.crop_size[1]
@@ -299,7 +299,7 @@ class BratsDatasetGenerator:
                           start_y: start_y + output_y,
                           start_z: start_z + output_z]
 
-                # One-hot encode the categories -> (output_x, output_y, output_z, num_classes)
+                # One-hot encode the categories -> (output_x, output_y, output_z, n_classes)
                 y = to_categorical(y, num_classes = self.n_classes)
 
                 # compute the background ratio
@@ -312,11 +312,11 @@ class BratsDatasetGenerator:
                     X = np.copy(image[start_x: start_x + output_x,
                                       start_y: start_y + output_y,
                                       start_z: start_z + output_z, :])
-                    # change dimension from (x_dim, y_dim, z_dim, num_channels)  to (num_channels, x_dim, y_dim, z_dim)
+                    # change dimension from (x_dim, y_dim, z_dim, n_channels)  to (n_channels, x_dim, y_dim, z_dim)
                     X = np.moveaxis(X,3,0)
-                    # change dimension from (x_dim, y_dim, z_dim, num_classes) to (num_classes, x_dim, y_dim, z_dim)
+                    # change dimension from (x_dim, y_dim, z_dim, n_classes) to (n_classes, x_dim, y_dim, z_dim)
                     y = np.moveaxis(y,3,0)
-                    # take a subset of y that excludes the background class in the 'num_classes' dimension
+                    # take a subset of y that excludes the background class in the 'n_classes' dimension
                     y = y[1:, :, :, :]
                     X = self.standardize(X)
                     return X, y, start_x, start_y, start_z
@@ -409,45 +409,39 @@ class BratsDatasetGenerator:
 
 
 
-class VolumeDataGenerator(keras.utils.Sequence):
+class VolumeDataGenerator(tf.keras.utils.Sequence):
     def __init__(self,
-                 sample_list,
+                 list_IDs,
                  base_dir,
                  batch_size=1,
                  shuffle=True,
                  dim=(160, 160, 32),
-                 num_channels=4,
-                 num_classes=3,
+                 n_channels=4,
+                 n_classes=3,
                  verbose=1):
         self.batch_size = batch_size
         self.shuffle = shuffle
         self.base_dir = base_dir
         self.dim = dim
-        self.num_channels = num_channels
-        self.num_classes = num_classes
+        self.n_channels = n_channels
+        self.n_classes = n_classes
         self.verbose = verbose
-        self.sample_list = sample_list
+        self.list_IDs = list_IDs
         self.on_epoch_end()
 
-    def on_epoch_end(self):
-        'Updates indexes after each epoch'
-        self.indexes = np.arange(len(self.sample_list))
-        print(f"indexes on ep end: {self.indexes}")
-        if self.shuffle == True:
-            np.random.shuffle(self.indexes)
-            print(f"indexes on ep end shuffle: {self.indexes}")
 
     def __len__(self):
         'Denotes the number of batches per epoch'
-        return int(np.floor(len(self.sample_list) / self.batch_size))
+        return int(np.floor(len(self.list_IDs) / self.batch_size))
+
 
     def __data_generation(self, list_IDs_temp):
         'Generates data containing batch_size samples'
 
         # Initialization
-        X = np.zeros((self.batch_size, self.num_channels, *self.dim),
+        X = np.zeros((self.batch_size, self.n_channels, *self.dim),
                      dtype=np.float64)
-        y = np.zeros((self.batch_size, self.num_classes, *self.dim),
+        y = np.zeros((self.batch_size, self.n_classes, *self.dim),
                      dtype=np.float64)
 
         # Generate data
@@ -465,6 +459,7 @@ class VolumeDataGenerator(keras.utils.Sequence):
 
         return X, y
 
+
     def __getitem__(self, index):
         'Generate one batch of data'
         # Generate indexes of the batch
@@ -473,8 +468,17 @@ class VolumeDataGenerator(keras.utils.Sequence):
 
         print(f"indexes get item: {indexes}")
         # Find list of IDs
-        sample_list_temp = [self.sample_list[k] for k in indexes]
+        list_IDs_temp = [self.list_IDs[k] for k in indexes]
         # Generate data
-        X, y = self.__data_generation(sample_list_temp)
+        X, y = self.__data_generation(list_IDs_temp)
 
         return X, y
+
+    
+    def on_epoch_end(self):
+        'Updates indexes after each epoch'
+        self.indexes = np.arange(len(self.list_IDs))
+        print(f"indexes on ep end: {self.indexes}")
+        if self.shuffle == True:
+            np.random.shuffle(self.indexes)
+            print(f"indexes on ep end shuffle: {self.indexes}")
