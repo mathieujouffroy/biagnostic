@@ -117,16 +117,18 @@ class BratsDatasetGenerator:
         print("="*40)
 
 
-    def load_one_example(self, idx):
+    def load_example(self, idx):
         # load the image and label file, get the image content and return a numpy array for each
         image = np.array(nib.load(self.filenames[idx][0]).get_fdata())
         label = np.array(nib.load(self.filenames[idx][1]).get_fdata())
         return image, label
 
+
     def load_one_example_nl(self, idx):
         niimg = nl.image.load_img(self.filenames[idx][0])
         nimask = nl.image.load_img(self.filenames[idx][1])
         return niimg, nimask
+
 
     def plot_nl(self, idx):
         niimg, nimask = self.load_one_example_nl(idx)
@@ -139,205 +141,10 @@ class BratsDatasetGenerator:
         plt.show()
 
 
-    def standardize(self, image):
-        """
-        Standardize mean and standard deviation of each channel and z_dimension.
-
-        Args:
-            image (np.array): input image, shape (num_channels, dim_x, dim_y, dim_z)
-
-        Returns:
-            standardized_image (np.array): standardized version of input image
-        """
-
-        standardized_image = np.zeros(image.shape)
-
-        # iterate over channels
-        for c in range(image.shape[0]):
-            # iterate over the `depth` dimension
-            for z in range(image.shape[3]):
-                image_slice = image[c, :, : ,z]
-                centered = image_slice - np.mean(image_slice)
-                centered_scaled = centered / np.std(centered)
-                standardized_image[c, :, :, z] = centered_scaled
-
-        return standardized_image
-
-
-    def get_sub_volume(self, idx, max_tries = 1000, background_threshold=0.965):
-        """
-        Extract random sub-volume from original images.
-
-        Args:
-            max_tries (int): maximum trials to do when sampling
-            background_threshold (float): limit on the fraction
-                of the sample which can be the background
-
-        returns:
-            X (np.array): sample of original image of dimension
-                (num_channels, output_x, output_y, output_z)
-            y (np.array): labels which correspond to X, of dimension
-                (num_classes, output_x, output_y, output_z)
-        """
-        orig_x, orig_y = self.img_shape[0], self.img_shape[1]
-        output_x, output_y = self.crop_size[0], self.crop_size[1]
-        output_z = 32
-
-        idx = idx.numpy()
-        imgFile = self.filenames[idx][0]
-        labFile = self.filenames[idx][1]
-        image = np.array(nib.load(imgFile).get_fdata())
-        label = np.array(nib.load(labFile).get_fdata())
-
-        X = None
-        y = None
-        tries = 0
-
-        while tries < max_tries:
-            # randomly sample sub-volume by sampling the corner voxel (make sure to leave enough room for the output dimensions)
-            start_x = (orig_y - output_y + 1)//2
-            start_y = (orig_y - output_y + 1)//2
-            min_z = min(np.where(label != 0)[2])
-            max_z = max(np.where(label != 0)[2])
-            start_z = np.random.randint(min_z+10, max_z-output_z-10)
-
-            min_label_x = min(np.where(label != 0)[0])
-            min_label_y = min(np.where(label != 0)[1])
-            max_label_x = max(np.where(label != 0)[0])
-            max_label_y = max(np.where(label != 0)[1])
-
-            if start_x > min_label_x - 8:
-                start_x = min_label_x - 8
-            if start_y > min_label_y - 8:
-                start_y = min_label_y - 8
-
-
-            if (start_x + output_x > max_label_x) and (start_y+output_y > max_label_y):
-                print(f"Start X: {start_x}, min_label_x: {min_label_x}, max_x: {max_label_x}")
-                print(f"Start y: {start_y}, min_label_y: {min_label_y}, max_y: {max_label_y}")
-                print(f"Start z: {start_z}, min_label_z: {min_z}, max_z: {max(np.where(label != 0)[2])}")
-
-                y = label[start_x: start_x + output_x,
-                          start_y: start_y + output_y,
-                          start_z: start_z + output_z]
-
-                # One-hot encode the categories -> (output_x, output_y, output_z, num_classes)
-                y = to_categorical(y, num_classes = self.n_classes)
-
-                # compute the background ratio
-                bgrd_ratio = np.sum(y[:,:,:,0]) / (output_x * output_y * output_z)
-
-                tries += 1
-                print(f"background_ratio: {bgrd_ratio}")
-                if bgrd_ratio < background_threshold:
-
-                    X = np.copy(image[start_x: start_x + output_x,
-                                      start_y: start_y + output_y,
-                                      start_z: start_z + output_z, :])
-                    # change dimension from (x_dim, y_dim, z_dim, num_channels)  to (num_channels, x_dim, y_dim, z_dim)
-                    X = np.moveaxis(X,3,0)
-                    # change dimension from (x_dim, y_dim, z_dim, num_classes) to (num_classes, x_dim, y_dim, z_dim)
-                    y = np.moveaxis(y,3,0)
-                    # take a subset of y that excludes the background class in the 'num_classes' dimension
-                    y = y[1:, :, :, :]
-                    X = self.standardize(X)
-                    return X, y, start_x, start_y, start_z
-
-        print("No valid sub volume")
-
-
-    def create_volume_sets(self):
-        train_dir_name = '../resources/BRATS_ds/Train'
-        val_dir_name = '../resources/BRATS_ds/Validation'
-        test_dir_name = '../resources/BRATS_ds/Test'
-
-        dir_paths = [train_dir_name, val_dir_name, test_dir_name]
-        id_set_lst = [self.train_ids, self.val_ids, self.test_ids]
-        set_lens = [self.len_train, self.len_val, self.len_test]
-
-        ds_dict = dict()
-        for dir_name, id_lst, s_len in zip(dir_paths, id_set_lst, set_lens):
-            id_file_dict = dict()
-            set_type = dir_name.split('/')[-1]
-            if not os.path.exists(dir_name):
-                os.makedirs(dir_name)
-            for i in id_lst:
-                if i >= 100:
-                    name = f"BRATS_{i}"
-                elif i >= 10:
-                    name = f"BRATS_0{i}"
-                else:
-                    name = f"BRATS_00{i}"
-
-                image, label, start_x, start_y, start_z = self.get_sub_volume(tf.constant(i))
-                name = name + f"_{start_x}_{start_y}_{start_z}.h5"
-                path_name = os.path.join(dir_name, name)
-                store_hdf5(path_name, image, label)
-                id_file_dict[i] = name
-
-            ds_dict[set_type] = {"len": s_len, "files":id_file_dict}
-
-        with open(f'../resources/BRATS_ds/config.json', 'w') as f:
-            json.dump(ds_dict, f, indent=4)
-
-
-
-    def get_dataset(self):
-        ds = tf.data.Dataset.range(self.numFiles).shuffle(self.numFiles, self.seed) # Shuffle the dataset
-
-        ds_train = ds.take(self.len_train)
-        ds_val_test = ds.skip(self.len_train)
-        ds_val = ds_val_test.take(int(self.val_test_len * self.val_test_split))
-        ds_test = ds_val_test.skip(int(self.val_test_len * self.val_test_split))
-
-
-        ds_train = ds_train.map(lambda x: tf.py_function(self.get_sub_volume, [x], [tf.float32, tf.float32]), num_parallel_calls=tf.data.experimental.AUTOTUNE)
-        ds_val = ds_val.map(lambda x: tf.py_function(self.get_sub_volume, [x], [tf.float32, tf.float32]), num_parallel_calls=tf.data.experimental.AUTOTUNE)
-        ds_test = ds_test.map(lambda x: tf.py_function(self.get_sub_volume, [x], [tf.float32, tf.float32]), num_parallel_calls=tf.data.experimental.AUTOTUNE)
-
-        ds_train = ds_train.batch(1)
-        ds_train = ds_train.prefetch(tf.data.experimental.AUTOTUNE)
-
-        ds_val = ds_val.batch(1)
-        ds_val = ds_val.prefetch(tf.data.experimental.AUTOTUNE)
-
-        ds_test = ds_test.batch(1)
-        ds_test = ds_test.prefetch(tf.data.experimental.AUTOTUNE)
-
-        return ds_train, ds_val, ds_test
-
-
-    def get_training_sets(self):
-        return self.ds_train, self.ds_val
-
-
-    def get_test_set(self):
-        return self.ds_test
-
-
-    def visualize_patch(self, image, mask, m_chan=0):
-        # Flair channel
-        image = image[0, :, :, :]
-        # enhanced tumor
-        mask = mask[m_chan, :, :, :]
-        for i in range(image.shape[-1]):
-            fig, ax = plt.subplots(1, 2, figsize=[6, 4], squeeze=False)
-            ax[0][0].imshow(image[:, :, i])#, cmap='Greys_r')
-            ax[0][0].set_yticks([])
-            ax[0][0].set_xticks([])
-            ax[0][0].set_title('MRI Flair Channel')
-            ax[0][1].imshow(mask[:, :, i])#, cmap='Greys_r')
-            ax[0][1].set_xticks([])
-            ax[0][1].set_yticks([])
-            ax[0][1].set_title('Edema Channel')
-            fig.subplots_adjust(wspace=0, hspace=0)
-            fig.suptitle(f'Inspection on depth {i}')
-
-
     def colorize_labels_image_flair(self, idx):
 
         # load the image and label file, get the image content and return a numpy array for each
-        image, label = self.load_one_example(idx)
+        image, label = self.load_example(idx)
 
         # one hot encode labels
         label = to_categorical(label, num_classes=4).astype(np.uint8)
@@ -411,3 +218,263 @@ class BratsDatasetGenerator:
                 ax[2][i].set_ylabel('Sagittal', fontsize=15)
 
         fig.subplots_adjust(wspace=0, hspace=0)
+
+
+    def standardize(self, image):
+        """
+        Standardize mean and standard deviation of each channel and z_dimension.
+
+        Args:
+            image (np.array): input image, shape (num_channels, dim_x, dim_y, dim_z)
+
+        Returns:
+            standardized_image (np.array): standardized version of input image
+        """
+
+        standardized_image = np.zeros(image.shape)
+
+        # iterate over channels
+        for c in range(image.shape[0]):
+            # iterate over the `depth` dimension
+            for z in range(image.shape[3]):
+                image_slice = image[c, :, : ,z]
+                centered = image_slice - np.mean(image_slice)
+                centered_scaled = centered / np.std(centered)
+                standardized_image[c, :, :, z] = centered_scaled
+
+        return standardized_image
+
+
+    def get_sub_volume(self, idx, max_tries = 1000, background_threshold=0.965):
+        """
+        Extract random sub-volume from original images.
+
+        Args:
+            max_tries (int): maximum trials to do when sampling
+            background_threshold (float): limit on the fraction
+                of the sample which can be the background
+
+        returns:
+            X (np.array): sample of original image of dimension
+                (num_channels, output_x, output_y, output_z)
+            y (np.array): labels which correspond to X, of dimension
+                (num_classes, output_x, output_y, output_z)
+        """
+        orig_x, orig_y = self.img_shape[0], self.img_shape[1]
+        output_x, output_y = self.crop_size[0], self.crop_size[1]
+        output_z = 32
+
+        idx = idx.numpy()
+        image, label = self.load_example(idx)
+
+        X = None
+        y = None
+        tries = 0
+
+        while tries < max_tries:
+            # randomly sample sub-volume by sampling the corner voxel (make sure to leave enough room for the output dimensions)
+            start_x = (orig_x - output_x + 1)//2
+            start_y = (orig_y - output_y + 1)//2
+            min_z = min(np.where(label != 0)[2])
+            max_z = max(np.where(label != 0)[2])
+            start_z = np.random.randint(min_z+10, max_z-output_z-10)
+
+            min_label_x = min(np.where(label != 0)[0])
+            min_label_y = min(np.where(label != 0)[1])
+            max_label_x = max(np.where(label != 0)[0])
+            max_label_y = max(np.where(label != 0)[1])
+
+            if start_x > min_label_x - 8:
+                start_x = min_label_x - 8
+            if start_y > min_label_y - 8:
+                start_y = min_label_y - 8
+
+
+            if (start_x + output_x > max_label_x) and (start_y+output_y > max_label_y):
+                print(f"Start X: {start_x}, min_label_x: {min_label_x}, max_x: {max_label_x}")
+                print(f"Start y: {start_y}, min_label_y: {min_label_y}, max_y: {max_label_y}")
+                print(f"Start z: {start_z}, min_label_z: {min_z}, max_z: {max(np.where(label != 0)[2])}")
+
+                y = label[start_x: start_x + output_x,
+                          start_y: start_y + output_y,
+                          start_z: start_z + output_z]
+
+                # One-hot encode the categories -> (output_x, output_y, output_z, num_classes)
+                y = to_categorical(y, num_classes = self.n_classes)
+
+                # compute the background ratio
+                bgrd_ratio = np.sum(y[:,:,:,0]) / (output_x * output_y * output_z)
+
+                tries += 1
+                print(f"background_ratio: {bgrd_ratio}")
+                if bgrd_ratio < background_threshold:
+
+                    X = np.copy(image[start_x: start_x + output_x,
+                                      start_y: start_y + output_y,
+                                      start_z: start_z + output_z, :])
+                    # change dimension from (x_dim, y_dim, z_dim, num_channels)  to (num_channels, x_dim, y_dim, z_dim)
+                    X = np.moveaxis(X,3,0)
+                    # change dimension from (x_dim, y_dim, z_dim, num_classes) to (num_classes, x_dim, y_dim, z_dim)
+                    y = np.moveaxis(y,3,0)
+                    # take a subset of y that excludes the background class in the 'num_classes' dimension
+                    y = y[1:, :, :, :]
+                    X = self.standardize(X)
+                    return X, y, start_x, start_y, start_z
+
+        print("No valid sub volume")
+
+
+    def create_volume_sets(self):
+        train_dir_name = '../resources/BRATS_ds/Train'
+        val_dir_name = '../resources/BRATS_ds/Validation'
+        test_dir_name = '../resources/BRATS_ds/Test'
+
+        dir_paths = [train_dir_name, val_dir_name, test_dir_name]
+        id_set_lst = [self.train_ids, self.val_ids, self.test_ids]
+        set_lens = [self.len_train, self.len_val, self.len_test]
+
+        ds_dict = dict()
+        for dir_name, id_lst, s_len in zip(dir_paths, id_set_lst, set_lens):
+            names = []
+            set_type = dir_name.split('/')[-1]
+            if not os.path.exists(dir_name):
+                os.makedirs(dir_name)
+            for i in id_lst:
+                name = f"BRATS_{i}"
+                image, label, start_x, start_y, start_z = self.get_sub_volume(tf.constant(i))
+                name = name + f"_{start_x}_{start_y}_{start_z}.h5"
+                path_name = os.path.join(dir_name, name)
+                names.append(name)
+                store_hdf5(path_name, image, label)
+
+            ds_dict[set_type] = {"len": s_len, "files":names}
+
+        with open('../resources/BRATS_ds/config.json', 'w') as f:
+            json.dump(ds_dict, f, indent=4)
+
+
+
+    def get_dataset(self):
+        ds = tf.data.Dataset.range(self.numFiles).shuffle(self.numFiles, self.seed) # Shuffle the dataset
+
+        ds_train = ds.take(self.len_train)
+        ds_val_test = ds.skip(self.len_train)
+        ds_val = ds_val_test.take(int(self.val_test_len * self.val_test_split))
+        ds_test = ds_val_test.skip(int(self.val_test_len * self.val_test_split))
+
+
+        ds_train = ds_train.map(lambda x: tf.py_function(self.get_sub_volume, [x], [tf.float32, tf.float32]), num_parallel_calls=tf.data.experimental.AUTOTUNE)
+        ds_val = ds_val.map(lambda x: tf.py_function(self.get_sub_volume, [x], [tf.float32, tf.float32]), num_parallel_calls=tf.data.experimental.AUTOTUNE)
+        ds_test = ds_test.map(lambda x: tf.py_function(self.get_sub_volume, [x], [tf.float32, tf.float32]), num_parallel_calls=tf.data.experimental.AUTOTUNE)
+
+        ds_train = ds_train.batch(1)
+        ds_train = ds_train.prefetch(tf.data.experimental.AUTOTUNE)
+
+        ds_val = ds_val.batch(1)
+        ds_val = ds_val.prefetch(tf.data.experimental.AUTOTUNE)
+
+        ds_test = ds_test.batch(1)
+        ds_test = ds_test.prefetch(tf.data.experimental.AUTOTUNE)
+
+        return ds_train, ds_val, ds_test
+
+
+    def get_training_sets(self):
+        return self.ds_train, self.ds_val
+
+
+    def get_test_set(self):
+        return self.ds_test
+
+
+    def visualize_patch(self, image, mask, m_chan=0):
+        # Flair channel
+        image = image[0, :, :, :]
+        # enhanced tumor
+        mask = mask[m_chan, :, :, :]
+        for i in range(image.shape[-1]):
+            fig, ax = plt.subplots(1, 2, figsize=[6, 4], squeeze=False)
+            ax[0][0].imshow(image[:, :, i])#, cmap='Greys_r')
+            ax[0][0].set_yticks([])
+            ax[0][0].set_xticks([])
+            ax[0][0].set_title('MRI Flair Channel')
+            ax[0][1].imshow(mask[:, :, i])#, cmap='Greys_r')
+            ax[0][1].set_xticks([])
+            ax[0][1].set_yticks([])
+            ax[0][1].set_title('Edema Channel')
+            fig.subplots_adjust(wspace=0, hspace=0)
+            fig.suptitle(f'Inspection on depth {i}')
+
+
+
+
+
+class VolumeDataGenerator(keras.utils.Sequence):
+    def __init__(self,
+                 sample_list,
+                 base_dir,
+                 batch_size=1,
+                 shuffle=True,
+                 dim=(160, 160, 32),
+                 num_channels=4,
+                 num_classes=3,
+                 verbose=1):
+        self.batch_size = batch_size
+        self.shuffle = shuffle
+        self.base_dir = base_dir
+        self.dim = dim
+        self.num_channels = num_channels
+        self.num_classes = num_classes
+        self.verbose = verbose
+        self.sample_list = sample_list
+        self.on_epoch_end()
+
+    def on_epoch_end(self):
+        'Updates indexes after each epoch'
+        self.indexes = np.arange(len(self.sample_list))
+        print(f"indexes on ep end: {self.indexes}")
+        if self.shuffle == True:
+            np.random.shuffle(self.indexes)
+            print(f"indexes on ep end shuffle: {self.indexes}")
+
+    def __len__(self):
+        'Denotes the number of batches per epoch'
+        return int(np.floor(len(self.sample_list) / self.batch_size))
+
+    def __data_generation(self, list_IDs_temp):
+        'Generates data containing batch_size samples'
+
+        # Initialization
+        X = np.zeros((self.batch_size, self.num_channels, *self.dim),
+                     dtype=np.float64)
+        y = np.zeros((self.batch_size, self.num_classes, *self.dim),
+                     dtype=np.float64)
+
+        # Generate data
+        for i, ID in enumerate(list_IDs_temp):
+            # Store sample
+            if self.verbose == 1:
+                print("Training on: %s" % self.base_dir + ID)
+            with h5py.File(self.base_dir + ID, 'r') as f:
+                X[i] = np.array(f.get("images"))
+                # remove the background class
+                y[i] = np.array(f.get("masks"))
+                print(y[i].shape)
+                #y[i] = np.moveaxis(y[i], 3, 0)[1:]
+                #y[i] = np.moveaxis(np.array(f.get("masks")), 3, 0)[1:]
+
+        return X, y
+
+    def __getitem__(self, index):
+        'Generate one batch of data'
+        # Generate indexes of the batch
+        indexes = self.indexes[
+                  index * self.batch_size: (index + 1) * self.batch_size]
+
+        print(f"indexes get item: {indexes}")
+        # Find list of IDs
+        sample_list_temp = [self.sample_list[k] for k in indexes]
+        # Generate data
+        X, y = self.__data_generation(sample_list_temp)
+
+        return X, y
