@@ -5,9 +5,34 @@ import numpy as np
 import nibabel as nib
 import nilearn as nl
 import tensorflow as tf
+import h5py
 import matplotlib.pyplot as plt
 import nilearn.plotting as nlplt
 from tensorflow.keras.utils import to_categorical
+
+def store_hdf5(name, images, masks):
+    """
+    Stores an array of images to HDF5.
+    
+    Args:
+        name(str):				filename
+        images(numpy.array):    images array
+        masks(numpy.array): 	segmentation mask array
+
+    Returns:
+        file(h5py.File): file containing
+    """
+
+    # Create a new HDF5 file
+    file = h5py.File(name, "w")
+    print(f"Train Images:     {np.shape(images)}  -- dtype: {images.dtype}")
+    print(f"Train masks:    {np.shape(masks)} -- dtype: {masks.dtype}")
+
+    # Images are store as uint8 -> 0-255
+    file.create_dataset("images", np.shape(images),h5py.h5t.STD_U8BE, data=images)
+    file.create_dataset("masks", np.shape(masks),h5py.h5t.STD_U8BE, data=masks)
+    file.close()
+    return file
 
 
 class BratsDatasetGenerator:
@@ -50,6 +75,14 @@ class BratsDatasetGenerator:
         #self.numFiles = experiment_data["numTraining"]
         self.numFiles = 8
 
+        self.len_train = int(self.numFiles * self.train_val_split)
+        self.val_test_len = self.numFiles - self.len_train
+        self.len_val = int(self.val_test_len * self.val_test_split)
+        self.len_test = self.numFiles - self.len_train - self.len_val
+        self.train_ids = range(self.len_train)
+        self.val_ids = range(self.len_train, self.len_train+self.len_val)
+        self.test_ids = range(self.len_train+self.len_val, self.len_train+self.len_val+self.len_test)
+
         self.filenames = {}
         for idx in range(self.numFiles):
 
@@ -66,6 +99,9 @@ class BratsDatasetGenerator:
                 self.img_shape = np.array(nib.load(self.filenames[idx][0]).get_fdata()).shape
                 self.label_shape = np.array(nib.load(self.filenames[idx][1]).get_fdata()).shape
 
+
+        with open(f'resources/BRATS_ds/config.json', 'w') as f:
+            json.dump(elem, f, indent=4)
 
     def print_info(self):
         """ Print the dataset information """
@@ -148,10 +184,6 @@ class BratsDatasetGenerator:
         """
         orig_x, orig_y = self.img_shape[0], self.img_shape[1]
         output_x, output_y = self.crop_size[0], self.crop_size[1]
-        print(orig_x)
-        print(orig_y)
-        print(output_x)
-        print(output_y)
         output_z = 32
 
         idx = idx.numpy()
@@ -166,24 +198,26 @@ class BratsDatasetGenerator:
 
         while tries < max_tries:
             # randomly sample sub-volume by sampling the corner voxel (make sure to leave enough room for the output dimensions)
-
-            #start_x = np.random.randint(20 , (orig_x - output_x + 1)//2)
-            #start_y = np.random.randint(30 , (orig_y - output_y + 1)//2)
             start_x = (orig_y - output_y + 1)//2
             start_y = (orig_y - output_y + 1)//2
             min_z = min(np.where(label != 0)[2])
             max_z = max(np.where(label != 0)[2])
-            start_z = np.random.randint(min_z+10, max_z-42)
+            start_z = np.random.randint(min_z+10, max_z-output_z-10)
 
             min_label_x = min(np.where(label != 0)[0])
             min_label_y = min(np.where(label != 0)[1])
             max_label_x = max(np.where(label != 0)[0])
             max_label_y = max(np.where(label != 0)[1])
-            print(f"Start X: {start_x}, min_label_x: {min_label_x}, max_x: {max_label_x}")
-            print(f"Start y: {start_y}, min_label_y: {min_label_y}, max_y: {max_label_y}")
+
+            if start_x > min_label_x - 8:
+                start_x = min_label_x - 8
+            if start_y > min_label_y - 8:
+                start_y = min_label_y - 8
 
 
-            if (start_x < min_label_x) and (start_y < min_label_y) and (start_x + output_x > max_label_x) and (start_y+output_y > max_label_y):
+            if (start_x + output_x > max_label_x) and (start_y+output_y > max_label_y):
+                print(f"Start X: {start_x}, min_label_x: {min_label_x}, max_x: {max_label_x}")
+                print(f"Start y: {start_y}, min_label_y: {min_label_y}, max_y: {max_label_y}")
                 print(f"Start z: {start_z}, min_label_z: {min_z}, max_z: {max(np.where(label != 0)[2])}")
 
                 y = label[start_x: start_x + output_x,
@@ -210,23 +244,52 @@ class BratsDatasetGenerator:
                     # take a subset of y that excludes the background class in the 'num_classes' dimension
                     y = y[1:, :, :, :]
                     X = self.standardize(X)
-                    return X, y
+                    return X, y, start_x, start_y, start_z
 
         print("No valid sub volume")
+
+
+    def create_volume_sets(self, set_type):
+
+        if set_type == "train":
+            dir_name = '../resources/BRATS_ds/Train'
+            id_lst = self.train_ids
+        elif set_type == "val":
+            dir_name = '../resources/BRATS_ds/Validation'
+            id_lst = self.val_ids
+        elif set_type == "val":
+            dir_name = '../resources/BRATS_ds/Test'
+            id_lst = self.test_ids
+        
+        if not os.path.exists(dir_name):
+            os.makedirs(dir_name)
+
+        print(dir_name)
+        for i in id_lst:
+            if i >= 100:
+                name = f"BRATS_{i}"
+            elif i >= 10:
+                name = f"BRATS_0{i}"
+            else:
+                name = f"BRATS_00{i}"
+            
+            print(name)
+            image, label, start_x, start_y, start_z = self.get_sub_volume(tf.constant(i))
+            name = name + f"_{start_x}_{start_y}_{start_z}.h5"
+
+            print(name)
+            path_name = os.path.join(dir_name, name)
+            print(path_name)
+            store_hdf5(path_name, image, label)
 
 
     def get_dataset(self):
         ds = tf.data.Dataset.range(self.numFiles).shuffle(self.numFiles, self.seed) # Shuffle the dataset
 
-        self.len_train = int(self.numFiles * self.train_val_split)
         ds_train = ds.take(self.len_train)
         ds_val_test = ds.skip(self.len_train)
-
-        numValTest = self.numFiles - self.len_train
-        self.len_val = int(numValTest * self.val_test_split)
-        self.len_test = self.numFiles - self.len_train - self.len_val
-        ds_val = ds_val_test.take(int(numValTest * self.val_test_split))
-        ds_test = ds_val_test.skip(int(numValTest * self.val_test_split))
+        ds_val = ds_val_test.take(int(self.val_test_len * self.val_test_split))
+        ds_test = ds_val_test.skip(int(self.val_test_len * self.val_test_split))
 
 
         ds_train = ds_train.map(lambda x: tf.py_function(self.get_sub_volume, [x], [tf.float32, tf.float32]), num_parallel_calls=tf.data.experimental.AUTOTUNE)
@@ -263,11 +326,11 @@ class BratsDatasetGenerator:
             ax[0][0].imshow(image[:, :, i])#, cmap='Greys_r')
             ax[0][0].set_yticks([])
             ax[0][0].set_xticks([])
-            ax[0][0].set_title('MRI Flair')
+            ax[0][0].set_title('MRI Flair Channel')
             ax[0][1].imshow(mask[:, :, i])#, cmap='Greys_r')
             ax[0][1].set_xticks([])
             ax[0][1].set_yticks([])
-            ax[0][1].set_title('Enhanced Tumor')
+            ax[0][1].set_title('Edema Channel')
             fig.subplots_adjust(wspace=0, hspace=0)
             fig.suptitle(f'Inspection on depth {i}')
 
