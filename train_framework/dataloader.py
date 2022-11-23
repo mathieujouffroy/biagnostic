@@ -8,6 +8,7 @@ import tensorflow as tf
 import h5py
 import matplotlib.pyplot as plt
 import nilearn.plotting as nlplt
+from utils import parse_args, set_seed
 from tensorflow.keras.utils import to_categorical
 
 def store_hdf5(name, images, masks):
@@ -73,7 +74,7 @@ class BratsDatasetGenerator:
         self.reference = experiment_data["reference"]
         self.tensorImageSize = experiment_data["tensorImageSize"]
         self.numFiles = experiment_data["numTraining"]
-        #self.numFiles = 20
+        self.numFiles = 16
 
         self.len_train = int(self.numFiles * self.train_val_split)
         self.val_test_len = self.numFiles - self.len_train
@@ -94,7 +95,8 @@ class BratsDatasetGenerator:
 
             self.filenames[idx] = [os.path.join(self.ds_path,img_path),
                                     os.path.join(self.ds_path,label_path)]
-
+            print(img_path)
+            print(self.filenames[idx])
             if idx == 0:
                 self.img_shape = np.array(nib.load(self.filenames[idx][0]).get_fdata()).shape
                 self.label_shape = np.array(nib.load(self.filenames[idx][1]).get_fdata()).shape
@@ -245,7 +247,7 @@ class BratsDatasetGenerator:
         return standardized_image
 
 
-    def get_sub_volume(self, idx, max_tries = 150, background_threshold=0.96):
+    def generate_sub_volume(self, idx, max_tries = 150, background_threshold=0.96):
         """
         Extract random sub-volume from original images.
 
@@ -261,8 +263,7 @@ class BratsDatasetGenerator:
                 (n_classes, output_x, output_y, output_z)
         """
         orig_x, orig_y = self.img_shape[0], self.img_shape[1]
-        output_x, output_y = self.crop_size[0], self.crop_size[1]
-        output_z = 32
+        output_x, output_y, output_z = self.crop_size[0], self.crop_size[1], self.crop_size[2]
 
         idx = idx.numpy()
         image, label = self.load_example(idx)
@@ -325,7 +326,7 @@ class BratsDatasetGenerator:
 
             if len_z <= 75:
                 background_threshold=0.9865
-            elif len_z >= 75 and len_z <= 85:
+            elif len_z > 75 and len_z <= 85:
                 background_threshold=0.969
 
 
@@ -376,24 +377,54 @@ class BratsDatasetGenerator:
 
         ds_dict = dict()
         for dir_name, id_lst, s_len in zip(dir_paths, id_set_lst, set_lens):
-            names = []
+            files_dict = dict()
             set_type = dir_name.split('/')[-1]
 
             if not os.path.exists(dir_name):
                 os.makedirs(dir_name)
             for i in id_lst:
                 name = f"BRATS_{i}"
-                image, label, start_x, start_y, start_z = self.get_sub_volume(tf.constant(i))
+                image, label, start_x, start_y, start_z = self.generate_sub_volume(tf.constant(i))
                 name = name + f"_{start_x}_{start_y}_{start_z}.h5"
                 path_name = os.path.join(dir_name, name)
-                names.append(name)
+                files_dict[i] = name
                 store_hdf5(path_name, image, label)
             print("\n -- SET DONE ---")
-            ds_dict[set_type] = {"len": s_len, "files":names}
+            ds_dict[set_type] = {"len": s_len, "files":files_dict}
 
         with open('../resources/BRATS_ds/config.json', 'w') as f:
             json.dump(ds_dict, f, indent=4)
 
+
+
+    def get_sub_volume(self, idx, config, set_type):
+        #f"{i}_BRATS"
+        files = config[set_type]['files']
+        cur_file = files[str(idx)][:-3]
+        start_x = int(cur_file.split('_')[-3])
+        start_y = int(cur_file.split('_')[-2])
+        start_z = int(cur_file.split('_')[-1])
+
+        img, label = self.load_example(idx)
+
+        img = img[start_x: start_x+self.crop_size[0],
+                start_y: start_y+self.crop_size[1],
+                start_z: start_z+self.crop_size[2], :]
+
+        mask = to_categorical(label, num_classes = self.n_classes)
+
+        mask = mask[start_x: start_x + self.crop_size[0],
+                    start_y: start_y + self.crop_size[1],
+                    start_z: start_z + self.crop_size[2]]
+
+        # change dimension from (x_dim, y_dim, z_dim, n_channels)  to (n_channels, x_dim, y_dim, z_dim)
+        img = np.moveaxis(img,3,0)
+        # change dimension from (x_dim, y_dim, z_dim, n_classes) to (n_classes, x_dim, y_dim, z_dim)
+        mask = np.moveaxis(mask,3,0)
+        # take a subset of y that excludes the background class in the 'n_classes' dimension
+        mask = mask[1:, :, :, :]
+        img = self.standardize(img)
+        return img, mask
 
 
     def get_dataset(self):
@@ -405,9 +436,9 @@ class BratsDatasetGenerator:
         ds_test = ds_val_test.skip(int(self.val_test_len * self.val_test_split))
 
 
-        ds_train = ds_train.map(lambda x: tf.py_function(self.get_sub_volume, [x], [tf.float32, tf.float32]), num_parallel_calls=tf.data.experimental.AUTOTUNE)
-        ds_val = ds_val.map(lambda x: tf.py_function(self.get_sub_volume, [x], [tf.float32, tf.float32]), num_parallel_calls=tf.data.experimental.AUTOTUNE)
-        ds_test = ds_test.map(lambda x: tf.py_function(self.get_sub_volume, [x], [tf.float32, tf.float32]), num_parallel_calls=tf.data.experimental.AUTOTUNE)
+        ds_train = ds_train.map(lambda x: tf.py_function(self.generate_sub_volume, [x], [tf.float32, tf.float32]), num_parallel_calls=tf.data.experimental.AUTOTUNE)
+        ds_val = ds_val.map(lambda x: tf.py_function(self.generate_sub_volume, [x], [tf.float32, tf.float32]), num_parallel_calls=tf.data.experimental.AUTOTUNE)
+        ds_test = ds_test.map(lambda x: tf.py_function(self.generate_sub_volume, [x], [tf.float32, tf.float32]), num_parallel_calls=tf.data.experimental.AUTOTUNE)
 
         ds_train = ds_train.batch(1)
         ds_train = ds_train.prefetch(tf.data.experimental.AUTOTUNE)
@@ -524,3 +555,20 @@ class VolumeDataGenerator(tf.keras.utils.Sequence):
         if self.shuffle == True:
             np.random.shuffle(self.indexes)
             print(f"indexes on ep end shuffle: {self.indexes}")
+
+
+def main():
+
+    args = parse_args()
+    set_seed(args)
+
+    brats_generator = BratsDatasetGenerator(args)
+    brats_generator.print_info()
+    args.class_names = [v for k, v in brats_generator.output_channels().items()]
+    print(f"  Class names = {args.class_names}")
+
+    brats_generator.create_volume_sets()
+
+
+if __name__ == "__main__":
+    main()
