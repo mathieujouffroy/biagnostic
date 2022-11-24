@@ -4,7 +4,7 @@ from tensorflow.keras import backend as K
 
 def precision(y_true, y_pred):
     """
-    
+
 
     Args:
         y_true (Tensorflow tensor): tensor of ground truth values for all classes.
@@ -12,7 +12,7 @@ def precision(y_true, y_pred):
         y_pred (Tensorflow tensor): tensor of soft predictions for all classes.
                                     shape: (num_classes, x_dim, y_dim, z_dim)
     Returns:
-        
+
     """
     true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
     predicted_positives = K.sum(K.round(K.clip(y_pred, 0, 1)))
@@ -22,7 +22,7 @@ def precision(y_true, y_pred):
 
 def sensitivity(y_true, y_pred):
     """
-    
+
 
     Args:
         y_true (Tensorflow tensor): tensor of ground truth values for all classes.
@@ -30,7 +30,7 @@ def sensitivity(y_true, y_pred):
         y_pred (Tensorflow tensor): tensor of soft predictions for all classes.
                                     shape: (num_classes, x_dim, y_dim, z_dim)
     Returns:
-        
+
     """
     true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
     possible_positives = K.sum(K.round(K.clip(y_true, 0, 1)))
@@ -39,7 +39,7 @@ def sensitivity(y_true, y_pred):
 
 def specificity(y_true, y_pred):
     """
-    
+
 
     Args:
         y_true (Tensorflow tensor): tensor of ground truth values for all classes.
@@ -47,7 +47,7 @@ def specificity(y_true, y_pred):
         y_pred (Tensorflow tensor): tensor of soft predictions for all classes.
                                     shape: (num_classes, x_dim, y_dim, z_dim)
     Returns:
-        
+
     """
 
     true_negatives = K.sum(K.round(K.clip((1-y_true) * (1-y_pred), 0, 1)))
@@ -108,6 +108,32 @@ def soft_dice_coefficient(y_true, y_pred, axis=(1, 2, 3), epsilon=0.0001):
     return dice_coeff
 
 
+def iou(y_true, y_pred, axis=(1, 2, 3), epsilon=0.0001):
+    """
+    Compute mean Intersection Over Union over all abnormality classes.
+
+    Args:
+        y_true (Tensorflow tensor): tensor of ground truth values for all classes.
+                                    shape: (num_classes, x_dim, y_dim, z_dim)
+        y_pred (Tensorflow tensor): tensor of predictions for all classes.
+                                    shape: (num_classes, x_dim, y_dim, z_dim)
+        axis (tuple): spatial axes to sum over when computing numerator and
+                      denominator of Intersection Over Union.
+                      Hint: pass this as the 'axis' argument to the K.sum
+                            and K.mean functions.
+        epsilon (float): small constant add to numerator and denominator to
+                        avoid divide by 0 errors.
+    Returns:
+        iou (float): computed value of mea IOU.
+    """
+
+    y_pred = K.round(y_pred)
+    intersection = K.sum(y_true * y_pred, axis=axis)
+    union = K.sum(y_true, axis = axis) + K.sum(y_pred, axis = axis)
+    iou = (intersection + epsilon) / (union + epsilon)
+    return iou
+
+
 def soft_dice_loss(y_true, y_pred, axis=(1, 2, 3), epsilon=0.0001):
     """
     Compute mean soft dice loss over all abnormality classes.
@@ -131,7 +157,7 @@ def soft_dice_loss(y_true, y_pred, axis=(1, 2, 3), epsilon=0.0001):
     union = K.sum(y_true, axis = axis) + K.sum(y_pred, axis = axis)
     dice_coeff = K.mean((2. * intersection + epsilon) / (union + epsilon))
     dice_loss = 1 - dice_coeff
-    
+
     return dice_loss
 
 
