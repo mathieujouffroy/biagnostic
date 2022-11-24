@@ -227,10 +227,10 @@ class BratsDatasetGenerator:
                 y = y[1:, :, :, :]
                 X = self.standardize(X)
                 print(y.shape)
+                print("\n --------------------")
                 return X, y, start_x, start_y, start_z
 
-            else:
-                start_z = np.random.randint(min_z, max_z-output_z)
+            start_z = np.random.randint(min_z, max_z-output_z)
 
             if len_z <= 75:
                 background_threshold=0.9865
@@ -262,46 +262,39 @@ class BratsDatasetGenerator:
                     X = np.moveaxis(X,3,0)
                     # (x_dim, y_dim, z_dim, n_classes) -> (n_classes, x_dim, y_dim, z_dim)
                     y = np.moveaxis(y,3,0)
-                    # take a subset of y that excludes the background class in the 'n_classes' dimension
+                    # exclude background class in the 'n_classes' dimension
                     y = y[1:, :, :, :]
                     X = self.standardize(X)
                     print(y.shape)
-                    print("\n -------------------- \n")
+                    print("\n --------------------")
                     return X, y, start_x, start_y, start_z
 
         print("No valid sub volume")
         print(f"Start Z: {start_z}, end_Z: {start_z+output_z}, min_z: {min_z}, max_z: {max_z}, len_Z: {max_z-min_z}")
 
 
-    def create_volume_sets(self):
-        train_dir_name = f'{self.ds_path}/BRATS_ds/Train'
-        val_dir_name = f'{self.ds_path}/BRATS_ds/Validation'
-        test_dir_name = f'{self.ds_path}/BRATS_ds/Test'
+    def create_volume_sets(self, set_type):
 
-        dir_paths = [train_dir_name, val_dir_name, test_dir_name]
-        id_set_lst = [self.train_ids, self.val_ids, self.test_ids]
-        set_lens = [self.len_train, self.len_val, self.len_test]
+        dir_name = f'{self.ds_path}/BRATS_ds/{set_type}'
+        if set_type == "train":
+            id_lst = self.train_ids
+        elif set_type == "valid":
+            id_lst = self.val_ids
+        else:
+            id_lst = self.test_ids
 
-        ds_dict = dict()
-        for dir_name, id_lst, s_len in zip(dir_paths, id_set_lst, set_lens):
-            files_dict = dict()
-            set_type = dir_name.split('/')[-1]
+        files_dict = dict()
+        if not os.path.exists(dir_name):
+            os.makedirs(dir_name)
+        for i in id_lst:
+            name = f"BRATS_{i}"
+            image, label, start_x, start_y, start_z = self.generate_sub_volume(i)
+            name = name + f"_{start_x}_{start_y}_{start_z}.h5"
+            path_name = os.path.join(dir_name, name)
+            files_dict[i] = name
+            store_hdf5(path_name, image, label)
 
-            if not os.path.exists(dir_name):
-                os.makedirs(dir_name)
-            for i in id_lst:
-                name = f"BRATS_{i}"
-                #image, label, start_x, start_y, start_z = self.generate_sub_volume(tf.constant(i))
-                image, label, start_x, start_y, start_z = self.generate_sub_volume(i)
-                name = name + f"_{start_x}_{start_y}_{start_z}.h5"
-                path_name = os.path.join(dir_name, name)
-                files_dict[i] = name
-                store_hdf5(path_name, image, label)
-            print("\n -- SET DONE ---")
-            ds_dict[set_type] = {"len": s_len, "files":files_dict}
-
-        with open(f'{self.ds_path}/split_config.json', 'w') as f:
-            json.dump(ds_dict, f, indent=4)
+        return files_dict
 
 
     def get_sub_volume(self, idx, config, set_type):
@@ -470,7 +463,7 @@ class BratsDatasetGenerator:
         model_label_reformatted = np.zeros((240, 240, 155, 4))
 
         model_label_reformatted = np.eye(self.n_classes, dtype="uint8")(y.astype(int))
-            
+
 
         model_label_reformatted[:, :, :, 1:4] = model_label
 
@@ -640,7 +633,15 @@ def main():
     args.class_names = [v for k, v in brats_generator.output_channels.items()]
     print(f"  Class names = {args.class_names}")
 
-    brats_generator.create_volume_sets()
+    ds_dict = dict()
+    len_lst = [brats_generator.len_train, brats_generator.len_val, brats_generator.len_test]
+    for ds_set, set_len in zip(["train", "val", "test"], len_lst):
+        files_dict = brats_generator.create_volume_sets(ds_set)
+        print("\n--set done --")
+        ds_dict[ds_set] = {"len": set_len, "files":files_dict}
+
+    with open(f'{brats_generator.ds_path}/split_config.json', 'w') as f:
+        json.dump(ds_dict, f, indent=4)
 
 
 if __name__ == "__main__":

@@ -152,7 +152,9 @@ def soft_dice_loss(y_true, y_pred, axis=(1, 2, 3), epsilon=0.0001):
     Returns:
         dice_loss (float): computed value of dice loss.
     """
-
+    print("\n-- loss --")
+    print(y_true.shape)
+    print(y_pred.shape)
     intersection = K.sum(y_true * y_pred, axis=axis)
     union = K.sum(y_true, axis = axis) + K.sum(y_pred, axis = axis)
     dice_coeff = K.mean((2. * intersection + epsilon) / (union + epsilon))
