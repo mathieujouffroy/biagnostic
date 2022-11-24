@@ -226,8 +226,8 @@ class BratsDatasetGenerator:
                 # take a subset of y that excludes the background class in the 'n_classes' dimension
                 y = y[1:, :, :, :]
                 X = self.standardize(X)
-                print(y.shape)
-                print("\n --------------------")
+                #print(y.shape)
+                #print("\n --------------------")
                 return X, y, start_x, start_y, start_z
 
             start_z = np.random.randint(min_z, max_z-output_z)
@@ -250,7 +250,7 @@ class BratsDatasetGenerator:
                 bgrd_ratio = np.sum(y[:,:,:,0]) / (output_x * output_y * output_z)
 
                 tries += 1
-                print(f"background_ratio: {bgrd_ratio}")
+                #print(f"background_ratio: {bgrd_ratio}")
                 if bgrd_ratio < background_threshold:
                     #print(f"Start X: {start_x}, end_X: {start_x+output_x}, min_x: {min_x}, max_x: {max_x}")
                     #print(f"Start Y: {start_y}, end_Y: {start_y+output_y}, min_y: {min_y}, max_y: {max_y}")
@@ -266,7 +266,7 @@ class BratsDatasetGenerator:
                     y = y[1:, :, :, :]
                     X = self.standardize(X)
                     print(y.shape)
-                    print("\n --------------------")
+                    #print("\n --------------------")
                     return X, y, start_x, start_y, start_z
 
         print("No valid sub volume")
