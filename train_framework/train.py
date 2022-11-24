@@ -4,7 +4,7 @@ import wandb
 import datetime
 import json
 import math
-from metrics import *
+from tf_metrics import *
 from dataloader import BratsDatasetGenerator, TFVolumeDataGenerator
 from model import unet_model_3d
 from utils import set_seed, set_wandb_project_run, parse_args
