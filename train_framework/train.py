@@ -2,14 +2,14 @@ import os
 import tensorflow as tf
 import wandb
 import datetime
-import logging
+import json
 import math
 from metrics import *
-from dataloader import BratsDatasetGenerator
+from dataloader import BratsDatasetGenerator, TFVolumeDataGenerator
 from model import unet_model_3d
 from utils import set_seed, set_wandb_project_run, parse_args
 
-def train_model(args, m_name, model, train_set, valid_set):
+def tf_train_model(args, m_name, model, train_set, valid_set):
     """
     Compiles and fits the model.
     Parameters:
@@ -79,13 +79,12 @@ def main():
     args.class_names = [v for k, v in brats_generator.output_channels().items()]
     print(f"  Class names = {args.class_names}")
 
-    train_set, val_set = brats_generator.get_training_sets()
+    with open('../resources/BRATS_ds/config.json', "r")  as f:
+        config = json.load(f)
 
-    for elem, label in train_set.take(1):
-        img = elem[0].numpy()
-        print(f"batch shape is {elem.shape}, type is {elem.dtype}")
-        print(f"image shape is {img.shape}, type: {img.dtype}")
-        print(f"label shape is {label.shape} type: {label.dtype}")
+    # Get generators for training and validation sets
+    train_generator = TFVolumeDataGenerator(config["Train"]['files'], "../resources/BRATS_ds/Train/", batch_size=3, dim=(160, 160, 32), verbose=1)
+    valid_generator = TFVolumeDataGenerator(config["Validation"]['files'], "../resources/BRATS_ds/Validation/", batch_size=3, dim=(160, 160, 32), verbose=1)
 
     # Set training parameters
     args.nbr_train_batch = int(math.ceil(args.len_train / args.batch_size))
@@ -94,7 +93,7 @@ def main():
 
     print(f"  ---- Training Parameters ----\n\n{args}\n\n")
     print(f"  ***** Running training *****")
-    print(f"  train_set = {train_set}")
+    print(f"  train_set = {train_generator}")
     print(f"  Nbr of class = {args.n_classes}")
     print(f"  Nbr training examples = {args.len_train}")
     print(f"  Nbr validation examples = {args.len_valid}")
@@ -111,7 +110,7 @@ def main():
     if args.wandb:
         set_wandb_project_run(args, m_name)
 
-    trained_model = train_model(args, m_name, model, train_set, val_set)
+    trained_model = tf_train_model(args, m_name, model, train_generator, valid_generator)
 
     if args.evaluate_during_training:
         ds_test = brats_generator.get_test_set()

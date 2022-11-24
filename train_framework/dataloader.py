@@ -9,7 +9,7 @@ import h5py
 import matplotlib.pyplot as plt
 import nilearn.plotting as nlplt
 from utils import parse_args, set_seed
-from tensorflow.keras.utils import to_categorical
+#from tensorflow.keras.utils import to_categorical
 
 def store_hdf5(name, images, masks):
     """
@@ -48,7 +48,7 @@ class BratsDatasetGenerator:
         self.n_classes = args.n_classes
         self.seed = args.seed
         self.create_file_list()
-        self.ds_train, self.ds_val, self.ds_test = self.get_dataset()
+        #self.ds_train, self.ds_val, self.ds_test = self.get_dataset()
 
 
     def create_file_list(self):
@@ -95,8 +95,7 @@ class BratsDatasetGenerator:
 
             self.filenames[idx] = [os.path.join(self.ds_path,img_path),
                                     os.path.join(self.ds_path,label_path)]
-            print(img_path)
-            print(self.filenames[idx])
+
             if idx == 0:
                 self.img_shape = np.array(nib.load(self.filenames[idx][0]).get_fdata()).shape
                 self.label_shape = np.array(nib.load(self.filenames[idx][1]).get_fdata()).shape
@@ -132,6 +131,209 @@ class BratsDatasetGenerator:
         return niimg, nimask
 
 
+    def standardize(self, image):
+        """
+        Standardize mean and standard deviation of each channel and z_dimension.
+
+        Args:
+            image (np.array): input image, shape (n_channels, dim_x, dim_y, dim_z)
+
+        Returns:
+            standardized_image (np.array): standardized version of input image
+        """
+
+        standardized_image = np.zeros(image.shape)
+
+        # iterate over channels
+        for c in range(image.shape[0]):
+            # iterate over the `depth` dimension
+            for z in range(image.shape[3]):
+                image_slice = image[c, :, : ,z]
+                centered = image_slice - np.mean(image_slice)
+                centered_scaled = centered / np.std(centered)
+                standardized_image[c, :, :, z] = centered_scaled
+
+        return standardized_image
+
+
+    def generate_sub_volume(self, idx, max_tries = 150, background_threshold=0.96):
+        """
+        Extract random sub-volume from original images.
+
+        Args:
+            max_tries (int): maximum trials to do when sampling
+            background_threshold (float): limit on the fraction
+                of the sample which can be the background
+
+        returns:
+            X (np.array): sample of original image of dimension
+                (n_channels, output_x, output_y, output_z)
+            y (np.array): labels which correspond to X, of dimension
+                (n_classes, output_x, output_y, output_z)
+        """
+        orig_x, orig_y = self.img_shape[0], self.img_shape[1]
+        output_x, output_y, output_z = self.crop_size[0], self.crop_size[1], self.crop_size[2]
+
+        #idx = idx.numpy()
+        image, label = self.load_example(idx)
+        X = None
+        y = None
+        tries = 0
+
+        while tries < max_tries:
+            # randomly sample sub-volume by sampling the corner voxel
+            # (make sure to leave enough room for the output dimensions)
+            min_x = min(np.where(label != 0)[0])
+            max_x = max(np.where(label != 0)[0])
+            min_y = min(np.where(label != 0)[1])
+            max_y = max(np.where(label != 0)[1])
+            min_z = min(np.where(label != 0)[2])
+            max_z = max(np.where(label != 0)[2])
+            len_z = max_z - min_z
+
+            start_x = (orig_x - output_x + 1)//2
+            start_y = (orig_y - output_y + 1)//2
+
+            if start_x > min_x - 8:
+                start_x = min_x - 8
+            if start_y > min_y - 8:
+                start_y = min_y - 8
+
+            if (max_z - min_z <= 60):
+                if (max_z - min_z <= 32):
+                    start_z = min_z
+                else:
+                    start_z = np.random.randint(min_z, max_z-output_z)
+
+                #print(f"Start X: {start_x}, end_X: {start_x+output_x}, min_x: {min_x}, max_x: {max_x}")
+                #print(f"Start Y: {start_y}, end_Y: {start_y+output_y}, min_y: {min_y}, max_y: {max_y}")
+                #print(f"Start Z: {start_z}, end_Z: {start_z+output_z}, min_z: {min_z}, max_z: {max_z}, len_Z: {max_z-min_z}")
+                y = label[start_x: start_x + output_x,
+                          start_y: start_y + output_y,
+                          start_z: start_z + output_z]
+
+                # One-hot encode the categories -> (output_x, output_y, output_z, n_classes)
+                y = np.eye(self.n_classes, dtype='uint8')[y.astype(int)]
+
+
+                X = np.copy(image[start_x: start_x + output_x,
+                                      start_y: start_y + output_y,
+                                      start_z: start_z + output_z, :])
+                # (x_dim, y_dim, z_dim, n_channels) -> (n_channels, x_dim, y_dim, z_dim)
+                X = np.moveaxis(X,3,0)
+                # (x_dim, y_dim, z_dim, n_classes) -> (n_classes, x_dim, y_dim, z_dim)
+                y = np.moveaxis(y,3,0)
+                # take a subset of y that excludes the background class in the 'n_classes' dimension
+                y = y[1:, :, :, :]
+                X = self.standardize(X)
+                print(y.shape)
+                return X, y, start_x, start_y, start_z
+
+            else:
+                start_z = np.random.randint(min_z, max_z-output_z)
+
+            if len_z <= 75:
+                background_threshold=0.9865
+            elif len_z > 75 and len_z <= 85:
+                background_threshold=0.969
+
+            if (start_x + output_x > max_x) and (start_y+output_y > max_y):
+
+                y = label[start_x: start_x + output_x,
+                          start_y: start_y + output_y,
+                          start_z: start_z + output_z]
+
+                # One-hot encode the categories -> (output_x, output_y, output_z, n_classes)
+                y = np.eye(self.n_classes, dtype='uint8')[y.astype(int)]
+
+                # compute the background ratio
+                bgrd_ratio = np.sum(y[:,:,:,0]) / (output_x * output_y * output_z)
+
+                tries += 1
+                print(f"background_ratio: {bgrd_ratio}")
+                if bgrd_ratio < background_threshold:
+                    #print(f"Start X: {start_x}, end_X: {start_x+output_x}, min_x: {min_x}, max_x: {max_x}")
+                    #print(f"Start Y: {start_y}, end_Y: {start_y+output_y}, min_y: {min_y}, max_y: {max_y}")
+                    #print(f"Start Z: {start_z}, end_Z: {start_z+output_z}, min_z: {min_z}, max_z: {max_z}, len_Z: {max_z-min_z}")
+                    X = np.copy(image[start_x: start_x + output_x,
+                                      start_y: start_y + output_y,
+                                      start_z: start_z + output_z, :])
+                    # (x_dim, y_dim, z_dim, n_channels) -> (n_channels, x_dim, y_dim, z_dim)
+                    X = np.moveaxis(X,3,0)
+                    # (x_dim, y_dim, z_dim, n_classes) -> (n_classes, x_dim, y_dim, z_dim)
+                    y = np.moveaxis(y,3,0)
+                    # take a subset of y that excludes the background class in the 'n_classes' dimension
+                    y = y[1:, :, :, :]
+                    X = self.standardize(X)
+                    print(y.shape)
+                    print("\n -------------------- \n")
+                    return X, y, start_x, start_y, start_z
+
+        print("No valid sub volume")
+        print(f"Start Z: {start_z}, end_Z: {start_z+output_z}, min_z: {min_z}, max_z: {max_z}, len_Z: {max_z-min_z}")
+
+
+    def create_volume_sets(self):
+        train_dir_name = '../resources/BRATS_ds/Train'
+        val_dir_name = '../resources/BRATS_ds/Validation'
+        test_dir_name = '../resources/BRATS_ds/Test'
+
+        dir_paths = [train_dir_name, val_dir_name, test_dir_name]
+        id_set_lst = [self.train_ids, self.val_ids, self.test_ids]
+        set_lens = [self.len_train, self.len_val, self.len_test]
+
+        ds_dict = dict()
+        for dir_name, id_lst, s_len in zip(dir_paths, id_set_lst, set_lens):
+            files_dict = dict()
+            set_type = dir_name.split('/')[-1]
+
+            if not os.path.exists(dir_name):
+                os.makedirs(dir_name)
+            for i in id_lst:
+                name = f"BRATS_{i}"
+                #image, label, start_x, start_y, start_z = self.generate_sub_volume(tf.constant(i))
+                image, label, start_x, start_y, start_z = self.generate_sub_volume(i)
+                name = name + f"_{start_x}_{start_y}_{start_z}.h5"
+                path_name = os.path.join(dir_name, name)
+                files_dict[i] = name
+                store_hdf5(path_name, image, label)
+            print("\n -- SET DONE ---")
+            ds_dict[set_type] = {"len": s_len, "files":files_dict}
+
+        with open('../resources/BRATS_ds/config.json', 'w') as f:
+            json.dump(ds_dict, f, indent=4)
+
+
+    def get_sub_volume(self, idx, config, set_type):
+        files = config[set_type]['files']
+        cur_file = files[str(idx)][:-3]
+        start_x = int(cur_file.split('_')[-3])
+        start_y = int(cur_file.split('_')[-2])
+        start_z = int(cur_file.split('_')[-1])
+
+        img, label = self.load_example(idx)
+
+        img = img[start_x: start_x+self.crop_size[0],
+                start_y: start_y+self.crop_size[1],
+                start_z: start_z+self.crop_size[2], :]
+
+        mask = np.eye(self.n_classes, dtype='uint8')[label.astype(int)]
+        #to_categorical(label, num_classes = self.n_classes)
+
+        mask = mask[start_x: start_x + self.crop_size[0],
+                    start_y: start_y + self.crop_size[1],
+                    start_z: start_z + self.crop_size[2]]
+
+        # change dimension from (x_dim, y_dim, z_dim, n_channels)  to (n_channels, x_dim, y_dim, z_dim)
+        img = np.moveaxis(img,3,0)
+        # change dimension from (x_dim, y_dim, z_dim, n_classes) to (n_classes, x_dim, y_dim, z_dim)
+        mask = np.moveaxis(mask,3,0)
+        # take a subset of y that excludes the background class in the 'n_classes' dimension
+        mask = mask[1:, :, :, :]
+        img = self.standardize(img)
+        return img, mask
+
+
     def plot_nl(self, idx):
         niimg, nimask = self.load_example_nl(idx)
         niimg = niimg.slicer[:, :, :, 0]
@@ -143,9 +345,23 @@ class BratsDatasetGenerator:
         plt.show()
 
 
+    def plot_example(self, idx, d_chan):
+        img, label = self.load_example(idx)
+        img = img[:, :, :, 0]
+        plt.figure("image", (18, 6))
+        plt.subplot(1, 2, 1)
+        plt.title("image")
+        plt.imshow(img[:, :, d_chan], cmap="gray")
+        plt.subplot(1, 2, 2)
+        plt.title("label")
+        plt.imshow(label[:, :, d_chan])
+        plt.show()
+
+
     def colorize_labels_image_flair(self, idx):
         image, label = self.load_example(idx)
-        label = to_categorical(label, num_classes=4).astype(np.uint8)
+        #label = to_categorical(label, num_classes=4).astype(np.uint8)
+        label = np.eye(self.n_classes, dtype="uint8")[label.astype(int)]
         # Normalize Flair channel
         image = cv2.normalize(image[:, :, :, 0], None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_32F).astype(np.uint8)
         un, cn = np.unique(image, return_counts=True)
@@ -216,251 +432,106 @@ class BratsDatasetGenerator:
         fig.subplots_adjust(wspace=0, hspace=0)
 
 
-    def standardize(self, image):
-        """
-        Standardize mean and standard deviation of each channel and z_dimension.
-
-        Args:
-            image (np.array): input image, shape (n_channels, dim_x, dim_y, dim_z)
-
-        Returns:
-            standardized_image (np.array): standardized version of input image
-        """
-
-        standardized_image = np.zeros(image.shape)
-
-        # iterate over channels
-        for c in range(image.shape[0]):
-            # iterate over the `depth` dimension
-            for z in range(image.shape[3]):
-                image_slice = image[c, :, : ,z]
-                centered = image_slice - np.mean(image_slice)
-                centered_scaled = centered / np.std(centered)
-                standardized_image[c, :, :, z] = centered_scaled
-
-        return standardized_image
-
-
-    def generate_sub_volume(self, idx, max_tries = 150, background_threshold=0.96):
-        """
-        Extract random sub-volume from original images.
-
-        Args:
-            max_tries (int): maximum trials to do when sampling
-            background_threshold (float): limit on the fraction
-                of the sample which can be the background
-
-        returns:
-            X (np.array): sample of original image of dimension
-                (n_channels, output_x, output_y, output_z)
-            y (np.array): labels which correspond to X, of dimension
-                (n_classes, output_x, output_y, output_z)
-        """
-        orig_x, orig_y = self.img_shape[0], self.img_shape[1]
-        output_x, output_y, output_z = self.crop_size[0], self.crop_size[1], self.crop_size[2]
-
-        idx = idx.numpy()
-        image, label = self.load_example(idx)
-
-        X = None
-        y = None
-        tries = 0
-
-        while tries < max_tries:
-            # randomly sample sub-volume by sampling the corner voxel
-            # (make sure to leave enough room for the output dimensions)
-            min_x = min(np.where(label != 0)[0])
-            max_x = max(np.where(label != 0)[0])
-            min_y = min(np.where(label != 0)[1])
-            max_y = max(np.where(label != 0)[1])
-            min_z = min(np.where(label != 0)[2])
-            max_z = max(np.where(label != 0)[2])
-            len_z = max_z - min_z
-
-            start_x = (orig_x - output_x + 1)//2
-            start_y = (orig_y - output_y + 1)//2
-
-            if start_x > min_x - 8:
-                start_x = min_x - 8
-            if start_y > min_y - 8:
-                start_y = min_y - 8
-
-            if (max_z - min_z <= 60):
-                if (max_z - min_z <= 32):
-                    start_z = min_z
-                else:
-                    start_z = np.random.randint(min_z, max_z-output_z)
-
-                #print(f"Start X: {start_x}, end_X: {start_x+output_x}, min_x: {min_x}, max_x: {max_x}")
-                #print(f"Start Y: {start_y}, end_Y: {start_y+output_y}, min_y: {min_y}, max_y: {max_y}")
-                #print(f"Start Z: {start_z}, end_Z: {start_z+output_z}, min_z: {min_z}, max_z: {max_z}, len_Z: {max_z-min_z}")
-                y = label[start_x: start_x + output_x,
-                          start_y: start_y + output_y,
-                          start_z: start_z + output_z]
-
-                # One-hot encode the categories -> (output_x, output_y, output_z, n_classes)
-                y = to_categorical(y, num_classes = self.n_classes)
-
-                X = np.copy(image[start_x: start_x + output_x,
-                                      start_y: start_y + output_y,
-                                      start_z: start_z + output_z, :])
-                # change dimension from (x_dim, y_dim, z_dim, n_channels)  to (n_channels, x_dim, y_dim, z_dim)
-                X = np.moveaxis(X,3,0)
-                # change dimension from (x_dim, y_dim, z_dim, n_classes) to (n_classes, x_dim, y_dim, z_dim)
-                y = np.moveaxis(y,3,0)
-                # take a subset of y that excludes the background class in the 'n_classes' dimension
-                y = y[1:, :, :, :]
-                X = self.standardize(X)
-                return X, y, start_x, start_y, start_z
-
-            else:
-                start_z = np.random.randint(min_z, max_z-output_z)
-
-            if len_z <= 75:
-                background_threshold=0.9865
-            elif len_z > 75 and len_z <= 85:
-                background_threshold=0.969
-
-            if (start_x + output_x > max_x) and (start_y+output_y > max_y):
-
-                y = label[start_x: start_x + output_x,
-                          start_y: start_y + output_y,
-                          start_z: start_z + output_z]
-
-                # One-hot encode the categories -> (output_x, output_y, output_z, n_classes)
-                y = to_categorical(y, num_classes = self.n_classes)
-
-                # compute the background ratio
-                bgrd_ratio = np.sum(y[:,:,:,0]) / (output_x * output_y * output_z)
-
-                tries += 1
-                print(f"background_ratio: {bgrd_ratio}")
-                if bgrd_ratio < background_threshold:
-                    #print(f"Start X: {start_x}, end_X: {start_x+output_x}, min_x: {min_x}, max_x: {max_x}")
-                    #print(f"Start Y: {start_y}, end_Y: {start_y+output_y}, min_y: {min_y}, max_y: {max_y}")
-                    #print(f"Start Z: {start_z}, end_Z: {start_z+output_z}, min_z: {min_z}, max_z: {max_z}, len_Z: {max_z-min_z}")
-                    X = np.copy(image[start_x: start_x + output_x,
-                                      start_y: start_y + output_y,
-                                      start_z: start_z + output_z, :])
-                    # change dimension from (x_dim, y_dim, z_dim, n_channels)  to (n_channels, x_dim, y_dim, z_dim)
-                    X = np.moveaxis(X,3,0)
-                    # change dimension from (x_dim, y_dim, z_dim, n_classes) to (n_classes, x_dim, y_dim, z_dim)
-                    y = np.moveaxis(y,3,0)
-                    # take a subset of y that excludes the background class in the 'n_classes' dimension
-                    y = y[1:, :, :, :]
-                    X = self.standardize(X)
-                    print("\n -------------------- \n")
-                    return X, y, start_x, start_y, start_z
-
-        print("No valid sub volume")
-        print(f"Start Z: {start_z}, end_Z: {start_z+output_z}, min_z: {min_z}, max_z: {max_z}, len_Z: {max_z-min_z}")
-
-
-    def create_volume_sets(self):
-        train_dir_name = '../resources/BRATS_ds/Train'
-        val_dir_name = '../resources/BRATS_ds/Validation'
-        test_dir_name = '../resources/BRATS_ds/Test'
-
-        dir_paths = [train_dir_name, val_dir_name, test_dir_name]
-        id_set_lst = [self.train_ids, self.val_ids, self.test_ids]
-        set_lens = [self.len_train, self.len_val, self.len_test]
-
-        ds_dict = dict()
-        for dir_name, id_lst, s_len in zip(dir_paths, id_set_lst, set_lens):
-            files_dict = dict()
-            set_type = dir_name.split('/')[-1]
-
-            if not os.path.exists(dir_name):
-                os.makedirs(dir_name)
-            for i in id_lst:
-                name = f"BRATS_{i}"
-                image, label, start_x, start_y, start_z = self.generate_sub_volume(tf.constant(i))
-                name = name + f"_{start_x}_{start_y}_{start_z}.h5"
-                path_name = os.path.join(dir_name, name)
-                files_dict[i] = name
-                store_hdf5(path_name, image, label)
-            print("\n -- SET DONE ---")
-            ds_dict[set_type] = {"len": s_len, "files":files_dict}
-
-        with open('../resources/BRATS_ds/config.json', 'w') as f:
-            json.dump(ds_dict, f, indent=4)
-
-
-    def get_sub_volume(self, idx, config, set_type):
-        files = config[set_type]['files']
-        cur_file = files[str(idx)][:-3]
-        start_x = int(cur_file.split('_')[-3])
-        start_y = int(cur_file.split('_')[-2])
-        start_z = int(cur_file.split('_')[-1])
-
-        img, label = self.load_example(idx)
-
-        img = img[start_x: start_x+self.crop_size[0],
-                start_y: start_y+self.crop_size[1],
-                start_z: start_z+self.crop_size[2], :]
-
-        mask = to_categorical(label, num_classes = self.n_classes)
-
-        mask = mask[start_x: start_x + self.crop_size[0],
-                    start_y: start_y + self.crop_size[1],
-                    start_z: start_z + self.crop_size[2]]
-
-        # change dimension from (x_dim, y_dim, z_dim, n_channels)  to (n_channels, x_dim, y_dim, z_dim)
-        img = np.moveaxis(img,3,0)
-        # change dimension from (x_dim, y_dim, z_dim, n_classes) to (n_classes, x_dim, y_dim, z_dim)
-        mask = np.moveaxis(mask,3,0)
-        # take a subset of y that excludes the background class in the 'n_classes' dimension
-        mask = mask[1:, :, :, :]
-        img = self.standardize(img)
-        return img, mask
-
-
     def visualize_patch(self, image, mask, m_chan=0):
         # Flair channel
         image = image[0, :, :, :]
-        # enhanced tumor
+        # Edema tumor
         mask = mask[m_chan, :, :, :]
         for i in range(image.shape[-1]):
-            fig, ax = plt.subplots(1, 2, figsize=[6, 4], squeeze=False)
-            ax[0][0].imshow(image[:, :, i])#, cmap='Greys_r')
-            ax[0][0].set_yticks([])
-            ax[0][0].set_xticks([])
-            ax[0][0].set_title('MRI Flair Channel')
-            ax[0][1].imshow(mask[:, :, i])#, cmap='Greys_r')
-            ax[0][1].set_xticks([])
-            ax[0][1].set_yticks([])
-            ax[0][1].set_title('Edema Channel')
-            fig.subplots_adjust(wspace=0, hspace=0)
-            fig.suptitle(f'Inspection on depth {i}')
+            plt.figure("image", (8, 6))
+            plt.subplot(1, 2, 1)
+            plt.title('MRI Flair Channel')
+            plt.imshow(image[:, :, i], cmap="gray")
+            plt.subplot(1, 2, 2)
+            plt.title('Edema Channel')
+            plt.imshow(mask[:, :, i])
+            plt.suptitle(f'Inspection on depth {i}')
+            plt.show()
 
 
-    def get_dataset(self):
-        ds = tf.data.Dataset.range(self.numFiles).shuffle(self.numFiles, self.seed) # Shuffle the dataset
-        ds_train = ds.take(self.len_train)
-        ds_val_test = ds.skip(self.len_train)
-        ds_val = ds_val_test.take(int(self.val_test_len * self.val_test_split))
-        ds_test = ds_val_test.skip(int(self.val_test_len * self.val_test_split))
-        ds_train = ds_train.map(lambda x: tf.py_function(self.generate_sub_volume, [x], [tf.float32, tf.float32]), num_parallel_calls=tf.data.experimental.AUTOTUNE)
-        ds_val = ds_val.map(lambda x: tf.py_function(self.generate_sub_volume, [x], [tf.float32, tf.float32]), num_parallel_calls=tf.data.experimental.AUTOTUNE)
-        ds_test = ds_test.map(lambda x: tf.py_function(self.generate_sub_volume, [x], [tf.float32, tf.float32]), num_parallel_calls=tf.data.experimental.AUTOTUNE)
-        ds_train = ds_train.batch(1)
-        ds_train = ds_train.prefetch(tf.data.experimental.AUTOTUNE)
-        ds_val = ds_val.batch(1)
-        ds_val = ds_val.prefetch(tf.data.experimental.AUTOTUNE)
-        ds_test = ds_test.batch(1)
-        ds_test = ds_test.prefetch(tf.data.experimental.AUTOTUNE)
-        return ds_train, ds_val, ds_test
+    def predict_and_viz(self, image, label, model, threshold, loc=(100, 100, 50)):
+        image_labeled = self.colorize_labels_image_flair(image.copy(), label.copy())
 
-    def get_training_sets(self):
-        return self.ds_train, self.ds_val
+        model_label = np.zeros([3, 320, 320, 160])
 
-    def get_test_set(self):
-        return self.ds_test
+        for x in range(0, image.shape[0], 160):
+            for y in range(0, image.shape[1], 160):
+                for z in range(0, image.shape[2], 16):
+                    patch = np.zeros([4, 160, 160, 16])
+                    p = np.moveaxis(image[x: x + 160, y: y + 160, z:z + 16], 3, 0)
+                    patch[:, 0:p.shape[1], 0:p.shape[2], 0:p.shape[3]] = p
+                    pred = model.predict(np.expand_dims(patch, 0))
+                    model_label[:, x:x + p.shape[1],
+                    y:y + p.shape[2],
+                    z: z + p.shape[3]] += pred[0][:, :p.shape[1], :p.shape[2],
+                                          :p.shape[3]]
+
+        model_label = np.moveaxis(model_label[:, 0:240, 0:240, 0:155], 0, 3)
+        model_label_reformatted = np.zeros((240, 240, 155, 4))
+
+        model_label_reformatted = np.eye(self.n_classes, dtype="uint8")(y.astype(int))
+            
+
+        model_label_reformatted[:, :, :, 1:4] = model_label
+
+        model_labeled_image = self.colorize_labels_image_flair(image, model_label_reformatted,
+                                                is_categorical=True)
+
+        fig, ax = plt.subplots(2, 3, figsize=[10, 7])
+
+        # plane values
+        x, y, z = loc
+
+        ax[0][0].imshow(np.rot90(image_labeled[x, :, :, :]))
+        ax[0][0].set_ylabel('Ground Truth', fontsize=15)
+        ax[0][0].set_xlabel('Sagital', fontsize=15)
+
+        ax[0][1].imshow(np.rot90(image_labeled[:, y, :, :]))
+        ax[0][1].set_xlabel('Coronal', fontsize=15)
+
+        ax[0][2].imshow(np.squeeze(image_labeled[:, :, z, :]))
+        ax[0][2].set_xlabel('Transversal', fontsize=15)
+
+        ax[1][0].imshow(np.rot90(model_labeled_image[x, :, :, :]))
+        ax[1][0].set_ylabel('Prediction', fontsize=15)
+
+        ax[1][1].imshow(np.rot90(model_labeled_image[:, y, :, :]))
+        ax[1][2].imshow(model_labeled_image[:, :, z, :])
+
+        fig.subplots_adjust(wspace=0, hspace=.12)
+
+        for i in range(2):
+            for j in range(3):
+                ax[i][j].set_xticks([])
+                ax[i][j].set_yticks([])
+
+        return model_label_reformatted
+
+    #def get_dataset(self):
+    #    ds = tf.data.Dataset.range(self.numFiles).shuffle(self.numFiles, self.seed) # Shuffle the dataset
+    #    ds_train = ds.take(self.len_train)
+    #    ds_val_test = ds.skip(self.len_train)
+    #    ds_val = ds_val_test.take(int(self.val_test_len * self.val_test_split))
+    #    ds_test = ds_val_test.skip(int(self.val_test_len * self.val_test_split))
+    #    ds_train = ds_train.map(lambda x: tf.py_function(self.generate_sub_volume, [x], [tf.float32, tf.float32]), num_parallel_calls=tf.data.experimental.AUTOTUNE)
+    #    ds_val = ds_val.map(lambda x: tf.py_function(self.generate_sub_volume, [x], [tf.float32, tf.float32]), num_parallel_calls=tf.data.experimental.AUTOTUNE)
+    #    ds_test = ds_test.map(lambda x: tf.py_function(self.generate_sub_volume, [x], [tf.float32, tf.float32]), num_parallel_calls=tf.data.experimental.AUTOTUNE)
+    #    ds_train = ds_train.batch(1)
+    #    ds_train = ds_train.prefetch(tf.data.experimental.AUTOTUNE)
+    #    ds_val = ds_val.batch(1)
+    #    ds_val = ds_val.prefetch(tf.data.experimental.AUTOTUNE)
+    #    ds_test = ds_test.batch(1)
+    #    ds_test = ds_test.prefetch(tf.data.experimental.AUTOTUNE)
+    #    return ds_train, ds_val, ds_test
+    #def get_training_sets(self):
+    #    return self.ds_train, self.ds_val
+    #def get_test_set(self):
+    #    return self.ds_test
 
 
 
 
-class VolumeDataGenerator(tf.keras.utils.Sequence):
+class TFVolumeDataGenerator(tf.keras.utils.Sequence):
     def __init__(self,
                  list_IDs,
                  base_dir,
@@ -468,14 +539,14 @@ class VolumeDataGenerator(tf.keras.utils.Sequence):
                  shuffle=True,
                  dim=(160, 160, 32),
                  n_channels=4,
-                 n_classes=3,
+                 n_classes=4,
                  verbose=1):
         self.batch_size = batch_size
         self.shuffle = shuffle
         self.base_dir = base_dir
         self.dim = dim
         self.n_channels = n_channels
-        self.n_classes = n_classes
+        self.n_classes = n_classes - 1
         self.verbose = verbose
         self.list_IDs = list_IDs
         self.on_epoch_end()
@@ -533,6 +604,30 @@ class VolumeDataGenerator(tf.keras.utils.Sequence):
         if self.shuffle == True:
             np.random.shuffle(self.indexes)
             print(f"indexes on ep end shuffle: {self.indexes}")
+
+
+## ADD PYTORCH DATADLOADER
+#class PTVolumeDataGenerator(torch.utils.data.Dataset):
+#  'Characterizes a dataset for PyTorch'
+#  def __init__(self, list_IDs, labels):
+#        'Initialization'
+#        self.labels = labels
+#        self.list_IDs = list_IDs
+#
+#  def __len__(self):
+#        'Denotes the total number of samples'
+#        return len(self.list_IDs)
+#
+#  def __getitem__(self, index):
+#        'Generates one sample of data'
+#        # Select sample
+#        ID = self.list_IDs[index]
+#
+#        # Load data and get label
+#        X = torch.load('data/' + ID + '.pt')
+#        y = self.labels[ID]
+#
+#        return X, y
 
 
 def main():

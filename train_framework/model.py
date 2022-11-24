@@ -39,7 +39,6 @@ def unet_model_3d(input_shape=(4, 160, 160, 32),
     layer = inputs
     for layer_depth in range(depth):
         n_f = n_filts* (2 ** layer_depth)
-        #print(n_f)
         encode_block = ConvolutionBlock(layer, n_f, params, batch_norm, f"encode_{layer_depth}")
         if layer_depth < depth - 1:
             layer = tfl.MaxPooling3D(name=f"pool_{layer_depth}", pool_size=pool_size)(encode_block)
