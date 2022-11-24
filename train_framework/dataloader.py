@@ -74,7 +74,7 @@ class BratsDatasetGenerator:
         self.reference = experiment_data["reference"]
         self.tensorImageSize = experiment_data["tensorImageSize"]
         self.numFiles = experiment_data["numTraining"]
-        self.numFiles = 16
+        self.numFiles = 8
 
         self.len_train = int(self.numFiles * self.train_val_split)
         self.val_test_len = self.numFiles - self.len_train
@@ -274,9 +274,9 @@ class BratsDatasetGenerator:
 
 
     def create_volume_sets(self):
-        train_dir_name = '../resources/BRATS_ds/Train'
-        val_dir_name = '../resources/BRATS_ds/Validation'
-        test_dir_name = '../resources/BRATS_ds/Test'
+        train_dir_name = f'{self.ds_path}/BRATS_ds/Train'
+        val_dir_name = f'{self.ds_path}/BRATS_ds/Validation'
+        test_dir_name = f'{self.ds_path}/BRATS_ds/Test'
 
         dir_paths = [train_dir_name, val_dir_name, test_dir_name]
         id_set_lst = [self.train_ids, self.val_ids, self.test_ids]
@@ -300,7 +300,7 @@ class BratsDatasetGenerator:
             print("\n -- SET DONE ---")
             ds_dict[set_type] = {"len": s_len, "files":files_dict}
 
-        with open('../resources/BRATS_ds/config.json', 'w') as f:
+        with open(f'{self.ds_path}/split_config.json', 'w') as f:
             json.dump(ds_dict, f, indent=4)
 
 
@@ -637,7 +637,7 @@ def main():
 
     brats_generator = BratsDatasetGenerator(args)
     brats_generator.print_info()
-    args.class_names = [v for k, v in brats_generator.output_channels().items()]
+    args.class_names = [v for k, v in brats_generator.output_channels.items()]
     print(f"  Class names = {args.class_names}")
 
     brats_generator.create_volume_sets()

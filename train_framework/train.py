@@ -6,7 +6,7 @@ import json
 import math
 from tf_metrics import *
 from dataloader import BratsDatasetGenerator, TFVolumeDataGenerator
-from model import unet_model_3d
+from tf_model import unet_model_3d
 from utils import set_seed, set_wandb_project_run, parse_args
 
 def tf_train_model(args, m_name, model, train_set, valid_set):

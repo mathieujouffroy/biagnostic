@@ -193,6 +193,3 @@ def compute_class_sens_spec(pred, label, class_num):
     specificity = tn / (tn + fp)
 
     return sensitivity, specificity
-
-
-## add metrics for pytorch
