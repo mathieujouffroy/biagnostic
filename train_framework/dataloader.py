@@ -27,8 +27,6 @@ def store_hdf5(name, images, masks):
 
     # Create a new HDF5 file
     file = h5py.File(name, "w")
-    #print(f"Train Images:     {np.shape(images)}  -- dtype: {images.dtype}")
-    #print(f"Train masks:    {np.shape(masks)} -- dtype: {masks.dtype}")
 
     # Images are store as uint8 -> 0-255
     file.create_dataset("images", np.shape(images),h5py.h5t.STD_U8BE, data=images)
@@ -75,7 +73,6 @@ class BratsDatasetGenerator:
         self.reference = experiment_data["reference"]
         self.tensorImageSize = experiment_data["tensorImageSize"]
         self.numFiles = experiment_data["numTraining"]
-        self.numFiles = 20
 
         self.len_train = int(self.numFiles * self.train_val_split)
         self.val_test_len = self.numFiles - self.len_train
@@ -161,7 +158,7 @@ class BratsDatasetGenerator:
         return standardized_image
 
 
-    def get_coords_lowest_bgd(self, idx, max_tries = 200):
+    def get_best_coords_lowest_bgd(self, idx, max_tries = 150, verbose=False):
         """
         Extract random sub-volume from original images.
 
@@ -202,7 +199,10 @@ class BratsDatasetGenerator:
 
         best_bgrd_ratio = 1
         while tries < max_tries:
-            start_z = np.random.randint(min_z, max_z-output_z)
+            if (max_z - min_z <= 32):
+                start_z = min_z
+            else:
+                start_z = np.random.randint(min_z, max_z-output_z)
             y = label[start_x: start_x + output_x,
                       start_y: start_y + output_y,
                       start_z: start_z + output_z]
@@ -212,31 +212,24 @@ class BratsDatasetGenerator:
 
             # compute the background ratio
             bgrd_ratio = np.sum(y[:,:,:,0]) / (output_x * output_y * output_z)
+
+            # keep z coordinates with the smallest background ratio
             if bgrd_ratio < best_bgrd_ratio:
                 best_bgrd_ratio = bgrd_ratio
                 best_z = start_z
 
             tries += 1
 
-        print(f"Ratio: {best_bgrd_ratio}")
-        print(f"start_X : {start_x}, min_x: {min_x}, max_x: {max_x}, len_x = {max_x-min_x}")
-        print(f"start_Y : {start_y}, min_y: {min_y}, max_y: {max_y}, len_y = {max_y-min_y}")
-        print(f"Start Z: {best_z}, end_Z: {best_z+output_z}, min_z: {min_z}, max_z: {max_z}, len_Z: {max_z-min_z}")
+        if verbose:
+            print(f"\nRatio: {best_bgrd_ratio}")
+            print(f"start_X : {start_x}, end_X: {start_x+output_x}, min_label_x: {min_x}, max_label_x: {max_x}, len_x = {max_x-min_x}")
+            print(f"start_Y : {start_y}, end_X: {start_y+output_y}, min_label_y: {min_y}, max_label_y: {max_y}, len_y = {max_y-min_y}")
+            print(f"Start_Z: {best_z}, end_Z: {best_z+output_z}, min_label_z: {min_z}, max_label_z: {max_z}, len_z: {max_z-min_z}")
         return int(start_x), int(start_x), int(best_z)
 
 
-    def gen_volumes_best_coords(self):
-        coord_dict = dict()
-        for i in range(self.numFiles):
-            start_x, start_y, start_z = self.get_coords_lowest_bgd(i)
-            coord_dict[i] = {"start_x":start_x, "start_y":start_y, "start_z":start_z}
-
-        with open(f'{self.ds_path}/vol_coord.json', 'w') as f:
-            json.dump(coord_dict, f, indent=4)
-
-
-    def get_coords(self, idx):
-        with open(f'{self.ds_path}/vol_coord.json', "r")  as f:
+    def get_best_coords(self, idx):
+        with open(f'{self.ds_path}vol_coord.json', "r")  as f:
             id_coords_dict = json.load(f)
 
         coords_dict = id_coords_dict[str(idx)]
@@ -245,6 +238,17 @@ class BratsDatasetGenerator:
         start_z = coords_dict["start_z"]
 
         return start_x, start_y, start_z
+
+
+    def gen_best_vol_coords(self):
+        coord_dict = dict()
+        
+        for i in range(self.numFiles):
+            start_x, start_y, start_z = self.get_best_coords_lowest_bgd(i)
+            coord_dict[i] = {"start_x":start_x, "start_y":start_y, "start_z":start_z}
+
+        with open(f'{self.ds_path}vol_coord.json', 'w') as f:
+            json.dump(coord_dict, f, indent=4)
 
 
     def generate_sub_volume(self, idx, store=True):
@@ -266,7 +270,7 @@ class BratsDatasetGenerator:
 
         #idx = idx.numpy()
         image, label = self.load_example(idx)
-        start_x, start_y, start_z = self.get_coords(idx)
+        start_x, start_y, start_z = self.get_best_coords(idx)
 
         y = label[start_x: start_x + output_x,
                   start_y: start_y + output_y,
@@ -290,7 +294,7 @@ class BratsDatasetGenerator:
         if not store:
             return X, y
         else:
-            name = name + f"BRATS_{idx}_{start_x}_{start_y}_{start_z}.h5"
+            name = f"BRATS_{idx}_{start_x}_{start_y}_{start_z}.h5"
             path_name = os.path.join(self.ds_path, name)
             store_hdf5(path_name, image, mask)
             print("done")
@@ -299,7 +303,7 @@ class BratsDatasetGenerator:
 
     def get_sub_volume(self, idx):
         img, label = self.load_example(idx)
-        start_x, start_y, start_z = self.get_coords(idx)
+        start_x, start_y, start_z = self.get_best_coords(idx)
 
         img = img[start_x: start_x+self.crop_size[0],
                 start_y: start_y+self.crop_size[1],
@@ -625,9 +629,11 @@ def main():
 
     brats_generator = BratsDatasetGenerator(args)
     brats_generator.print_info()
+
     args.class_names = [v for k, v in brats_generator.output_channels.items()]
     print(f"  Class names = {args.class_names}")
-    brats_generator.gen_volumes_best_coords()
+    
+    brats_generator.gen_best_vol_coords()
     for id_lst in [brats_generator.train_ids, brats_generator.val_ids, brats_generator.test_ids]:
         print(f"\nN_CPU: {multiprocessing.cpu_count()}\n")
         print(f"id_lst:{id_lst}")
