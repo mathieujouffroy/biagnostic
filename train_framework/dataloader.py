@@ -73,6 +73,7 @@ class BratsDatasetGenerator:
         self.reference = experiment_data["reference"]
         self.tensorImageSize = experiment_data["tensorImageSize"]
         self.numFiles = experiment_data["numTraining"]
+        self.numFiles = 8
 
         self.len_train = int(self.numFiles * self.train_val_split)
         self.val_test_len = self.numFiles - self.len_train
@@ -229,7 +230,7 @@ class BratsDatasetGenerator:
 
 
     def get_best_coords(self, idx):
-        with open(f'{self.ds_path}vol_coord.json', "r")  as f:
+        with open(f'{self.ds_path}volumes_coord.json', "r")  as f:
             id_coords_dict = json.load(f)
 
         coords_dict = id_coords_dict[str(idx)]
@@ -247,7 +248,7 @@ class BratsDatasetGenerator:
             start_x, start_y, start_z = self.get_best_coords_lowest_bgd(i)
             coord_dict[i] = {"start_x":start_x, "start_y":start_y, "start_z":start_z}
 
-        with open(f'{self.ds_path}vol_coord.json', 'w') as f:
+        with open(f'{self.ds_path}volumes_coord.json', 'w') as f:
             json.dump(coord_dict, f, indent=4)
 
 
@@ -294,10 +295,9 @@ class BratsDatasetGenerator:
         if not store:
             return X, y
         else:
-            name = f"BRATS_{idx}_{start_x}_{start_y}_{start_z}.h5"
+            name = f"subvolumes/BRATS_{idx}_{start_x}_{start_y}_{start_z}.h5"
             path_name = os.path.join(self.ds_path, name)
             store_hdf5(path_name, image, mask)
-            print("done")
             return
 
 
@@ -529,7 +529,7 @@ class TFVolumeDataGenerator(tf.keras.utils.Sequence):
                  base_dir,
                  batch_size=1,
                  shuffle=True,
-                 dim=(160, 160, 32),
+                 dim=(128, 128, 32),
                  n_channels=4,
                  n_classes=4,
                  verbose=1):
@@ -630,13 +630,14 @@ def main():
     brats_generator = BratsDatasetGenerator(args)
     brats_generator.print_info()
 
-    args.class_names = [v for k, v in brats_generator.output_channels.items()]
-    print(f"  Class names = {args.class_names}")
-    
+    if not os.path.exists(f"{args.ds_path}/subvolumes"):
+        os.makedirs(f"{args.ds_path}/subvolumes")
+
     brats_generator.gen_best_vol_coords()
+    
+    print(f"\nN_CPU: {multiprocessing.cpu_count()}\n")
     for id_lst in [brats_generator.train_ids, brats_generator.val_ids, brats_generator.test_ids]:
-        print(f"\nN_CPU: {multiprocessing.cpu_count()}\n")
-        print(f"id_lst:{id_lst}")
+        print(f"id_lst:{[i for i in id_lst]}")
         pool = multiprocessing.Pool(multiprocessing.cpu_count())
         pool.map(brats_generator.generate_sub_volume, id_lst)
         print("\n--set done --")

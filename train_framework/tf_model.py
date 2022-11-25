@@ -24,7 +24,7 @@ def UpConvBlock(x, n_filts, pool_size, upsampling, name):
     return x
 
 
-def unet_model_3d(input_shape=(4, 160, 160, 32),
+def unet_model_3d(input_shape=(4, 128, 128, 32),
                   pool_size=(2, 2, 2), n_labels=3,
                   upsampling=True, depth=5, n_filts=16,
                   activation_name="sigmoid", batch_norm=False):

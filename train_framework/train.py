@@ -79,12 +79,9 @@ def main():
     args.class_names = [v for k, v in brats_generator.output_channels().items()]
     print(f"  Class names = {args.class_names}")
 
-    with open('../resources/BRATS_ds/config.json', "r")  as f:
-        config = json.load(f)
-
     # Get generators for training and validation sets
-    train_generator = TFVolumeDataGenerator(config["Train"]['files'], "../resources/BRATS_ds/Train/", batch_size=3, dim=(160, 160, 32), verbose=1)
-    valid_generator = TFVolumeDataGenerator(config["Validation"]['files'], "../resources/BRATS_ds/Validation/", batch_size=3, dim=(160, 160, 32), verbose=1)
+    train_generator = TFVolumeDataGenerator(brats_generator.train_ids, f"{args.ds_path}subvolumes", batch_size=3, dim=(128, 128, 32), verbose=1)
+    valid_generator = TFVolumeDataGenerator(brats_generator.val_ids, f"{args.ds_path}subvolumes", batch_size=3, dim=(128, 128, 32), verbose=1)
 
     # Set training parameters
     args.nbr_train_batch = int(math.ceil(args.len_train / args.batch_size))
