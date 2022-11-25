@@ -6,6 +6,7 @@ import nibabel as nib
 import nilearn as nl
 import tensorflow as tf
 import h5py
+import multiprocessing
 import matplotlib.pyplot as plt
 import nilearn.plotting as nlplt
 from utils import parse_args, set_seed
@@ -118,7 +119,7 @@ class BratsDatasetGenerator:
         print(f"Training set len:    {self.len_train}")
         print(f"Validation set len:  {self.len_val}")
         print(f"Testing set len:     {self.len_test}")
-        
+
         print("="*40)
 
 
@@ -205,18 +206,18 @@ class BratsDatasetGenerator:
             y = label[start_x: start_x + output_x,
                       start_y: start_y + output_y,
                       start_z: start_z + output_z]
-            
+
             # One-hot encode the categories -> (output_x, output_y, output_z, n_classes)
             y = np.eye(self.n_classes, dtype='uint8')[y.astype(int)]
-            
+
             # compute the background ratio
             bgrd_ratio = np.sum(y[:,:,:,0]) / (output_x * output_y * output_z)
             if bgrd_ratio < best_bgrd_ratio:
                 best_bgrd_ratio = bgrd_ratio
                 best_z = start_z
-            
+
             tries += 1
-            
+
         print(f"Ratio: {best_bgrd_ratio}")
         print(f"start_X : {start_x}, min_x: {min_x}, max_x: {max_x}, len_x = {max_x-min_x}")
         print(f"start_Y : {start_y}, min_y: {min_y}, max_y: {max_y}, len_y = {max_y-min_y}")
@@ -224,7 +225,29 @@ class BratsDatasetGenerator:
         return int(start_x), int(start_x), int(best_z)
 
 
-    def generate_sub_volume(self, idx):
+    def gen_volumes_best_coords(self):
+        coord_dict = dict()
+        for i in range(self.numFiles):
+            start_x, start_y, start_z = self.get_coords_lowest_bgd(i)
+            coord_dict[i] = {"start_x":start_x, "start_y":start_y, "start_z":start_z}
+
+        with open(f'{self.ds_path}/vol_coord.json', 'w') as f:
+            json.dump(coord_dict, f, indent=4)
+
+
+    def get_coords(self, idx):
+        with open(f'{self.ds_path}/vol_coord.json', "r")  as f:
+            id_coords_dict = json.load(f)
+
+        coords_dict = id_coords_dict[str(idx)]
+        start_x = coords_dict["start_x"]
+        start_y = coords_dict["start_y"]
+        start_z = coords_dict["start_z"]
+
+        return start_x, start_y, start_z
+
+
+    def generate_sub_volume(self, idx, store=True):
         """
         Extract random sub-volume from original images.
 
@@ -243,14 +266,7 @@ class BratsDatasetGenerator:
 
         #idx = idx.numpy()
         image, label = self.load_example(idx)
-
-        with open(f'{self.ds_path}/vol_coord.json', "r")  as f:
-            id_coords_dict = json.load(f)
-        
-        coords_dict = id_coords_dict[str(idx)]
-        start_x = coords_dict["start_x"]
-        start_y = coords_dict["start_y"]
-        start_z = coords_dict["start_z"]
+        start_x, start_y, start_z = self.get_coords(idx)
 
         y = label[start_x: start_x + output_x,
                   start_y: start_y + output_y,
@@ -262,62 +278,28 @@ class BratsDatasetGenerator:
                           start_z: start_z + output_z, :])
 
         # (x_dim, y_dim, z_dim, n_channels) -> (n_channels, x_dim, y_dim, z_dim)
-        # (x_dim, y_dim, z_dim, n_classes) -> (n_classes, x_dim, y_dim, z_dim)
         X = np.moveaxis(X,3,0)
+        # (x_dim, y_dim, z_dim, n_classes) -> (n_classes, x_dim, y_dim, z_dim)
         y = np.moveaxis(y,3,0)
 
         # exclude background class in the 'n_classes' dimension
-        y = y[1:, :, :, :]
-        
-        X = self.standardize(X)
-        print(y.shape)
-        #print("\n --------------------")
-        return X, y
+        mask = y[1:, :, :, :]
 
+        image = self.standardize(X)
 
-
-    def gen_volumes_best_coords(self):
-        coord_dict = dict()
-        for i in range(self.numFiles):
-            start_x, start_y, start_z = self.get_coords_lowest_bgd(i)
-            coord_dict[i] = {"start_x":start_x, "start_y":start_y, "start_z":start_z}
-        
-        with open(f'{self.ds_path}/vol_coord.json', 'w') as f:
-            json.dump(coord_dict, f, indent=4)
-
-
-    def create_volume_sets(self, set_type):
-
-        dir_name = f'{self.ds_path}/BRATS_ds/{set_type}'
-        if set_type == "train":
-            id_lst = self.train_ids
-        elif set_type == "valid":
-            id_lst = self.val_ids
+        if not store:
+            return X, y
         else:
-            id_lst = self.test_ids
-
-        files_dict = dict()
-        if not os.path.exists(dir_name):
-            os.makedirs(dir_name)
-        for i in id_lst:
-            name = f"BRATS_{i}"
-            image, label, start_x, start_y, start_z = self.generate_sub_volume(i)
-            name = name + f"_{start_x}_{start_y}_{start_z}.h5"
-            path_name = os.path.join(dir_name, name)
-            files_dict[i] = name
-            store_hdf5(path_name, image, label)
-
-        return files_dict
+            name = name + f"BRATS_{idx}_{start_x}_{start_y}_{start_z}.h5"
+            path_name = os.path.join(self.ds_path, name)
+            store_hdf5(path_name, image, mask)
+            print("done")
+            return
 
 
-    def get_sub_volume(self, idx, config, set_type):
-        files = config[set_type]['files']
-        cur_file = files[str(idx)][:-3]
-        start_x = cur_file.split('_')[-3]
-        start_y = int(cur_file.split('_')[-2])
-        start_z = int(cur_file.split('_')[-1])
-
+    def get_sub_volume(self, idx):
         img, label = self.load_example(idx)
+        start_x, start_y, start_z = self.get_coords(idx)
 
         img = img[start_x: start_x+self.crop_size[0],
                 start_y: start_y+self.crop_size[1],
@@ -646,7 +628,12 @@ def main():
     args.class_names = [v for k, v in brats_generator.output_channels.items()]
     print(f"  Class names = {args.class_names}")
     brats_generator.gen_volumes_best_coords()
-
+    for id_lst in [brats_generator.train_ids, brats_generator.val_ids, brats_generator.test_ids]:
+        print(f"\nN_CPU: {multiprocessing.cpu_count()}\n")
+        print(f"id_lst:{id_lst}")
+        pool = multiprocessing.Pool(multiprocessing.cpu_count())
+        pool.map(brats_generator.generate_sub_volume, id_lst)
+        print("\n--set done --")
 
 if __name__ == "__main__":
     main()
