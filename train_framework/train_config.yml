@@ -3,7 +3,7 @@
 ds_path: "../resources/Task01_BrainTumour/"
 #ds_path: "../../../block_storage/resources/Task01_BrainTumour/"
 batch_size: 3
-crop_size: [160, 160, 32]
+crop_size: [128, 128, 32]
 train_val_split: 0.80
 val_test_split: 0.50
 n_classes: 4

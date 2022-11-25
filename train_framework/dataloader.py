@@ -74,7 +74,7 @@ class BratsDatasetGenerator:
         self.reference = experiment_data["reference"]
         self.tensorImageSize = experiment_data["tensorImageSize"]
         self.numFiles = experiment_data["numTraining"]
-        self.numFiles = 8
+        self.numFiles = 20
 
         self.len_train = int(self.numFiles * self.train_val_split)
         self.val_test_len = self.numFiles - self.len_train
@@ -112,9 +112,13 @@ class BratsDatasetGenerator:
         print(f"Input channels:      {self.input_channels}")
         print(f"Output labels:       {self.output_channels}")
         print(f"Tensor image size:   {self.tensorImageSize}")
-        print(f"Nbr of images:       {len(self.filenames)}")
+        print(f"Nbr of images:       {self.numFiles}")
         print(f"Image shape:         {self.img_shape}")
         print(f"Label shape:         {self.label_shape}")
+        print(f"Training set len:    {self.len_train}")
+        print(f"Validation set len:  {self.len_val}")
+        print(f"Testing set len:     {self.len_test}")
+        
         print("="*40)
 
 
@@ -156,7 +160,7 @@ class BratsDatasetGenerator:
         return standardized_image
 
 
-    def generate_sub_volume(self, idx, max_tries = 150, background_threshold=0.96):
+    def get_coords_lowest_bgd(self, idx, max_tries = 200):
         """
         Extract random sub-volume from original images.
 
@@ -174,103 +178,112 @@ class BratsDatasetGenerator:
         orig_x, orig_y = self.img_shape[0], self.img_shape[1]
         output_x, output_y, output_z = self.crop_size[0], self.crop_size[1], self.crop_size[2]
 
+        image, label = self.load_example(idx)
+        tries = 0
+        min_x = min(np.where(label != 0)[0])
+        max_x = max(np.where(label != 0)[0])
+        min_y = min(np.where(label != 0)[1])
+        max_y = max(np.where(label != 0)[1])
+        min_z = min(np.where(label != 0)[2])
+        max_z = max(np.where(label != 0)[2])
+        start_x = (orig_x - output_x + 1)//2
+        start_y = (orig_y - output_y + 1)//2
+
+        if start_x > min_x - 5:
+            start_x = min_x - 5
+        if start_y > min_y - 5:
+            start_y = min_y - 5
+
+        if start_x + output_x <= max_x + 1:
+            start_x = max_x - output_x + 1
+        if start_y + output_y <= max_y + 1:
+            start_y = max_y - output_y + 1
+
+        best_bgrd_ratio = 1
+        while tries < max_tries:
+            start_z = np.random.randint(min_z, max_z-output_z)
+            y = label[start_x: start_x + output_x,
+                      start_y: start_y + output_y,
+                      start_z: start_z + output_z]
+            
+            # One-hot encode the categories -> (output_x, output_y, output_z, n_classes)
+            y = np.eye(self.n_classes, dtype='uint8')[y.astype(int)]
+            
+            # compute the background ratio
+            bgrd_ratio = np.sum(y[:,:,:,0]) / (output_x * output_y * output_z)
+            if bgrd_ratio < best_bgrd_ratio:
+                best_bgrd_ratio = bgrd_ratio
+                best_z = start_z
+            
+            tries += 1
+            
+        print(f"Ratio: {best_bgrd_ratio}")
+        print(f"start_X : {start_x}, min_x: {min_x}, max_x: {max_x}, len_x = {max_x-min_x}")
+        print(f"start_Y : {start_y}, min_y: {min_y}, max_y: {max_y}, len_y = {max_y-min_y}")
+        print(f"Start Z: {best_z}, end_Z: {best_z+output_z}, min_z: {min_z}, max_z: {max_z}, len_Z: {max_z-min_z}")
+        return int(start_x), int(start_x), int(best_z)
+
+
+    def generate_sub_volume(self, idx):
+        """
+        Extract random sub-volume from original images.
+
+        Args:
+            max_tries (int): maximum trials to do when sampling
+            background_threshold (float): limit on the fraction
+                of the sample which can be the background
+
+        returns:
+            X (np.array): sample of original image of dimension
+                (n_channels, output_x, output_y, output_z)
+            y (np.array): labels which correspond to X, of dimension
+                (n_classes, output_x, output_y, output_z)
+        """
+        output_x, output_y, output_z = self.crop_size[0], self.crop_size[1], self.crop_size[2]
+
         #idx = idx.numpy()
         image, label = self.load_example(idx)
-        X = None
-        y = None
-        tries = 0
 
-        while tries < max_tries:
-            # randomly sample sub-volume by sampling the corner voxel
-            # (make sure to leave enough room for the output dimensions)
-            min_x = min(np.where(label != 0)[0])
-            max_x = max(np.where(label != 0)[0])
-            min_y = min(np.where(label != 0)[1])
-            max_y = max(np.where(label != 0)[1])
-            min_z = min(np.where(label != 0)[2])
-            max_z = max(np.where(label != 0)[2])
-            len_z = max_z - min_z
+        with open(f'{self.ds_path}/vol_coord.json', "r")  as f:
+            id_coords_dict = json.load(f)
+        
+        coords_dict = id_coords_dict[str(idx)]
+        start_x = coords_dict["start_x"]
+        start_y = coords_dict["start_y"]
+        start_z = coords_dict["start_z"]
 
-            start_x = (orig_x - output_x + 1)//2
-            start_y = (orig_y - output_y + 1)//2
-
-            if start_x > min_x - 8:
-                start_x = min_x - 8
-            if start_y > min_y - 8:
-                start_y = min_y - 8
-
-            if (max_z - min_z <= 60):
-                if (max_z - min_z <= 32):
-                    start_z = min_z
-                else:
-                    start_z = np.random.randint(min_z, max_z-output_z)
-
-                #print(f"Start X: {start_x}, end_X: {start_x+output_x}, min_x: {min_x}, max_x: {max_x}")
-                #print(f"Start Y: {start_y}, end_Y: {start_y+output_y}, min_y: {min_y}, max_y: {max_y}")
-                #print(f"Start Z: {start_z}, end_Z: {start_z+output_z}, min_z: {min_z}, max_z: {max_z}, len_Z: {max_z-min_z}")
-                y = label[start_x: start_x + output_x,
+        y = label[start_x: start_x + output_x,
+                  start_y: start_y + output_y,
+                  start_z: start_z + output_z]
+        # One-hot encode the categories -> (output_x, output_y, output_z, n_classes)
+        y = np.eye(self.n_classes, dtype='uint8')[y.astype(int)]
+        X = np.copy(image[start_x: start_x + output_x,
                           start_y: start_y + output_y,
-                          start_z: start_z + output_z]
+                          start_z: start_z + output_z, :])
 
-                # One-hot encode the categories -> (output_x, output_y, output_z, n_classes)
-                y = np.eye(self.n_classes, dtype='uint8')[y.astype(int)]
+        # (x_dim, y_dim, z_dim, n_channels) -> (n_channels, x_dim, y_dim, z_dim)
+        # (x_dim, y_dim, z_dim, n_classes) -> (n_classes, x_dim, y_dim, z_dim)
+        X = np.moveaxis(X,3,0)
+        y = np.moveaxis(y,3,0)
+
+        # exclude background class in the 'n_classes' dimension
+        y = y[1:, :, :, :]
+        
+        X = self.standardize(X)
+        print(y.shape)
+        #print("\n --------------------")
+        return X, y
 
 
-                X = np.copy(image[start_x: start_x + output_x,
-                                      start_y: start_y + output_y,
-                                      start_z: start_z + output_z, :])
-                # (x_dim, y_dim, z_dim, n_channels) -> (n_channels, x_dim, y_dim, z_dim)
-                X = np.moveaxis(X,3,0)
-                # (x_dim, y_dim, z_dim, n_classes) -> (n_classes, x_dim, y_dim, z_dim)
-                y = np.moveaxis(y,3,0)
-                # take a subset of y that excludes the background class in the 'n_classes' dimension
-                y = y[1:, :, :, :]
-                X = self.standardize(X)
-                #print(y.shape)
-                #print("\n --------------------")
-                return X, y, start_x, start_y, start_z
 
-            start_z = np.random.randint(min_z, max_z-output_z)
-
-            if len_z <= 75:
-                background_threshold=0.9865
-            elif len_z > 75 and len_z <= 85:
-                background_threshold=0.969
-
-            if (start_x + output_x > max_x) and (start_y+output_y > max_y):
-
-                y = label[start_x: start_x + output_x,
-                          start_y: start_y + output_y,
-                          start_z: start_z + output_z]
-
-                # One-hot encode the categories -> (output_x, output_y, output_z, n_classes)
-                y = np.eye(self.n_classes, dtype='uint8')[y.astype(int)]
-
-                # compute the background ratio
-                bgrd_ratio = np.sum(y[:,:,:,0]) / (output_x * output_y * output_z)
-
-                tries += 1
-                #print(f"background_ratio: {bgrd_ratio}")
-                if bgrd_ratio < background_threshold:
-                    #print(f"Start X: {start_x}, end_X: {start_x+output_x}, min_x: {min_x}, max_x: {max_x}")
-                    #print(f"Start Y: {start_y}, end_Y: {start_y+output_y}, min_y: {min_y}, max_y: {max_y}")
-                    #print(f"Start Z: {start_z}, end_Z: {start_z+output_z}, min_z: {min_z}, max_z: {max_z}, len_Z: {max_z-min_z}")
-                    X = np.copy(image[start_x: start_x + output_x,
-                                      start_y: start_y + output_y,
-                                      start_z: start_z + output_z, :])
-                    # (x_dim, y_dim, z_dim, n_channels) -> (n_channels, x_dim, y_dim, z_dim)
-                    X = np.moveaxis(X,3,0)
-                    # (x_dim, y_dim, z_dim, n_classes) -> (n_classes, x_dim, y_dim, z_dim)
-                    y = np.moveaxis(y,3,0)
-                    # exclude background class in the 'n_classes' dimension
-                    y = y[1:, :, :, :]
-                    X = self.standardize(X)
-                    print(y.shape)
-                    #print("\n --------------------")
-                    return X, y, start_x, start_y, start_z
-
-        print("No valid sub volume")
-        print(f"Start Z: {start_z}, end_Z: {start_z+output_z}, min_z: {min_z}, max_z: {max_z}, len_Z: {max_z-min_z}")
+    def gen_volumes_best_coords(self):
+        coord_dict = dict()
+        for i in range(self.numFiles):
+            start_x, start_y, start_z = self.get_coords_lowest_bgd(i)
+            coord_dict[i] = {"start_x":start_x, "start_y":start_y, "start_z":start_z}
+        
+        with open(f'{self.ds_path}/vol_coord.json', 'w') as f:
+            json.dump(coord_dict, f, indent=4)
 
 
     def create_volume_sets(self, set_type):
@@ -300,7 +313,7 @@ class BratsDatasetGenerator:
     def get_sub_volume(self, idx, config, set_type):
         files = config[set_type]['files']
         cur_file = files[str(idx)][:-3]
-        start_x = int(cur_file.split('_')[-3])
+        start_x = cur_file.split('_')[-3]
         start_y = int(cur_file.split('_')[-2])
         start_z = int(cur_file.split('_')[-1])
 
@@ -632,16 +645,7 @@ def main():
     brats_generator.print_info()
     args.class_names = [v for k, v in brats_generator.output_channels.items()]
     print(f"  Class names = {args.class_names}")
-
-    ds_dict = dict()
-    len_lst = [brats_generator.len_train, brats_generator.len_val, brats_generator.len_test]
-    for ds_set, set_len in zip(["train", "val", "test"], len_lst):
-        files_dict = brats_generator.create_volume_sets(ds_set)
-        print("\n--set done --")
-        ds_dict[ds_set] = {"len": set_len, "files":files_dict}
-
-    with open(f'{brats_generator.ds_path}/split_config.json', 'w') as f:
-        json.dump(ds_dict, f, indent=4)
+    brats_generator.gen_volumes_best_coords()
 
 
 if __name__ == "__main__":
