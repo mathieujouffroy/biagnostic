@@ -1,5 +1,8 @@
 resources/Task01_BrainTumour/imagesTr
 resources/Task01_BrainTumour/labelsTr
 resources/Task01_BrainTumour/imagesTs
-resources/Task01_BrainTumour/BRATS_ds
+resources/Task01_BrainTumour/subvolumes
 resources/Task01_BrainTumour.zip
+
+__pycache__
+*/__pycache__
