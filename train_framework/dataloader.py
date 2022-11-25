@@ -73,15 +73,15 @@ class BratsDatasetGenerator:
         self.reference = experiment_data["reference"]
         self.tensorImageSize = experiment_data["tensorImageSize"]
         self.numFiles = experiment_data["numTraining"]
-        self.numFiles = 8
+        #self.numFiles = 8
 
         self.len_train = int(self.numFiles * self.train_val_split)
         self.val_test_len = self.numFiles - self.len_train
         self.len_val = int(self.val_test_len * self.val_test_split)
         self.len_test = self.numFiles - self.len_train - self.len_val
-        self.train_ids = range(self.len_train)
-        self.val_ids = range(self.len_train, self.len_train+self.len_val)
-        self.test_ids = range(self.len_train+self.len_val, self.len_train+self.len_val+self.len_test)
+        self.train_ids = [i for i in range(self.len_train)]
+        self.val_ids = [i for i in range(self.len_train, self.len_train+self.len_val)]
+        self.test_ids = [i for i in range(self.len_train+self.len_val, self.len_train+self.len_val+self.len_test)]
 
         self.filenames = {}
         for idx in range(self.numFiles):
@@ -637,10 +637,26 @@ def main():
     
     print(f"\nN_CPU: {multiprocessing.cpu_count()}\n")
     for id_lst in [brats_generator.train_ids, brats_generator.val_ids, brats_generator.test_ids]:
-        print(f"id_lst:{[i for i in id_lst]}")
+        print(f"id_lst:{id_lst}")
         pool = multiprocessing.Pool(multiprocessing.cpu_count())
         pool.map(brats_generator.generate_sub_volume, id_lst)
         print("\n--set done --")
+
+    split_sets = dict()
+    split_sets['train'] = []
+    split_sets['val'] = []
+    split_sets['test'] = []
+    for filename in os.listdir(f"{args.ds_path}subvolumes"):
+        idx = int(filename.split('_')[1])
+        if idx in brats_generator.train_ids:
+            split_sets['train'].append(filename)
+        if idx in brats_generator.val_ids:
+            split_sets['val'].append(filename)
+        if idx in brats_generator.test_ids:
+            split_sets['test'].append(filename)
+
+    with open(f"{args.ds_path}split_sets.json", 'w') as f:
+        json.dump(split_sets, f, indent=4)
 
 if __name__ == "__main__":
     main()
