@@ -110,7 +110,7 @@ def soft_dice_coefficient(y_true, y_pred, axis=(1, 2, 3), epsilon=0.0001):
 
 def iou(y_true, y_pred, axis=(1, 2, 3), epsilon=0.0001):
     """
-    Compute mean Intersection Over Union over all abnormality classes.
+    Compute Intersection Over Union over all abnormality classes.
 
     Args:
         y_true (Tensorflow tensor): tensor of ground truth values for all classes.

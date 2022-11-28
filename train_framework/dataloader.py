@@ -243,7 +243,7 @@ class BratsDatasetGenerator:
 
     def gen_best_vol_coords(self):
         coord_dict = dict()
-        
+
         for i in range(self.numFiles):
             start_x, start_y, start_z = self.get_best_coords_lowest_bgd(i)
             coord_dict[i] = {"start_x":start_x, "start_y":start_y, "start_z":start_z}
@@ -598,7 +598,7 @@ class TFVolumeDataGenerator(tf.keras.utils.Sequence):
             print(f"indexes on ep end shuffle: {self.indexes}")
 
 
-## ADD PYTORCH DATADLOADER
+## ADD PYTORCH DATALOADER
 #class PTVolumeDataGenerator(torch.utils.data.Dataset):
 #  'Characterizes a dataset for PyTorch'
 #  def __init__(self, list_IDs, labels):
@@ -630,11 +630,11 @@ def main():
     brats_generator = BratsDatasetGenerator(args)
     brats_generator.print_info()
 
-    if not os.path.exists(f"{args.ds_path}/subvolumes"):
-        os.makedirs(f"{args.ds_path}/subvolumes")
+    if not os.path.exists(f"{args.ds_path}subvolumes"):
+        os.makedirs(f"{args.ds_path}subvolumes")
 
     brats_generator.gen_best_vol_coords()
-    
+
     print(f"\nN_CPU: {multiprocessing.cpu_count()}\n")
     for id_lst in [brats_generator.train_ids, brats_generator.val_ids, brats_generator.test_ids]:
         print(f"id_lst:{id_lst}")

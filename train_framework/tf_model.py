@@ -24,10 +24,10 @@ def UpConvBlock(x, n_filts, pool_size, upsampling, name):
     return x
 
 
-def unet_model_3d(input_shape=(4, 128, 128, 32),
-                  pool_size=(2, 2, 2), n_labels=3,
-                  upsampling=True, depth=5, n_filts=16,
-                  activation_name="sigmoid", batch_norm=False):
+def unet_model_3d(m_name, input_shape=(4, 128, 128, 32),
+                  pool_size=(2, 2, 2), n_labels=3, depth=5,
+                  n_filts=16, activation_name="sigmoid",
+                  upsampling=True, batch_norm=False):
 
     inputs = tfl.Input(input_shape)
     levels = list()
@@ -46,14 +46,13 @@ def unet_model_3d(input_shape=(4, 128, 128, 32),
             layer = encode_block
         levels.append(encode_block)
 
-
     up_conv = UpConvBlock(encode_block, n_filts*8, pool_size, upsampling, f"Up_{layer_depth}")
     concat = tfl.concatenate([up_conv, levels[layer_depth-1]], axis=1, name=f"concat_{layer_depth-1}")
     decode = ConvolutionBlock(concat, n_filts*8, params, batch_norm, f"decode_{layer_depth-2}",)
 
 
-    # add levels with up-convolution or up-sampling
     n = 4
+    # iterate from layer[-2] to layer[0] to add up-convolution or up-sampling
     for layer_depth in range(depth - 3, -1, -1):
         up_conv = UpConvBlock(decode, n_filts*n,  pool_size, upsampling, f"Up_{layer_depth}")
         concat = tfl.concatenate([up_conv, levels[layer_depth]], axis=1, name=f"concat_{layer_depth}")
@@ -61,9 +60,9 @@ def unet_model_3d(input_shape=(4, 128, 128, 32),
             decode = ConvolutionBlock(concat, n_filts*n, params, batch_norm, f"decode_{layer_depth-1}")
         else:
             convout = ConvolutionBlock(concat, n_filts, params, batch_norm, f"convOut")
-        
+
         n /= 2
 
     outputs = tfl.Conv3D(n_labels, (1, 1, 1), activation=activation_name, name="PredictionMask")(convout)
-    model =  tf.keras.Model(inputs=inputs, outputs=outputs)
+    model =  tf.keras.Model(inputs=inputs, outputs=outputs, name=m_name)
     return model

@@ -99,9 +99,9 @@ def main():
     print(f"  Nbr of training batch = {args.nbr_train_batch}")
     print(f"  Nbr training steps = {args.n_training_steps}")
 
-
-    model = unet_model_3d()
     m_name = "Unet3D"
+    model = unet_model_3d(m_name)
+    print(model.name)
 
     # define wandb run and project
     if args.wandb:
@@ -110,7 +110,9 @@ def main():
     trained_model = tf_train_model(args, m_name, model, train_generator, valid_generator)
 
     if args.evaluate_during_training:
+        # load best model & evaluate on test set
         ds_test = brats_generator.get_test_set()
+        # model =
         loss, dice_coef, soft_dice_coef = trained_model.evaluate(ds_test)
         print(f"Loss: {loss}")
         print(f"Average Dice Coefficient on test dataset = {dice_coef:.4f}")
