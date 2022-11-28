@@ -1,7 +1,7 @@
 ## Training config file
 
-ds_path: "../resources/Task01_BrainTumour/"
-#ds_path: "../../../block_storage/resources/Task01_BrainTumour/"
+#ds_path: "../resources/Task01_BrainTumour/"
+ds_path: "../../block_storage/resources/Task01_BrainTumour/"
 batch_size: 3
 crop_size: [128, 128, 32]
 train_val_split: 0.80
@@ -9,11 +9,15 @@ val_test_split: 0.50
 n_classes: 4
 seed: 42
 
-n_epochs: 20
+m_name: "Unet3D"
+
+#n_epochs: 20
+n_epochs: 3
 learning_rate: 0.00001
 
 evaluate_during_training: True
+overwrite_output_dir: True
 
-wandb: False
+wandb: True
 
-output_dir: "BRATS_3D_UNET"
+output_dir: "brats-3d-segm"

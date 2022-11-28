@@ -2,14 +2,18 @@ import tensorflow.keras.layers as tfl
 import tensorflow as tf
 
 def ConvolutionBlock(x, n_filts, params, batch_normalization, name):
+
     x = tfl.Conv3D(n_filts, **params, name=name+"_conv0")(x)
     if batch_normalization:
         x = tfl.BatchNormalization(name=name+"_bn0")(x)
     x = tfl.Activation("relu", name=name+"_relu0")(x)
+
     x = tfl.Conv3D(n_filts, **params, name=name+"_conv1")(x)
     if batch_normalization:
         x = tfl.BatchNormalization(name=name+"_bn1")(x)
+    #x = tfl.Activation("relu", name=name+"_relu1")(x)
     x = tfl.Activation("relu", name=name)(x)
+
     return x
 
 
@@ -38,7 +42,7 @@ def unet_model_3d(m_name, input_shape=(4, 128, 128, 32),
     # add levels with max pooling
     layer = inputs
     for layer_depth in range(depth):
-        n_f = n_filts* (2 ** layer_depth)
+        n_f = n_filts * (2 ** layer_depth)
         encode_block = ConvolutionBlock(layer, n_f, params, batch_norm, f"encode_{layer_depth}")
         if layer_depth < depth - 1:
             layer = tfl.MaxPooling3D(name=f"pool_{layer_depth}", pool_size=pool_size)(encode_block)
@@ -49,7 +53,6 @@ def unet_model_3d(m_name, input_shape=(4, 128, 128, 32),
     up_conv = UpConvBlock(encode_block, n_filts*8, pool_size, upsampling, f"Up_{layer_depth}")
     concat = tfl.concatenate([up_conv, levels[layer_depth-1]], axis=1, name=f"concat_{layer_depth-1}")
     decode = ConvolutionBlock(concat, n_filts*8, params, batch_norm, f"decode_{layer_depth-2}",)
-
 
     n = 4
     # iterate from layer[-2] to layer[0] to add up-convolution or up-sampling

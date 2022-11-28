@@ -1,15 +1,15 @@
 import os
-import tensorflow as tf
-import wandb
-import datetime
 import json
 import math
+import wandb
+import datetime
+import tensorflow as tf
 from tf_metrics import *
-from dataloader import BratsDatasetGenerator, TFVolumeDataGenerator
 from tf_model import unet_model_3d
 from utils import set_seed, set_wandb_project_run, parse_args
+from dataloader import BratsDatasetGenerator, TFVolumeDataGenerator
 
-def tf_train_model(args, m_name, model, train_set, valid_set):
+def tf_train_model(args, model, train_set, valid_set):
     """
     Compiles and fits the model.
     Parameters:
@@ -24,32 +24,34 @@ def tf_train_model(args, m_name, model, train_set, valid_set):
     optimizer = tf.keras.optimizers.Adam(learning_rate=args.learning_rate)
     model.compile(optimizer=optimizer, loss=soft_dice_loss,
             metrics=[dice_coefficient, soft_dice_coefficient, precision,
-                    sensitivity, specificity])
+                    sensitivity, specificity, iou])
 
-    checkpoint = K.callbacks.ModelCheckpoint("3d_unet_brats",
-                                         verbose=1,
-                                         save_best_only=True)
+
+    logs_dir = os.path.join(args.output_dir, "train_logs")
+    checkpoint_fp =  os.path.join(args.output_dir, f"best_model/{model.name}")
+    checkpoint = tf.keras.callbacks.ModelCheckpoint(checkpoint_fp, monitor='val_loss', verbose=1, save_best_only=True)
 
     callback_lst = [checkpoint]
-    logs_dir = os.path.join("logs", datetime.datetime.now().strftime("%Y%m%d-%H%M"))
+    
 
     if args.wandb:
-        # monitor the val_loss to save the best model
-        wandb_callback = wandb.keras.WandbCallback(monitor='val_loss',log_weights=True)
-        callback_lst.append(wandb_callback)
+        # monitor the val_loss to save the best model        
+        report_cb = wandb.keras.WandbCallback(monitor='val_loss', log_weights=True)
         wandb.define_metric("val_loss", summary="min")
     else:
-        callback_lst.append(tf.keras.callbacks.TensorBoard(histogram_freq=1, log_dir=logs_dir))
+        report_cb = tf.keras.callbacks.TensorBoard(histogram_freq=1, log_dir=logs_dir)
+    
+    callback_lst.append(report_cb)
 
     print("\n\n")
-    print(f"  =========== TRAINING MODEL {m_name} ===========")
-    print(f"  Loss = {args.loss}")
-    print(f"  Optimizer = {optimizer}")
-    print(f"  learning rate = {args.learning_rate}")
+    print(f"=========== TRAINING MODEL {model.name} ===========")
+    print(f"Loss = {soft_dice_loss}")
+    print(f"Optimizer = {optimizer}")
+    print(f"learning rate = {args.learning_rate}")
     print('\n')
 
     model.fit(train_set, epochs=args.n_epochs, validation_data=valid_set, callbacks=callback_lst)
-    model.save_weights('best_pretrained.hdf5')
+    #model.save_weights(f'{args.output_dir}best_pretrained.hdf5')
 
     return model
 
@@ -71,17 +73,23 @@ def main():
     # set seed
     set_seed(args)
 
+    #
+    tf.keras.backend.set_image_data_format("channels_first")
+
     brats_generator = BratsDatasetGenerator(args)
     brats_generator.print_info()
     args.len_train = brats_generator.len_train
-    args.len_valid = brats_generator.len_valid
+    args.len_valid = brats_generator.len_val
     args.len_test = brats_generator.len_test
-    args.class_names = [v for k, v in brats_generator.output_channels().items()]
+    args.class_names = [v for k, v in brats_generator.output_channels.items()]
     print(f"  Class names = {args.class_names}")
 
+    with open(f"{args.ds_path}split_sets.json", "r") as f:
+        set_filenames = json.load(f)
+
     # Get generators for training and validation sets
-    train_generator = TFVolumeDataGenerator(brats_generator.train_ids, f"{args.ds_path}subvolumes", batch_size=3, dim=(128, 128, 32), verbose=1)
-    valid_generator = TFVolumeDataGenerator(brats_generator.val_ids, f"{args.ds_path}subvolumes", batch_size=3, dim=(128, 128, 32), verbose=1)
+    train_generator = TFVolumeDataGenerator(set_filenames['train'], f"{args.ds_path}subvolumes/", batch_size=3, dim=(128, 128, 32))
+    valid_generator = TFVolumeDataGenerator(set_filenames['val'], f"{args.ds_path}subvolumes/", batch_size=3, dim=(128, 128, 32))
 
     # Set training parameters
     args.nbr_train_batch = int(math.ceil(args.len_train / args.batch_size))
@@ -99,24 +107,30 @@ def main():
     print(f"  Nbr of training batch = {args.nbr_train_batch}")
     print(f"  Nbr training steps = {args.n_training_steps}")
 
-    m_name = "Unet3D"
-    model = unet_model_3d(m_name)
+    model = unet_model_3d(args.m_name)
     print(model.name)
 
     # define wandb run and project
     if args.wandb:
-        set_wandb_project_run(args, m_name)
+        set_wandb_project_run(args, args.m_name)
 
-    trained_model = tf_train_model(args, m_name, model, train_generator, valid_generator)
+    trained_model = tf_train_model(args,  model, train_generator, valid_generator)
 
     if args.evaluate_during_training:
         # load best model & evaluate on test set
-        ds_test = brats_generator.get_test_set()
+        test_generator = TFVolumeDataGenerator(set_filenames['test'], f"{args.ds_path}subvolumes/", batch_size=3, dim=(128, 128, 32))
         # model =
-        loss, dice_coef, soft_dice_coef = trained_model.evaluate(ds_test)
-        print(f"Loss: {loss}")
-        print(f"Average Dice Coefficient on test dataset = {dice_coef:.4f}")
-        print(f"Average Soft Dice Coefficient on test dataset = {soft_dice_coef:.4f}")
+        custom_metrics = {"dice_coefficient":dice_coefficient,
+                        "soft_dice_coefficient":soft_dice_coefficient,
+                        "precision":precision, "sensitivity":sensitivity, "specificity":specificity, 
+                        "iou":iou}
+
+        #trained_model = tf.keras.models.load_model(f"{args.output_dir}/best_model", custom_objects=custom_metrics)
+        history = trained_model.evaluate(test_generator)
+        print(history)
+        #print(f"Loss: {loss}")
+        #print(f"Average Dice Coefficient on test dataset = {dice_coef:.4f}")
+        #print(f"Average Soft Dice Coefficient on test dataset = {soft_dice_coef:.4f}")
 
 
     if args.wandb:

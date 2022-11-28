@@ -1,12 +1,12 @@
 import os
 import json
 import cv2
-import numpy as np
-import nibabel as nib
-import nilearn as nl
-import tensorflow as tf
 import h5py
 import multiprocessing
+import numpy as np
+import nilearn as nl
+import nibabel as nib
+import tensorflow as tf
 import matplotlib.pyplot as plt
 import nilearn.plotting as nlplt
 from utils import parse_args, set_seed
@@ -532,7 +532,7 @@ class TFVolumeDataGenerator(tf.keras.utils.Sequence):
                  dim=(128, 128, 32),
                  n_channels=4,
                  n_classes=4,
-                 verbose=1):
+                 verbose=0):
         self.batch_size = batch_size
         self.shuffle = shuffle
         self.base_dir = base_dir
@@ -562,14 +562,11 @@ class TFVolumeDataGenerator(tf.keras.utils.Sequence):
         for i, ID in enumerate(list_IDs_temp):
             # Store sample
             if self.verbose == 1:
-                print("Training on: %s" % self.base_dir + ID)
+                print(f"Training on: {self.base_dir}{ID}")
+
             with h5py.File(self.base_dir + ID, 'r') as f:
                 X[i] = np.array(f.get("images"))
-                # remove the background class
                 y[i] = np.array(f.get("masks"))
-                print(y[i].shape)
-                #y[i] = np.moveaxis(y[i], 3, 0)[1:]
-                #y[i] = np.moveaxis(np.array(f.get("masks")), 3, 0)[1:]
 
         return X, y
 
@@ -580,22 +577,18 @@ class TFVolumeDataGenerator(tf.keras.utils.Sequence):
         indexes = self.indexes[
                   index * self.batch_size: (index + 1) * self.batch_size]
 
-        print(f"indexes get item: {indexes}")
         # Find list of IDs
         list_IDs_temp = [self.list_IDs[k] for k in indexes]
         # Generate data
         X, y = self.__data_generation(list_IDs_temp)
-
         return X, y
 
 
     def on_epoch_end(self):
         'Updates indexes after each epoch'
         self.indexes = np.arange(len(self.list_IDs))
-        print(f"indexes on ep end: {self.indexes}")
         if self.shuffle == True:
             np.random.shuffle(self.indexes)
-            print(f"indexes on ep end shuffle: {self.indexes}")
 
 
 ## ADD PYTORCH DATALOADER

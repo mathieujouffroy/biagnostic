@@ -1,8 +1,9 @@
 import os
 import yaml
-import argparse
-import random
+import h5py
 import wandb
+import random
+import argparse
 import numpy as np
 import tensorflow as tf
 
@@ -28,7 +29,7 @@ def set_seed(args):
 def wandb_cfg(args, n_training_steps):
     # SETUP WANDB
     config_dict = {
-        "dataset": args.dataset,
+        "dataset": args.ds_path,
         "nbr_train_epochs": args.n_epochs,
         "nbr_classes": args.n_classes,
         "len_train": args.len_train,
@@ -36,10 +37,7 @@ def wandb_cfg(args, n_training_steps):
         "len_test": args.len_test,
         "batch_size": args.batch_size,
         "nbr_train_batch": args.nbr_train_batch,
-        "n_train_steps": n_training_steps,
-
         "learning_rate": args.learning_rate,
-        "optimizer": args.optimizer,
     }
 
     return config_dict
@@ -70,7 +68,6 @@ def parse_args():
     config = YamlNamespace(config)
 
     return config
-import h5py
 
 
 def load_hdf5(name):
