@@ -23,7 +23,8 @@ def main():
     brats_generator = BratsDatasetGenerator(args)
     brats_generator.print_info(log=True)
     args.len_test = brats_generator.len_test
-    args.class_names = [v for k, v in brats_generator.output_channels.items()]
+    #args.class_names = [v for k, v in brats_generator.output_channels.items()]
+    args.class_names = list(brats_generator.output_channels.values())
     
     with open(f"{args.ds_path}split_sets.json", "r") as f:
         set_filenames = json.load(f)

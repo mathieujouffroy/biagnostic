@@ -144,37 +144,6 @@ class BratsDatasetGenerator:
         return image, label
 
 
-    def load_example_nl(self, idx):
-        niimg = nl.image.load_img(self.filenames[idx][0])
-        nimask = nl.image.load_img(self.filenames[idx][1])
-        return niimg, nimask
-
-
-    def standardize(self, image):
-        """
-        Standardize mean and standard deviation of each channel and z_dimension.
-
-        Args:
-            image (np.array): input image, shape (n_channels, dim_x, dim_y, dim_z)
-
-        Returns:
-            standardized_image (np.array): standardized version of input image
-        """
-
-        standardized_image = np.zeros(image.shape)
-
-        # iterate over channels
-        for c in range(image.shape[0]):
-            # iterate over the `depth` dimension
-            for z in range(image.shape[3]):
-                image_slice = image[c, :, : ,z]
-                centered = image_slice - np.mean(image_slice)
-                centered_scaled = centered / np.std(centered)
-                standardized_image[c, :, :, z] = centered_scaled
-
-        return standardized_image
-
-
     def get_subvol_coords_lowest_bgd(self, idx, max_tries = 150, verbose=False):
         """
         Extract random sub-volume from original images.
@@ -271,6 +240,31 @@ class BratsDatasetGenerator:
         return start_x, start_y, start_z
 
 
+    def standardize(self, image):
+        """
+        Standardize mean and standard deviation of each channel and z_dimension.
+
+        Args:
+            image (np.array): input image, shape (n_channels, dim_x, dim_y, dim_z)
+
+        Returns:
+            standardized_image (np.array): standardized version of input image
+        """
+
+        standardized_image = np.zeros(image.shape)
+
+        # iterate over channels
+        for c in range(image.shape[0]):
+            # iterate over the `depth` dimension
+            for z in range(image.shape[3]):
+                image_slice = image[c, :, : ,z]
+                centered = image_slice - np.mean(image_slice)
+                centered_scaled = centered / np.std(centered)
+                standardized_image[c, :, :, z] = centered_scaled
+
+        return standardized_image
+
+
     def generate_sub_volume(self, idx, store=True):
         """
         Generate sub-volume from original images.
@@ -338,22 +332,9 @@ class BratsDatasetGenerator:
         img = np.moveaxis(img,3,0)
         # change dimension from (x_dim, y_dim, z_dim, n_classes) to (n_classes, x_dim, y_dim, z_dim)
         mask = np.moveaxis(mask,3,0)
-        # take a subset of y that excludes the background class in the 'n_classes' dimension
-        mask = mask[1:, :, :, :]
         img = self.standardize(img)
         print(f"start_x: {start_x}, start_y:{start_y}, start_z:{start_z}")
         return img, mask
-
-
-    def plot_nl(self, idx):
-        niimg, nimask = self.load_example_nl(idx)
-        niimg = niimg.slicer[:, :, :, 0]
-        fig, axes = plt.subplots(nrows=4, figsize=(8, 10))
-        nlplt.plot_img(niimg, axes=axes[0])
-        nlplt.plot_anat(niimg, axes=axes[1])
-        nlplt.plot_epi(niimg, axes=axes[2])
-        nlplt.plot_roi(nimask, bg_img=niimg,  axes=axes[3], cmap='Paired')
-        plt.show()
 
 
     def plot_example(self, idx, d_chan):
@@ -370,9 +351,42 @@ class BratsDatasetGenerator:
         plt.show()
 
 
-    def colorize_labels_image_flair(self, idx):
-        image, label = self.load_example(idx)
+    def plot_nl(self, idx):
+        niimg = nl.image.load_img(self.filenames[idx][0])
+        nimask = nl.image.load_img(self.filenames[idx][1])
+        niimg = niimg.slicer[:, :, :, 0]
+        fig, axes = plt.subplots(nrows=4, figsize=(8, 10))
+        nlplt.plot_img(niimg, axes=axes[0])
+        nlplt.plot_anat(niimg, axes=axes[1])
+        nlplt.plot_epi(niimg, axes=axes[2])
+        nlplt.plot_roi(nimask, bg_img=niimg,  axes=axes[3], cmap='Paired')
+        plt.show()
 
+
+    def explore_3D_image(self, id, layer, channel):
+        classes_dict = {
+            'Normal': 0.,
+            'Edema': 1.,
+            'Non-enhancing tumor': 2.,
+            'Enhancing tumor': 3. 
+        }
+        image, label = self.load_example(id)
+        fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(8, 5))
+        ax[0].imshow(image[:, :, layer, channel], cmap='gray')
+        ax[1].imshow(label[:, :, layer])
+        fig.suptitle('Explore Layers of Brain MRI', fontsize=10)
+        fig, ax = plt.subplots(nrows=1, ncols=4, figsize=(10, 20))
+        for i in range(4):
+            label_str = list(classes_dict.keys())[i]
+            img = label[:,:,layer]
+            mask = np.where(img == classes_dict[label_str], 255, 0)
+            ax[i].imshow(mask)
+            ax[i].set_title(f"{label_str}", fontsize=10)
+            ax[i].axis('off')
+        return layer, label, channel
+
+
+    def colorize_labels_image_flair(self, image, label):
         label = np.eye(self.n_classes, dtype="uint8")[label.astype(int)]
         ## Normalize Flair channel
         #image = image[:, :, :, 0]
@@ -389,13 +403,11 @@ class BratsDatasetGenerator:
         labeled_image[:, :, :, 2] = image * (label[:, :, :, 0])
 
         labeled_image += (label[:, :, :, 1:] * 255)
-        print(labeled_image.shape)
-        print(np.unique((label[:, :, :, 1:] * 255), return_counts=True))
         return labeled_image
 
 
-    def plot_image_grid(self, idx):
-        image = self.colorize_labels_image_flair(idx)
+    def plot_image_grid(self, image, label):
+        image = self.colorize_labels_image_flair(image, label)
 
         data_all = []
         data_all.append(image)
@@ -444,21 +456,22 @@ class BratsDatasetGenerator:
         fig.subplots_adjust(wspace=0, hspace=0)
 
 
-    def visualize_patch(self, idx, image, mask):
+    def visualize_patch(self, idx, image, mask, title=None):
         plt.figure("image", (8, 6))
         plt.subplot(1, 2, 1)
         plt.title('MRI Flair Channel')
         plt.imshow(image[0, :, :, idx], cmap="gray")
         plt.subplot(1, 2, 2)
-        plt.title('Edema Channel')
+        plt.title('Mask')
         plt.imshow(mask[:, :, idx])
-        plt.suptitle(f'Inspection on depth {idx}')
+        if title:
+            plt.suptitle(title)
         plt.show()
 
 
-    def visualize_all_patches(self, image, mask):
-        for i in range(image.shape[-1]):
-            self.visualize_patch(i, image, mask)
+    def visualize_patch_pred(self, idx, image, mask, pred_mask):
+        self.visualize_patch(idx, image, mask, "true mask")
+        self.visualize_patch(idx, image, pred_mask, "pred mask")
 
 
     def predict_and_viz(self, image, label, model, threshold, loc=(100, 100, 50)):

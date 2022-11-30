@@ -21,3 +21,5 @@ overwrite_output_dir: True
 wandb: True
 
 output_dir: "resources/"
+
+framework: "tf"

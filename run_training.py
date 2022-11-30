@@ -36,7 +36,8 @@ def main():
     brats_generator.print_info(log=True)
     args.len_train = brats_generator.len_train
     args.len_valid = brats_generator.len_val
-    args.class_names = [v for k, v in brats_generator.output_channels.items()]
+    #args.class_names = [v for k, v in brats_generator.output_channels.items()]
+    args.class_names = list(brats_generator.output_channels.values())
 
     with open(f"{args.ds_path}split_sets.json", "r") as f:
         set_filenames = json.load(f)
@@ -61,9 +62,9 @@ def main():
     logger.info(f"  Nbr of training batch = {args.nbr_train_batch}")
     logger.info(f"  Nbr training steps = {args.n_training_steps}")
 
-
-    model = unet_model_3d(args.m_name)
-    trained_model = tf_train_model(args,  model, train_generator, valid_generator)
+    if args.framework == "tf":
+        model = unet_model_3d(args.m_name)
+        trained_model = tf_train_model(args,  model, train_generator, valid_generator)
 
 
     if args.evaluate_during_training:
