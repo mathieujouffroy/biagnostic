@@ -2,6 +2,7 @@ import os
 import json
 import cv2
 import h5py
+import logging
 import multiprocessing
 import numpy as np
 import nilearn as nl
@@ -9,8 +10,10 @@ import nibabel as nib
 import tensorflow as tf
 import matplotlib.pyplot as plt
 import nilearn.plotting as nlplt
-from utils import parse_args, set_seed
+from train_framework.utils import parse_args, set_seed, set_logging
 #from tensorflow.keras.utils import to_categorical
+
+logger = logging.getLogger(__name__)
 
 def store_hdf5(name, images, masks):
     """
@@ -41,7 +44,7 @@ class BratsDatasetGenerator:
 
         self.ds_path = args.ds_path
         self.batch_size = args.batch_size
-        self.crop_size = args.crop_size
+        self.crop_shape = args.crop_shape
         self.train_val_split = args.train_val_split
         self.val_test_split = args.val_test_split
         self.n_classes = args.n_classes
@@ -89,9 +92,6 @@ class BratsDatasetGenerator:
             img_path = experiment_data["training"][idx]["image"][2:]
             label_path = experiment_data["training"][idx]["label"][2:]
 
-            if img_path.split('/')[-1] == 'BRATS_001.nii.gz':
-                print(idx)
-
             self.filenames[idx] = [os.path.join(self.ds_path,img_path),
                                     os.path.join(self.ds_path,label_path)]
 
@@ -100,25 +100,41 @@ class BratsDatasetGenerator:
                 self.label_shape = np.array(nib.load(self.filenames[idx][1]).get_fdata()).shape
 
 
-    def print_info(self):
+    def print_info(self, log=False):
         """ Print the dataset information """
 
-        print("="*40)
-        print(f"Dataset name:        {self.name}")
-        print(f"Dataset description: {self.description}")
-        print(f"Dataset release:     {self.release}")
-        print(f"Dataset reference:   {self.reference}")
-        print(f"Input channels:      {self.input_channels}")
-        print(f"Output labels:       {self.output_channels}")
-        print(f"Tensor image size:   {self.tensorImageSize}")
-        print(f"Nbr of images:       {self.numFiles}")
-        print(f"Image shape:         {self.img_shape}")
-        print(f"Label shape:         {self.label_shape}")
-        print(f"Training set len:    {self.len_train}")
-        print(f"Validation set len:  {self.len_val}")
-        print(f"Testing set len:     {self.len_test}")
-
-        print("="*40)
+        if log:
+            logger.info("="*40)
+            logger.info(f"Dataset name:        {self.name}")
+            logger.info(f"Dataset description: {self.description}")
+            logger.info(f"Dataset release:     {self.release}")
+            logger.info(f"Dataset reference:   {self.reference}")
+            logger.info(f"Input channels:      {self.input_channels}")
+            logger.info(f"Output labels:       {self.output_channels}")
+            logger.info(f"Tensor image size:   {self.tensorImageSize}")
+            logger.info(f"Nbr of images:       {self.numFiles}")
+            logger.info(f"Image shape:         {self.img_shape}")
+            logger.info(f"Label shape:         {self.label_shape}")
+            logger.info(f"Training set len:    {self.len_train}")
+            logger.info(f"Validation set len:  {self.len_val}")
+            logger.info(f"Testing set len:     {self.len_test}")
+            logger.info("="*40)
+        else:
+            print("="*40)
+            print(f"Dataset name:        {self.name}")
+            print(f"Dataset description: {self.description}")
+            print(f"Dataset release:     {self.release}")
+            print(f"Dataset reference:   {self.reference}")
+            print(f"Input channels:      {self.input_channels}")
+            print(f"Output labels:       {self.output_channels}")
+            print(f"Tensor image size:   {self.tensorImageSize}")
+            print(f"Nbr of images:       {self.numFiles}")
+            print(f"Image shape:         {self.img_shape}")
+            print(f"Label shape:         {self.label_shape}")
+            print(f"Training set len:    {self.len_train}")
+            print(f"Validation set len:  {self.len_val}")
+            print(f"Testing set len:     {self.len_test}")
+            print("="*40)
 
 
     def load_example(self, idx):
@@ -159,7 +175,7 @@ class BratsDatasetGenerator:
         return standardized_image
 
 
-    def get_best_coords_lowest_bgd(self, idx, max_tries = 150, verbose=False):
+    def get_subvol_coords_lowest_bgd(self, idx, max_tries = 150, verbose=False):
         """
         Extract random sub-volume from original images.
 
@@ -174,17 +190,20 @@ class BratsDatasetGenerator:
             y (np.array): labels which correspond to X, of dimension
                 (n_classes, output_x, output_y, output_z)
         """
-        orig_x, orig_y = self.img_shape[0], self.img_shape[1]
-        output_x, output_y, output_z = self.crop_size[0], self.crop_size[1], self.crop_size[2]
 
-        image, label = self.load_example(idx)
+        orig_x, orig_y = self.img_shape[0], self.img_shape[1]
+        output_x, output_y, output_z = self.crop_shape[0], self.crop_shape[1], self.crop_shape[2]
+
+        _, label = self.load_example(idx)
         tries = 0
+
         min_x = min(np.where(label != 0)[0])
         max_x = max(np.where(label != 0)[0])
         min_y = min(np.where(label != 0)[1])
         max_y = max(np.where(label != 0)[1])
         min_z = min(np.where(label != 0)[2])
         max_z = max(np.where(label != 0)[2])
+
         start_x = (orig_x - output_x + 1)//2
         start_y = (orig_y - output_y + 1)//2
 
@@ -226,10 +245,21 @@ class BratsDatasetGenerator:
             print(f"start_X : {start_x}, end_X: {start_x+output_x}, min_label_x: {min_x}, max_label_x: {max_x}, len_x = {max_x-min_x}")
             print(f"start_Y : {start_y}, end_X: {start_y+output_y}, min_label_y: {min_y}, max_label_y: {max_y}, len_y = {max_y-min_y}")
             print(f"Start_Z: {best_z}, end_Z: {best_z+output_z}, min_label_z: {min_z}, max_label_z: {max_z}, len_z: {max_z-min_z}")
-        return int(start_x), int(start_x), int(best_z)
+        return int(start_x), int(start_x), int(best_z), best_bgrd_ratio
 
 
-    def get_best_coords(self, idx):
+    def gen_subvol_coords(self):
+        coord_dict = dict()
+
+        for i in range(self.numFiles):
+            start_x, start_y, start_z, ratio = self.get_subvol_coords_lowest_bgd(i)
+            coord_dict[i] = {"start_x":start_x, "start_y":start_y, "start_z":start_z, "ratio": ratio}
+
+        with open(f'{self.ds_path}volumes_coord.json', 'w') as f:
+            json.dump(coord_dict, f, indent=4)
+
+
+    def get_subvol_coords(self, idx):
         with open(f'{self.ds_path}volumes_coord.json', "r")  as f:
             id_coords_dict = json.load(f)
 
@@ -241,20 +271,9 @@ class BratsDatasetGenerator:
         return start_x, start_y, start_z
 
 
-    def gen_best_vol_coords(self):
-        coord_dict = dict()
-
-        for i in range(self.numFiles):
-            start_x, start_y, start_z = self.get_best_coords_lowest_bgd(i)
-            coord_dict[i] = {"start_x":start_x, "start_y":start_y, "start_z":start_z}
-
-        with open(f'{self.ds_path}volumes_coord.json', 'w') as f:
-            json.dump(coord_dict, f, indent=4)
-
-
     def generate_sub_volume(self, idx, store=True):
         """
-        Extract random sub-volume from original images.
+        Generate sub-volume from original images.
 
         Args:
             max_tries (int): maximum trials to do when sampling
@@ -267,11 +286,11 @@ class BratsDatasetGenerator:
             y (np.array): labels which correspond to X, of dimension
                 (n_classes, output_x, output_y, output_z)
         """
-        output_x, output_y, output_z = self.crop_size[0], self.crop_size[1], self.crop_size[2]
+        output_x, output_y, output_z = self.crop_shape[0], self.crop_shape[1], self.crop_shape[2]
 
         #idx = idx.numpy()
         image, label = self.load_example(idx)
-        start_x, start_y, start_z = self.get_best_coords(idx)
+        start_x, start_y, start_z = self.get_subvol_coords(idx)
 
         y = label[start_x: start_x + output_x,
                   start_y: start_y + output_y,
@@ -303,18 +322,17 @@ class BratsDatasetGenerator:
 
     def get_sub_volume(self, idx):
         img, label = self.load_example(idx)
-        start_x, start_y, start_z = self.get_best_coords(idx)
+        start_x, start_y, start_z = self.get_subvol_coords(idx)
 
-        img = img[start_x: start_x+self.crop_size[0],
-                start_y: start_y+self.crop_size[1],
-                start_z: start_z+self.crop_size[2], :]
+        img = img[start_x: start_x+self.crop_shape[0],
+                start_y: start_y+self.crop_shape[1],
+                start_z: start_z+self.crop_shape[2], :]
 
         mask = np.eye(self.n_classes, dtype='uint8')[label.astype(int)]
-        #to_categorical(label, num_classes = self.n_classes)
 
-        mask = mask[start_x: start_x + self.crop_size[0],
-                    start_y: start_y + self.crop_size[1],
-                    start_z: start_z + self.crop_size[2]]
+        mask = mask[start_x: start_x + self.crop_shape[0],
+                    start_y: start_y + self.crop_shape[1],
+                    start_z: start_z + self.crop_shape[2]]
 
         # change dimension from (x_dim, y_dim, z_dim, n_channels)  to (n_channels, x_dim, y_dim, z_dim)
         img = np.moveaxis(img,3,0)
@@ -323,6 +341,7 @@ class BratsDatasetGenerator:
         # take a subset of y that excludes the background class in the 'n_classes' dimension
         mask = mask[1:, :, :, :]
         img = self.standardize(img)
+        print(f"start_x: {start_x}, start_y:{start_y}, start_z:{start_z}")
         return img, mask
 
 
@@ -340,6 +359,7 @@ class BratsDatasetGenerator:
     def plot_example(self, idx, d_chan):
         img, label = self.load_example(idx)
         img = img[:, :, :, 0]
+        print(label.shape)
         plt.figure("image", (18, 6))
         plt.subplot(1, 2, 1)
         plt.title("image")
@@ -352,25 +372,25 @@ class BratsDatasetGenerator:
 
     def colorize_labels_image_flair(self, idx):
         image, label = self.load_example(idx)
-        #label = to_categorical(label, num_classes=4).astype(np.uint8)
-        label = np.eye(self.n_classes, dtype="uint8")[label.astype(int)]
-        # Normalize Flair channel
-        image = cv2.normalize(image[:, :, :, 0], None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_32F).astype(np.uint8)
-        un, cn = np.unique(image, return_counts=True)
-        #print(np.asarray((un, cn)).T)
 
+        label = np.eye(self.n_classes, dtype="uint8")[label.astype(int)]
+        ## Normalize Flair channel
+        #image = image[:, :, :, 0]
+        image = cv2.normalize(image[:, :, :, 0], None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_32F).astype(np.uint8)
+        
         # create array without taking into account the background label
         labeled_image = np.zeros_like(label[:, :, :, 1:])
 
         # remove tumor part from image
         # (remember we removed the background, so index 0 -> 'edema')
-        # label[:, :, :, 0] -> background, all 1 for background
+        # label[:, :, :, 0] -> all 1 for background, all 0 for the tumor parts
         labeled_image[:, :, :, 0] = image * (label[:, :, :, 0])
         labeled_image[:, :, :, 1] = image * (label[:, :, :, 0])
         labeled_image[:, :, :, 2] = image * (label[:, :, :, 0])
 
         labeled_image += (label[:, :, :, 1:] * 255)
-
+        print(labeled_image.shape)
+        print(np.unique((label[:, :, :, 1:] * 255), return_counts=True))
         return labeled_image
 
 
@@ -424,21 +444,21 @@ class BratsDatasetGenerator:
         fig.subplots_adjust(wspace=0, hspace=0)
 
 
-    def visualize_patch(self, image, mask, m_chan=0):
-        # Flair channel
-        image = image[0, :, :, :]
-        # Edema tumor
-        mask = mask[m_chan, :, :, :]
+    def visualize_patch(self, idx, image, mask):
+        plt.figure("image", (8, 6))
+        plt.subplot(1, 2, 1)
+        plt.title('MRI Flair Channel')
+        plt.imshow(image[0, :, :, idx], cmap="gray")
+        plt.subplot(1, 2, 2)
+        plt.title('Edema Channel')
+        plt.imshow(mask[:, :, idx])
+        plt.suptitle(f'Inspection on depth {idx}')
+        plt.show()
+
+
+    def visualize_all_patches(self, image, mask):
         for i in range(image.shape[-1]):
-            plt.figure("image", (8, 6))
-            plt.subplot(1, 2, 1)
-            plt.title('MRI Flair Channel')
-            plt.imshow(image[:, :, i], cmap="gray")
-            plt.subplot(1, 2, 2)
-            plt.title('Edema Channel')
-            plt.imshow(mask[:, :, i])
-            plt.suptitle(f'Inspection on depth {i}')
-            plt.show()
+            self.visualize_patch(i, image, mask)
 
 
     def predict_and_viz(self, image, label, model, threshold, loc=(100, 100, 50)):
@@ -553,34 +573,36 @@ class TFVolumeDataGenerator(tf.keras.utils.Sequence):
         'Generates data containing batch_size samples'
 
         # Initialization
-        X = np.zeros((self.batch_size, self.n_channels, *self.dim),
+        X = np.zeros((self.batch_size, *self.dim, self.n_channels),
+        #X = np.zeros((self.batch_size, self.n_channels, *self.dim),
                      dtype=np.float64)
-        y = np.zeros((self.batch_size, self.n_classes, *self.dim),
+        #y = np.zeros((self.batch_size, self.n_classes, *self.dim),
+        y = np.zeros((self.batch_size, *self.dim, self.n_classes),
                      dtype=np.float64)
 
         # Generate data
         for i, ID in enumerate(list_IDs_temp):
-            # Store sample
             if self.verbose == 1:
                 print(f"Training on: {self.base_dir}{ID}")
-
+            # Store sample
             with h5py.File(self.base_dir + ID, 'r') as f:
-                X[i] = np.array(f.get("images"))
-                y[i] = np.array(f.get("masks"))
-
+                #X[i] = np.array(f.get("images")) #(4, 128, 128, 32)
+                #y[i] = np.array(f.get("masks")) #(3, 128, 128, 32)
+                X[i] = np.moveaxis(np.array(f.get("images")), 0, 3)
+                y[i] = np.moveaxis(np.array(f.get("masks")), 0, 3)
         return X, y
 
 
     def __getitem__(self, index):
         'Generate one batch of data'
         # Generate indexes of the batch
-        indexes = self.indexes[
-                  index * self.batch_size: (index + 1) * self.batch_size]
+        indexes = self.indexes[index * self.batch_size: (index + 1) * self.batch_size]
 
         # Find list of IDs
         list_IDs_temp = [self.list_IDs[k] for k in indexes]
         # Generate data
-        X, y = self.__data_generation(list_IDs_temp)
+        X, y = self.__data_generation(list_IDs_temp) #(3, 4, 128, 128, 32), (3, 3, 128, 128, 32)
+
         return X, y
 
 
@@ -626,7 +648,7 @@ def main():
     if not os.path.exists(f"{args.ds_path}subvolumes"):
         os.makedirs(f"{args.ds_path}subvolumes")
 
-    brats_generator.gen_best_vol_coords()
+    brats_generator.gen_subvol_coords()
 
     print(f"\nN_CPU: {multiprocessing.cpu_count()}\n")
     for id_lst in [brats_generator.train_ids, brats_generator.val_ids, brats_generator.test_ids]:

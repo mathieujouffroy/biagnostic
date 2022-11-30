@@ -3,6 +3,7 @@ resources/Task01_BrainTumour/labelsTr
 resources/Task01_BrainTumour/imagesTs
 resources/Task01_BrainTumour/subvolumes
 resources/Task01_BrainTumour.zip
+resources/best_model
 
 __pycache__
 */__pycache__

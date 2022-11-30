@@ -1,11 +1,34 @@
 import os
 import yaml
-import h5py
 import wandb
 import random
+import logging
 import argparse
+import datetime
 import numpy as np
 import tensorflow as tf
+
+
+def set_seed(args):
+    random.seed(args.seed)
+    np.random.seed(args.seed)
+    tf.random.set_seed(args.seed)
+
+
+def set_logging(args, log_type):
+    "Defines the file in which we will write our training logs"
+    
+    date = datetime.datetime.now().strftime("%d:%m-%H:%M")
+    if log_type == 'train':
+        log_file = os.path.join(f"{args.output_dir}train", f"{args.m_name}_{date}.log")
+    elif log_type == 'infer':
+        log_file = os.path.join(f"{args.output_dir}infer", f"{args.m_name}_{date}.log")
+
+    logging.basicConfig(
+        format="%(asctime)s - %(levelname)s - %(name)s -   %(message)s", datefmt="%m/%d/%Y %H:%M:%S",
+        level=logging.INFO,
+        handlers=[logging.StreamHandler(), logging.FileHandler(log_file)]
+    )
 
 
 class YamlNamespace(argparse.Namespace):
@@ -20,17 +43,12 @@ class YamlNamespace(argparse.Namespace):
                 setattr(self, a, YamlNamespace(b)
                         if isinstance(b, dict) else b)
 
-def set_seed(args):
-    random.seed(args.seed)
-    np.random.seed(args.seed)
-    tf.random.set_seed(args.seed)
 
-
-def wandb_cfg(args, n_training_steps):
+def wandb_cfg(args):
     # SETUP WANDB
     config_dict = {
         "dataset": args.ds_path,
-        "nbr_train_epochs": args.n_epochs,
+        "nbr_epochs": args.n_epochs,
         "nbr_classes": args.n_classes,
         "len_train": args.len_train,
         "len_valid": args.len_valid,
@@ -39,7 +57,6 @@ def wandb_cfg(args, n_training_steps):
         "nbr_train_batch": args.nbr_train_batch,
         "learning_rate": args.learning_rate,
     }
-
     return config_dict
 
 
@@ -69,23 +86,3 @@ def parse_args():
 
     return config
 
-
-def load_hdf5(name):
-    """
-    Reads image from HDF5.
-    Args:
-        name(str):              path to the HDF5 file (dataset)
-        class_label(str):       type of classification
-    Returns:
-        images(numpy.array):    images array, (N, 256, 256, 3) to be stored
-        labels(numpy.array):    labels array, (N,) to be stored
-    """
-    images, labels = [], []
-    # Open the HDF5 file
-    file = h5py.File(f"{name}", "r+")
-    images = np.array(file.get("x")).shape
-    labels = np.array(file.get("y")).shape
-
-    print(images)
-    print(labels)
-    return images, labels

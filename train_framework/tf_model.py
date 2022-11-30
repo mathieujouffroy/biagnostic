@@ -1,5 +1,5 @@
-import tensorflow.keras.layers as tfl
 import tensorflow as tf
+import tensorflow.keras.layers as tfl
 
 def ConvolutionBlock(x, n_filts, params, batch_normalization, name):
 

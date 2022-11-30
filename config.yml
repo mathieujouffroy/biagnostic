@@ -1,0 +1,23 @@
+## Configuration file
+
+ds_path: "resources/Task01_BrainTumour/"
+#ds_path: "../../block_storage/resources/Task01_BrainTumour/"
+crop_shape: [128, 128, 32]
+
+m_name: "Unet3D-imp"
+
+n_classes: 4
+seed: 42
+
+train_val_split: 0.70
+val_test_split: 0.50
+batch_size: 3
+n_epochs: 3 #30
+learning_rate: 0.0001
+
+evaluate_during_training: True
+overwrite_output_dir: True
+
+wandb: True
+
+output_dir: "resources/"
