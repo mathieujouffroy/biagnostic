@@ -371,10 +371,12 @@ class BratsDatasetGenerator:
             'Enhancing tumor': 3. 
         }
         image, label = self.load_example(id)
+        
         fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(8, 5))
         ax[0].imshow(image[:, :, layer, channel], cmap='gray')
         ax[1].imshow(label[:, :, layer])
         fig.suptitle('Explore Layers of Brain MRI', fontsize=10)
+
         fig, ax = plt.subplots(nrows=1, ncols=4, figsize=(10, 20))
         for i in range(4):
             label_str = list(classes_dict.keys())[i]
@@ -383,7 +385,6 @@ class BratsDatasetGenerator:
             ax[i].imshow(mask)
             ax[i].set_title(f"{label_str}", fontsize=10)
             ax[i].axis('off')
-        return layer, label, channel
 
 
     def colorize_labels_image_flair(self, image, label):
