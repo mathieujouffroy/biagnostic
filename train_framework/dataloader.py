@@ -3,15 +3,12 @@ import json
 import cv2
 import h5py
 import logging
-import multiprocessing
 import numpy as np
 import nilearn as nl
 import nibabel as nib
 import tensorflow as tf
 import matplotlib.pyplot as plt
 import nilearn.plotting as nlplt
-from train_framework.utils import parse_args, set_seed, set_logging
-#from tensorflow.keras.utils import to_categorical
 
 logger = logging.getLogger(__name__)
 
@@ -166,10 +163,18 @@ class BratsDatasetGenerator:
         _, label = self.load_example(idx)
         tries = 0
 
-        min_x = min(np.where(label != 0)[0])
-        max_x = max(np.where(label != 0)[0])
-        min_y = min(np.where(label != 0)[1])
-        max_y = max(np.where(label != 0)[1])
+        print(label.shape)
+        print(np.unique(label))
+        print(np.where(label != 0))
+        #min_x = min(np.where(label != 0)[0])
+        #max_x = max(np.where(label != 0)[0])
+        #min_y = min(np.where(label != 0)[1])
+        #max_y = max(np.where(label != 0)[1])
+        min_x = min(np.where(label != 0)[1])
+        max_x = max(np.where(label != 0)[1])
+        min_y = min(np.where(label != 0)[0])
+        max_y = max(np.where(label != 0)[0])
+
         min_z = min(np.where(label != 0)[2])
         max_z = max(np.where(label != 0)[2])
 
@@ -187,11 +192,23 @@ class BratsDatasetGenerator:
             start_y = max_y - output_y + 1
 
         best_bgrd_ratio = 1
+
+        if (max_z - min_z <= 64):
+            best_z = min_z
+            y = label[start_x: start_x + output_x,
+                      start_y: start_y + output_y,
+                      best_z: best_z + output_z]
+            y = np.eye(self.n_classes, dtype='uint8')[y.astype(int)]
+            bgrd_ratio = np.sum(y[:,:,:,0]) / (output_x * output_y * output_z)
+            if verbose:
+                print(f"\nRatio: {best_bgrd_ratio}")
+                print(f"start_X : {start_x}, end_X: {start_x+output_x}, min_label_x: {min_x}, max_label_x: {max_x}, len_x = {max_x-min_x}")
+                print(f"start_Y : {start_y}, end_X: {start_y+output_y}, min_label_y: {min_y}, max_label_y: {max_y}, len_y = {max_y-min_y}")
+                print(f"Start_Z: {best_z}, end_Z: {best_z+output_z}, min_label_z: {min_z}, max_label_z: {max_z}, len_z: {max_z-min_z}")
+            return int(start_x), int(start_x), int(best_z), bgrd_ratio
+
         while tries < max_tries:
-            if (max_z - min_z <= 32):
-                start_z = min_z
-            else:
-                start_z = np.random.randint(min_z, max_z-output_z)
+            start_z = np.random.randint(min_z-1, max_z-output_z)
             y = label[start_x: start_x + output_x,
                       start_y: start_y + output_y,
                       start_z: start_z + output_z]
@@ -211,10 +228,10 @@ class BratsDatasetGenerator:
 
         if verbose:
             print(f"\nRatio: {best_bgrd_ratio}")
-            print(f"start_X : {start_x}, end_X: {start_x+output_x}, min_label_x: {min_x}, max_label_x: {max_x}, len_x = {max_x-min_x}")
-            print(f"start_Y : {start_y}, end_X: {start_y+output_y}, min_label_y: {min_y}, max_label_y: {max_y}, len_y = {max_y-min_y}")
-            print(f"Start_Z: {best_z}, end_Z: {best_z+output_z}, min_label_z: {min_z}, max_label_z: {max_z}, len_z: {max_z-min_z}")
-        return int(start_x), int(start_x), int(best_z), best_bgrd_ratio
+            print(f"start_X : {start_x}, min_label_x: {min_x}, max_label_x: {max_x}, end_X: {start_x+output_x}, len_x = {max_x-min_x}")
+            print(f"start_Y : {start_y}, min_label_y: {min_y}, max_label_y: {max_y}, end_Y: {start_y+output_y}, len_y = {max_y-min_y}")
+            print(f"Start_Z: {best_z}, min_label_z: {min_z}, max_label_z: {max_z}, end_Z: {best_z+output_z}, len_z: {max_z-min_z}")
+        return int(start_x), int(start_y), int(best_z), best_bgrd_ratio
 
 
     def gen_subvol_coords(self):
@@ -233,8 +250,10 @@ class BratsDatasetGenerator:
             id_coords_dict = json.load(f)
 
         coords_dict = id_coords_dict[str(idx)]
-        start_x = coords_dict["start_x"]
-        start_y = coords_dict["start_y"]
+        #start_x = coords_dict["start_x"]
+        #start_y = coords_dict["start_y"]
+        start_x = coords_dict["start_y"]
+        start_y = coords_dict["start_x"]
         start_z = coords_dict["start_z"]
 
         return start_x, start_y, start_z
@@ -337,17 +356,16 @@ class BratsDatasetGenerator:
         return img, mask
 
 
-    def plot_example(self, idx, d_chan):
+    def plot_example(self, idx, depth):
         img, label = self.load_example(idx)
         img = img[:, :, :, 0]
-        print(label.shape)
-        plt.figure("image", (18, 6))
+        plt.figure("image with mask", (18, 6))
         plt.subplot(1, 2, 1)
         plt.title("image")
-        plt.imshow(img[:, :, d_chan], cmap="gray")
+        plt.imshow(img[:, :, depth], cmap="gray")
         plt.subplot(1, 2, 2)
-        plt.title("label")
-        plt.imshow(label[:, :, d_chan])
+        plt.title("tumor mask")
+        plt.imshow(label[:, :, depth])
         plt.show()
 
 
@@ -563,7 +581,7 @@ class TFVolumeDataGenerator(tf.keras.utils.Sequence):
                  base_dir,
                  batch_size=1,
                  shuffle=True,
-                 dim=(128, 128, 32),
+                 dim=(160, 160, 64),
                  n_channels=4,
                  n_classes=4,
                  verbose=0):
@@ -600,8 +618,8 @@ class TFVolumeDataGenerator(tf.keras.utils.Sequence):
                 print(f"Training on: {self.base_dir}{ID}")
             # Store sample
             with h5py.File(self.base_dir + ID, 'r') as f:
-                #X[i] = np.array(f.get("images")) #(4, 128, 128, 32)
-                #y[i] = np.array(f.get("masks")) #(3, 128, 128, 32)
+                #X[i] = np.array(f.get("images")) #(4, 160, 160, 64)
+                #y[i] = np.array(f.get("masks")) #(3, 160, 160, 64)
                 X[i] = np.moveaxis(np.array(f.get("images")), 0, 3)
                 y[i] = np.moveaxis(np.array(f.get("masks")), 0, 3)
         return X, y
@@ -615,7 +633,7 @@ class TFVolumeDataGenerator(tf.keras.utils.Sequence):
         # Find list of IDs
         list_IDs_temp = [self.list_IDs[k] for k in indexes]
         # Generate data
-        X, y = self.__data_generation(list_IDs_temp) #(3, 4, 128, 128, 32), (3, 3, 128, 128, 32)
+        X, y = self.__data_generation(list_IDs_temp)
 
         return X, y
 
@@ -649,43 +667,3 @@ class TFVolumeDataGenerator(tf.keras.utils.Sequence):
 #        y = self.labels[ID]
 #
 #        return X, y
-
-
-def main():
-
-    args = parse_args()
-    set_seed(args)
-
-    brats_generator = BratsDatasetGenerator(args)
-    brats_generator.print_info()
-
-    if not os.path.exists(f"{args.ds_path}subvolumes"):
-        os.makedirs(f"{args.ds_path}subvolumes")
-
-    brats_generator.gen_subvol_coords()
-
-    print(f"\nN_CPU: {multiprocessing.cpu_count()}\n")
-    for id_lst in [brats_generator.train_ids, brats_generator.val_ids, brats_generator.test_ids]:
-        print(f"id_lst:{id_lst}")
-        pool = multiprocessing.Pool(multiprocessing.cpu_count())
-        pool.map(brats_generator.generate_sub_volume, id_lst)
-        print("\n--set done --")
-
-    split_sets = dict()
-    split_sets['train'] = []
-    split_sets['val'] = []
-    split_sets['test'] = []
-    for filename in os.listdir(f"{args.ds_path}subvolumes"):
-        idx = int(filename.split('_')[1])
-        if idx in brats_generator.train_ids:
-            split_sets['train'].append(filename)
-        if idx in brats_generator.val_ids:
-            split_sets['val'].append(filename)
-        if idx in brats_generator.test_ids:
-            split_sets['test'].append(filename)
-
-    with open(f"{args.ds_path}split_sets.json", 'w') as f:
-        json.dump(split_sets, f, indent=4)
-
-if __name__ == "__main__":
-    main()

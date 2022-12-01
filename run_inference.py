@@ -13,8 +13,8 @@ def main():
 
     args = parse_args()
 
-    if not os.path.exists(f"{args.output_dir}infer"):
-        os.makedirs(f"{args.output_dir}infer")
+    if not os.path.exists(f"{args.output_dir}/infer"):
+        os.makedirs(f"{args.output_dir}/infer")
 
     set_seed(args)
 
@@ -22,6 +22,7 @@ def main():
 
     brats_generator = BratsDatasetGenerator(args)
     brats_generator.print_info(log=True)
+
     args.len_test = brats_generator.len_test
     #args.class_names = [v for k, v in brats_generator.output_channels.items()]
     args.class_names = list(brats_generator.output_channels.values())

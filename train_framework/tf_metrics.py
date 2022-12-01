@@ -8,9 +8,9 @@ def precision(y_true, y_pred):
 
     Args:
         y_true (Tensorflow tensor): tensor of ground truth values for all classes.
-                                    shape: (num_classes, x_dim, y_dim, z_dim)
+                                    shape: (batch, x_dim, y_dim, z_dim, n_classes)
         y_pred (Tensorflow tensor): tensor of soft predictions for all classes.
-                                    shape: (num_classes, x_dim, y_dim, z_dim)
+                                    shape: (batch, x_dim, y_dim, z_dim, n_classes)
     Returns:
 
     """
@@ -26,9 +26,9 @@ def sensitivity(y_true, y_pred):
 
     Args:
         y_true (Tensorflow tensor): tensor of ground truth values for all classes.
-                                    shape: (num_classes, x_dim, y_dim, z_dim)
+                                    shape: (batch, x_dim, y_dim, z_dim, n_classes)
         y_pred (Tensorflow tensor): tensor of soft predictions for all classes.
-                                    shape: (num_classes, x_dim, y_dim, z_dim)
+                                    shape: (batch, x_dim, y_dim, z_dim, n_classes)
     Returns:
 
     """
@@ -43,9 +43,9 @@ def specificity(y_true, y_pred):
 
     Args:
         y_true (Tensorflow tensor): tensor of ground truth values for all classes.
-                                    shape: (num_classes, x_dim, y_dim, z_dim)
+                                    shape: (batch, x_dim, y_dim, z_dim, n_classes)
         y_pred (Tensorflow tensor): tensor of soft predictions for all classes.
-                                    shape: (num_classes, x_dim, y_dim, z_dim)
+                                    shape: (batch, x_dim, y_dim, z_dim, n_classes)
     Returns:
 
     """
@@ -61,9 +61,9 @@ def dice_coefficient(y_true, y_pred, axis=(1, 2, 3), epsilon=0.0001):
 
     Args:
         y_true (Tensorflow tensor): tensor of ground truth values for all classes.
-                                    shape: (num_classes, x_dim, y_dim, z_dim)
+                                    shape: (batch, x_dim, y_dim, z_dim, n_classes)
         y_pred (Tensorflow tensor): tensor of predictions for all classes.
-                                    shape: (num_classes, x_dim, y_dim, z_dim)
+                                    shape: (batch, x_dim, y_dim, z_dim, n_classes)
         axis (tuple): spatial axes to sum over when computing numerator and
                       denominator of dice coefficient.
                       Hint: pass this as the 'axis' argument to the K.sum
@@ -73,7 +73,8 @@ def dice_coefficient(y_true, y_pred, axis=(1, 2, 3), epsilon=0.0001):
     Returns:
         dice_coeff (float): computed value of dice coefficient.
     """
-
+    
+    y_pred = K.round(y_pred)
     intersection = K.sum(y_true * y_pred, axis=axis)
     union = K.sum(y_true, axis = axis) + K.sum(y_pred, axis = axis)
     dice_coeff = K.mean((2. * intersection + epsilon) / (union + epsilon))
@@ -87,9 +88,9 @@ def soft_dice_coefficient(y_true, y_pred, axis=(1, 2, 3), epsilon=0.0001):
 
     Args:
         y_true (Tensorflow tensor): tensor of ground truth values for all classes.
-                                    shape: (num_classes, x_dim, y_dim, z_dim)
+                                    shape: (batch, x_dim, y_dim, z_dim, n_classes)
         y_pred (Tensorflow tensor): tensor of predictions for all classes.
-                                    shape: (num_classes, x_dim, y_dim, z_dim)
+                                    shape: (batch, x_dim, y_dim, z_dim, n_classes)
         axis (tuple): spatial axes to sum over when computing numerator and
                       denominator of dice coefficient.
                       Hint: pass this as the 'axis' argument to the K.sum
@@ -100,7 +101,6 @@ def soft_dice_coefficient(y_true, y_pred, axis=(1, 2, 3), epsilon=0.0001):
         dice_coeff (float): computed value of dice coefficient.
     """
 
-    y_pred = K.round(y_pred)
     intersection = K.sum(y_true * y_pred, axis=axis)
     union = K.sum(y_true, axis = axis) + K.sum(y_pred, axis = axis)
     dice_coeff = K.mean((2. * intersection + epsilon) / (union + epsilon))
@@ -108,15 +108,16 @@ def soft_dice_coefficient(y_true, y_pred, axis=(1, 2, 3), epsilon=0.0001):
     return dice_coeff
 
 
-def iou(y_true, y_pred, axis=(1, 2, 3), epsilon=0.0001):
+
+def iou_coeff(y_true, y_pred, axis=(1, 2, 3), epsilon=0.0001):
     """
     Compute Intersection Over Union over all abnormality classes.
 
     Args:
         y_true (Tensorflow tensor): tensor of ground truth values for all classes.
-                                    shape: (num_classes, x_dim, y_dim, z_dim)
+                                    shape: (batch, x_dim, y_dim, z_dim, n_classes)
         y_pred (Tensorflow tensor): tensor of predictions for all classes.
-                                    shape: (num_classes, x_dim, y_dim, z_dim)
+                                    shape: (batch, x_dim, y_dim, z_dim, n_classes)
         axis (tuple): spatial axes to sum over when computing numerator and
                       denominator of Intersection Over Union.
                       Hint: pass this as the 'axis' argument to the K.sum
@@ -127,10 +128,9 @@ def iou(y_true, y_pred, axis=(1, 2, 3), epsilon=0.0001):
         iou (float): computed value of mea IOU.
     """
 
-    y_pred = K.round(y_pred)
-    intersection = K.sum(y_true * y_pred, axis=axis)
+    intersection = K.sum(K.abs(y_true * y_pred), axis=axis)
     union = K.sum(y_true, axis = axis) + K.sum(y_pred, axis = axis)
-    iou = (intersection + epsilon) / (union + epsilon)
+    iou = K.mean((intersection + epsilon) / (union + epsilon))
     return iou
 
 
@@ -140,9 +140,9 @@ def soft_dice_loss(y_true, y_pred, axis=(1, 2, 3), epsilon=0.0001):
 
     Args:
         y_true (Tensorflow tensor): tensor of ground truth values for all classes.
-                                    shape: (num_classes, x_dim, y_dim, z_dim)
+                                    shape: (batch, x_dim, y_dim, z_dim, n_classes)
         y_pred (Tensorflow tensor): tensor of soft predictions for all classes.
-                                    shape: (num_classes, x_dim, y_dim, z_dim)
+                                    shape: (batch, x_dim, y_dim, z_dim, n_classes)
         axis (tuple): spatial axes to sum over when computing numerator and
                       denominator in formula for dice loss.
                       Hint: pass this as the 'axis' argument to the K.sum

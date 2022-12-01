@@ -20,9 +20,9 @@ def set_logging(args, log_type):
     
     date = datetime.datetime.now().strftime("%d:%m-%H:%M")
     if log_type == 'train':
-        log_file = os.path.join(f"{args.output_dir}train", f"{args.m_name}_{date}.log")
+        log_file = os.path.join(f"{args.output_dir}/train", f"{args.m_name}_{date}.log")
     elif log_type == 'infer':
-        log_file = os.path.join(f"{args.output_dir}infer", f"{args.m_name}_{date}.log")
+        log_file = os.path.join(f"{args.output_dir}/infer", f"{args.m_name}_{date}.log")
 
     logging.basicConfig(
         format="%(asctime)s - %(levelname)s - %(name)s -   %(message)s", datefmt="%m/%d/%Y %H:%M:%S",
@@ -55,7 +55,9 @@ def wandb_cfg(args):
         "len_test": args.len_test,
         "batch_size": args.batch_size,
         "nbr_train_batch": args.nbr_train_batch,
+        "train_steps": args.n_training_steps,
         "learning_rate": args.learning_rate,
+
     }
     return config_dict
 
@@ -63,9 +65,8 @@ def wandb_cfg(args):
 def set_wandb_project_run(args, run_name):
     """ Initialize wandb directory to keep track of our models. """
 
-    project_name = args.output_dir
-    cfg = wandb_cfg(args, args.n_training_steps)
-    run = wandb.init(project=project_name,
+    cfg = wandb_cfg(args)
+    run = wandb.init(project='brats-3d-segm',
                      job_type="train", name=run_name, config=cfg, reinit=True)
     assert run is wandb.run
 

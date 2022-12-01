@@ -17,7 +17,7 @@ def main():
 
     args = parse_args()
 
-    args.train_dir = f"{args.output_dir}train" 
+    args.train_dir = f"{args.output_dir}/train" 
 
     if not os.path.exists(args.train_dir):
         os.makedirs(args.train_dir)
@@ -26,30 +26,29 @@ def main():
     
     set_logging(args, 'train')
 
-    # define wandb run and project
-    if args.wandb:
-        set_wandb_project_run(args, args.m_name)
-    
-    tf.keras.backend.set_image_data_format("channels_first")
-
     brats_generator = BratsDatasetGenerator(args)
     brats_generator.print_info(log=True)
     args.len_train = brats_generator.len_train
     args.len_valid = brats_generator.len_val
+    args.len_test = brats_generator.len_test
     #args.class_names = [v for k, v in brats_generator.output_channels.items()]
     args.class_names = list(brats_generator.output_channels.values())
 
     with open(f"{args.ds_path}split_sets.json", "r") as f:
         set_filenames = json.load(f)
 
-    # Get generators for training and validation sets
-    train_generator = TFVolumeDataGenerator(set_filenames['train'], f"{args.ds_path}subvolumes/", batch_size=args.batch_size, dim=args.crop_shape)
-    valid_generator = TFVolumeDataGenerator(set_filenames['val'], f"{args.ds_path}subvolumes/", batch_size=args.batch_size, dim=args.crop_shape)
-
     # Set training parameters
     args.nbr_train_batch = int(math.ceil(args.len_train / args.batch_size))
     # Nbr training steps is [number of batches] x [number of epochs].
     args.n_training_steps = args.nbr_train_batch * args.n_epochs
+
+    # define wandb run and project
+    if args.wandb:
+        set_wandb_project_run(args, args.m_name)
+
+    # Get generators for training and validation sets
+    train_generator = TFVolumeDataGenerator(set_filenames['train'], f"{args.ds_path}subvolumes/", batch_size=args.batch_size, dim=args.crop_shape)
+    valid_generator = TFVolumeDataGenerator(set_filenames['val'], f"{args.ds_path}subvolumes/", batch_size=args.batch_size, dim=args.crop_shape)
 
     logger.info(f"\n  ***** Running training *****\n")
     logger.info(f"  train_set = {train_generator}")
@@ -64,11 +63,13 @@ def main():
 
     if args.framework == "tf":
         model = unet_model_3d(args.m_name)
+        args.metrics =[dice_coefficient, soft_dice_coefficient, iou_coeff, tf.keras.metrics.OneHotMeanIoU(args.n_classes), precision, specificity, sensitivity]
+        
         trained_model = tf_train_model(args,  model, train_generator, valid_generator)
 
 
+
     if args.evaluate_during_training:
-        args.len_test = brats_generator.len_test
         # load best model & evaluate on test set
         test_generator = TFVolumeDataGenerator(set_filenames['test'], f"{args.ds_path}subvolumes/", batch_size=args.batch_size, dim=args.crop_shape)
         history = trained_model.evaluate(test_generator)

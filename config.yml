@@ -1,15 +1,15 @@
 ## Configuration file
 
 ds_path: "resources/Task01_BrainTumour/"
-#ds_path: "../../block_storage/resources/Task01_BrainTumour/"
-crop_shape: [128, 128, 32]
+#ds_path: "../block_storage/resources/Task01_BrainTumour/"
+crop_shape: [160, 160, 64]
 
 m_name: "Unet3D-imp"
 
 n_classes: 4
 seed: 42
 
-train_val_split: 0.70
+train_val_split: 0.80
 val_test_split: 0.50
 batch_size: 3
 n_epochs: 3 #30
@@ -20,6 +20,6 @@ overwrite_output_dir: True
 
 wandb: True
 
-output_dir: "resources/"
+output_dir: "resources"
 
 framework: "tf"

@@ -1,2422 +1,2906 @@
 {
     "0": {
-        "start_x": 47,
-        "start_y": 47,
-        "start_z": 39
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 25,
+        "ratio": 0.9549615478515625
     },
     "1": {
-        "start_x": 48,
-        "start_y": 48,
-        "start_z": 50
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 36,
+        "ratio": 0.9804376220703125
     },
     "2": {
-        "start_x": 57,
-        "start_y": 57,
-        "start_z": 62
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 49,
+        "ratio": 0.85256591796875
     },
     "3": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 69
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 57,
+        "ratio": 0.91994384765625
     },
     "4": {
-        "start_x": 51,
-        "start_y": 51,
-        "start_z": 76
+        "start_x": 33,
+        "start_y": 40,
+        "start_z": 44,
+        "ratio": 0.949693603515625
     },
     "5": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 72
+        "start_x": 30,
+        "start_y": 40,
+        "start_z": 60,
+        "ratio": 0.9158380126953125
     },
     "6": {
-        "start_x": 49,
-        "start_y": 49,
-        "start_z": 79
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 54,
+        "ratio": 0.9646929931640625
     },
     "7": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 77
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 66,
+        "ratio": 0.9070208740234375
     },
     "8": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 80
+        "start_x": 31,
+        "start_y": 40,
+        "start_z": 66,
+        "ratio": 0.873018798828125
     },
     "9": {
-        "start_x": 55,
-        "start_y": 55,
-        "start_z": 41
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 41,
+        "ratio": 0.964840087890625
     },
     "10": {
-        "start_x": 62,
-        "start_y": 62,
-        "start_z": 43
+        "start_x": 38,
+        "start_y": 40,
+        "start_z": 22,
+        "ratio": 0.89563720703125
     },
     "11": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 70
+        "start_x": 35,
+        "start_y": 40,
+        "start_z": 56,
+        "ratio": 0.9194696044921875
     },
     "12": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 49
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 35,
+        "ratio": 0.8993682861328125
     },
     "13": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 61
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 49,
+        "ratio": 0.8905975341796875
     },
     "14": {
-        "start_x": 59,
-        "start_y": 59,
-        "start_z": 41
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 39,
+        "ratio": 0.9883575439453125
     },
     "15": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 69
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 57,
+        "ratio": 0.8736474609375
     },
     "16": {
-        "start_x": 50,
-        "start_y": 50,
-        "start_z": 48
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 34,
+        "ratio": 0.955042724609375
     },
     "17": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 71
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 60,
+        "ratio": 0.8939892578125
     },
     "18": {
-        "start_x": 53,
-        "start_y": 53,
-        "start_z": 74
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 59,
+        "ratio": 0.977845458984375
     },
     "19": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 82
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 62,
+        "ratio": 0.952315673828125
     },
     "20": {
-        "start_x": 53,
-        "start_y": 53,
-        "start_z": 79
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 66,
+        "ratio": 0.933062744140625
     },
     "21": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 49
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 43,
+        "ratio": 0.98568359375
     },
     "22": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 36
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 32,
+        "ratio": 0.9872222900390625
     },
     "23": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 48
+        "start_x": 30,
+        "start_y": 30,
+        "start_z": 38,
+        "ratio": 0.9179534912109375
     },
     "24": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 77
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 64,
+        "ratio": 0.906673583984375
     },
     "25": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 65
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 55,
+        "ratio": 0.921199951171875
     },
     "26": {
-        "start_x": 50,
-        "start_y": 50,
-        "start_z": 73
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 71,
+        "ratio": 0.990948486328125
     },
     "27": {
-        "start_x": 52,
-        "start_y": 52,
-        "start_z": 53
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 38,
+        "ratio": 0.909886474609375
     },
     "28": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 92
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 68,
+        "ratio": 0.975906982421875
     },
     "29": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 92
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 84,
+        "ratio": 0.9827459716796875
     },
     "30": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 76
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 49,
+        "ratio": 0.9616082763671875
     },
     "31": {
-        "start_x": 54,
-        "start_y": 54,
-        "start_z": 32
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 22,
+        "ratio": 0.965723876953125
     },
     "32": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 91
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 72,
+        "ratio": 0.936820068359375
     },
     "33": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 43
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 33,
+        "ratio": 0.984180908203125
     },
     "34": {
-        "start_x": 52,
-        "start_y": 52,
-        "start_z": 50
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 31,
+        "ratio": 0.9455645751953125
     },
     "35": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 84
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 60,
+        "ratio": 0.9686920166015625
     },
     "36": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 47
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 30,
+        "ratio": 0.9549395751953125
     },
     "37": {
-        "start_x": 50,
-        "start_y": 50,
-        "start_z": 38
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 27,
+        "ratio": 0.9634326171875
     },
     "38": {
-        "start_x": 54,
-        "start_y": 54,
-        "start_z": 76
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 64,
+        "ratio": 0.9267742919921875
     },
     "39": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 56
+        "start_x": 28,
+        "start_y": 40,
+        "start_z": 43,
+        "ratio": 0.932518310546875
     },
     "40": {
-        "start_x": 50,
-        "start_y": 50,
-        "start_z": 84
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 67,
+        "ratio": 0.9196307373046875
     },
     "41": {
-        "start_x": 51,
-        "start_y": 51,
-        "start_z": 51
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 39,
+        "ratio": 0.953468017578125
     },
     "42": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 46
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 35,
+        "ratio": 0.9697027587890625
     },
     "43": {
-        "start_x": 57,
-        "start_y": 57,
-        "start_z": 41
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 27,
+        "ratio": 0.9591015625
     },
     "44": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 80
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 65,
+        "ratio": 0.9733087158203125
     },
     "45": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 78
+        "start_x": 37,
+        "start_y": 40,
+        "start_z": 63,
+        "ratio": 0.935731201171875
     },
     "46": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 89
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 87,
+        "ratio": 0.9920843505859375
     },
     "47": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 53
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 39,
+        "ratio": 0.932733154296875
     },
     "48": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 99
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 70,
+        "ratio": 0.9816278076171875
     },
     "49": {
-        "start_x": 53,
-        "start_y": 53,
-        "start_z": 57
+        "start_x": 25,
+        "start_y": 40,
+        "start_z": 44,
+        "ratio": 0.9024774169921875
     },
     "50": {
-        "start_x": 60,
-        "start_y": 60,
-        "start_z": 52
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 39,
+        "ratio": 0.9384246826171875
     },
     "51": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 47
+        "start_x": 37,
+        "start_y": 40,
+        "start_z": 38,
+        "ratio": 0.85963134765625
     },
     "52": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 69
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 57,
+        "ratio": 0.873668212890625
     },
     "53": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 79
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 64,
+        "ratio": 0.936268310546875
     },
     "54": {
-        "start_x": 61,
-        "start_y": 61,
-        "start_z": 52
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 42,
+        "ratio": 0.9005865478515624
     },
     "55": {
-        "start_x": 60,
-        "start_y": 60,
-        "start_z": 47
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 34,
+        "ratio": 0.935494384765625
     },
     "56": {
-        "start_x": 57,
-        "start_y": 57,
-        "start_z": 35
+        "start_x": 39,
+        "start_y": 40,
+        "start_z": 35,
+        "ratio": 0.9466986083984374
     },
     "57": {
-        "start_x": 59,
-        "start_y": 59,
-        "start_z": 74
+        "start_x": 26,
+        "start_y": 40,
+        "start_z": 63,
+        "ratio": 0.9517425537109375
     },
     "58": {
-        "start_x": 58,
-        "start_y": 58,
-        "start_z": 43
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 36,
+        "ratio": 0.9903302001953125
     },
     "59": {
-        "start_x": 57,
-        "start_y": 57,
-        "start_z": 48
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 21,
+        "ratio": 0.9536077880859375
     },
     "60": {
-        "start_x": 57,
-        "start_y": 57,
-        "start_z": 58
+        "start_x": 29,
+        "start_y": 40,
+        "start_z": 49,
+        "ratio": 0.912122802734375
     },
     "61": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 66
+        "start_x": 33,
+        "start_y": 33,
+        "start_z": 50,
+        "ratio": 0.940994873046875
     },
     "62": {
-        "start_x": 49,
-        "start_y": 49,
-        "start_z": 67
+        "start_x": 39,
+        "start_y": 40,
+        "start_z": 48,
+        "ratio": 0.8905621337890625
     },
     "63": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 54
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 39,
+        "ratio": 0.92483642578125
     },
     "64": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 54
+        "start_x": 28,
+        "start_y": 40,
+        "start_z": 46,
+        "ratio": 0.907469482421875
     },
     "65": {
-        "start_x": 49,
-        "start_y": 49,
-        "start_z": 63
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 48,
+        "ratio": 0.9608721923828125
     },
     "66": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 88
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 74,
+        "ratio": 0.91634033203125
     },
     "67": {
-        "start_x": 55,
-        "start_y": 55,
-        "start_z": 49
+        "start_x": 33,
+        "start_y": 40,
+        "start_z": 44,
+        "ratio": 0.9186944580078125
     },
     "68": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 42
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 31,
+        "ratio": 0.95750244140625
     },
     "69": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 55
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 35,
+        "ratio": 0.8979840087890625
     },
     "70": {
-        "start_x": 54,
-        "start_y": 54,
-        "start_z": 69
+        "start_x": 33,
+        "start_y": 40,
+        "start_z": 55,
+        "ratio": 0.9368914794921875
     },
     "71": {
-        "start_x": 50,
-        "start_y": 50,
-        "start_z": 76
+        "start_x": 28,
+        "start_y": 40,
+        "start_z": 55,
+        "ratio": 0.8923663330078125
     },
     "72": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 49
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 31,
+        "ratio": 0.9425225830078126
     },
     "73": {
-        "start_x": 59,
-        "start_y": 59,
-        "start_z": 42
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 31,
+        "ratio": 0.9514019775390625
     },
     "74": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 48
+        "start_x": 36,
+        "start_y": 40,
+        "start_z": 41,
+        "ratio": 0.90666748046875
     },
     "75": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 65
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 50,
+        "ratio": 0.91080078125
     },
     "76": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 74
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 49,
+        "ratio": 0.9807659912109375
     },
     "77": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 75
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 59,
+        "ratio": 0.9283416748046875
     },
     "78": {
-        "start_x": 47,
-        "start_y": 47,
-        "start_z": 51
+        "start_x": 30,
+        "start_y": 40,
+        "start_z": 46,
+        "ratio": 0.9182635498046875
     },
     "79": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 81
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 70,
+        "ratio": 0.888758544921875
     },
     "80": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 62
+        "start_x": 27,
+        "start_y": 40,
+        "start_z": 49,
+        "ratio": 0.9589654541015625
     },
     "81": {
-        "start_x": 45,
-        "start_y": 45,
-        "start_z": 52
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 37,
+        "ratio": 0.894793701171875
     },
     "82": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 70
+        "start_x": 36,
+        "start_y": 40,
+        "start_z": 39,
+        "ratio": 0.94347412109375
     },
     "83": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 86
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 69,
+        "ratio": 0.9627166748046875
     },
     "84": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 66
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 46,
+        "ratio": 0.88359619140625
     },
     "85": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 37
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 30,
+        "ratio": 0.9936297607421875
     },
     "86": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 71
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 61,
+        "ratio": 0.882169189453125
     },
     "87": {
-        "start_x": 53,
-        "start_y": 53,
-        "start_z": 41
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 26,
+        "ratio": 0.9374566650390626
     },
     "88": {
-        "start_x": 61,
-        "start_y": 61,
-        "start_z": 41
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 36,
+        "ratio": 0.9807574462890625
     },
     "89": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 42
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 36,
+        "ratio": 0.975308837890625
     },
     "90": {
-        "start_x": 54,
-        "start_y": 54,
-        "start_z": 42
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 30,
+        "ratio": 0.959256591796875
     },
     "91": {
-        "start_x": 61,
-        "start_y": 61,
-        "start_z": 38
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 26,
+        "ratio": 0.95093017578125
     },
     "92": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 40
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 40,
+        "ratio": 0.9920947265625
     },
     "93": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 51
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 35,
+        "ratio": 0.932581787109375
     },
     "94": {
-        "start_x": 55,
-        "start_y": 55,
-        "start_z": 81
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 69,
+        "ratio": 0.98075439453125
     },
     "95": {
-        "start_x": 59,
-        "start_y": 59,
-        "start_z": 76
+        "start_x": 32,
+        "start_y": 40,
+        "start_z": 59,
+        "ratio": 0.9283795166015625
     },
     "96": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 40
+        "start_x": 32,
+        "start_y": 40,
+        "start_z": 41,
+        "ratio": 0.9687872314453125
     },
     "97": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 84
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 66,
+        "ratio": 0.958538818359375
     },
     "98": {
-        "start_x": 60,
-        "start_y": 60,
-        "start_z": 45
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 33,
+        "ratio": 0.934573974609375
     },
     "99": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 46
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 41,
+        "ratio": 0.9732171630859375
     },
     "100": {
-        "start_x": 55,
-        "start_y": 55,
-        "start_z": 71
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 63,
+        "ratio": 0.9728277587890625
     },
     "101": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 87
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 78,
+        "ratio": 0.950906982421875
     },
     "102": {
-        "start_x": 57,
-        "start_y": 57,
-        "start_z": 58
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 38,
+        "ratio": 0.9021893310546875
     },
     "103": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 78
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 67,
+        "ratio": 0.972789306640625
     },
     "104": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 49
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 39,
+        "ratio": 0.937513427734375
     },
     "105": {
-        "start_x": 51,
-        "start_y": 51,
-        "start_z": 52
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 39,
+        "ratio": 0.9567987060546875
     },
     "106": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 82
+        "start_x": 33,
+        "start_y": 33,
+        "start_z": 72,
+        "ratio": 0.9779217529296875
     },
     "107": {
-        "start_x": 61,
-        "start_y": 61,
-        "start_z": 50
+        "start_x": 21,
+        "start_y": 40,
+        "start_z": 43,
+        "ratio": 0.8933599853515625
     },
     "108": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 91
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 70,
+        "ratio": 0.9443975830078125
     },
     "109": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 79
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 66,
+        "ratio": 0.9205560302734375
     },
     "110": {
-        "start_x": 55,
-        "start_y": 55,
-        "start_z": 83
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 66,
+        "ratio": 0.879486083984375
     },
     "111": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 65
+        "start_x": 34,
+        "start_y": 40,
+        "start_z": 55,
+        "ratio": 0.94099853515625
     },
     "112": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 68
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 55,
+        "ratio": 0.9360595703125
     },
     "113": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 96
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 69,
+        "ratio": 0.9806768798828125
     },
     "114": {
-        "start_x": 49,
-        "start_y": 49,
-        "start_z": 33
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 30,
+        "ratio": 0.9821722412109375
     },
     "115": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 88
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 69,
+        "ratio": 0.9363311767578125
     },
     "116": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 72
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 62,
+        "ratio": 0.8945123291015625
     },
     "117": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 91
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 67,
+        "ratio": 0.977103271484375
     },
     "118": {
-        "start_x": 60,
-        "start_y": 60,
-        "start_z": 48
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 33,
+        "ratio": 0.950633544921875
     },
     "119": {
-        "start_x": 62,
-        "start_y": 62,
-        "start_z": 56
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 42,
+        "ratio": 0.8946612548828125
     },
     "120": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 73
+        "start_x": 22,
+        "start_y": 40,
+        "start_z": 59,
+        "ratio": 0.9532122802734375
     },
     "121": {
-        "start_x": 58,
-        "start_y": 58,
-        "start_z": 59
+        "start_x": 23,
+        "start_y": 40,
+        "start_z": 51,
+        "ratio": 0.9161712646484375
     },
     "122": {
-        "start_x": 49,
-        "start_y": 49,
-        "start_z": 40
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 26,
+        "ratio": 0.9410113525390625
     },
     "123": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 77
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 64,
+        "ratio": 0.9317608642578125
     },
     "124": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 66
+        "start_x": 41,
+        "start_y": 40,
+        "start_z": 52,
+        "ratio": 0.878743896484375
     },
     "125": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 54
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 42,
+        "ratio": 0.8915203857421875
     },
     "126": {
-        "start_x": 60,
-        "start_y": 60,
-        "start_z": 38
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 35,
+        "ratio": 0.9449029541015626
     },
     "127": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 71
+        "start_x": 34,
+        "start_y": 40,
+        "start_z": 55,
+        "ratio": 0.9126300048828125
     },
     "128": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 88
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 74,
+        "ratio": 0.9163421630859375
     },
     "129": {
-        "start_x": 49,
-        "start_y": 49,
-        "start_z": 39
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 30,
+        "ratio": 0.941116943359375
     },
     "130": {
-        "start_x": 61,
-        "start_y": 61,
-        "start_z": 44
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 36,
+        "ratio": 0.9877130126953125
     },
     "131": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 54
+        "start_x": 23,
+        "start_y": 40,
+        "start_z": 36,
+        "ratio": 0.9231414794921875
     },
     "132": {
-        "start_x": 49,
-        "start_y": 49,
-        "start_z": 55
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 43,
+        "ratio": 0.945400390625
     },
     "133": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 72
+        "start_x": 32,
+        "start_y": 40,
+        "start_z": 64,
+        "ratio": 0.896951904296875
     },
     "134": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 55
+        "start_x": 22,
+        "start_y": 40,
+        "start_z": 34,
+        "ratio": 0.887528076171875
     },
     "135": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 78
+        "start_x": 31,
+        "start_y": 40,
+        "start_z": 62,
+        "ratio": 0.9128277587890625
     },
     "136": {
-        "start_x": 50,
-        "start_y": 50,
-        "start_z": 77
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 54,
+        "ratio": 0.9445355224609375
     },
     "137": {
-        "start_x": 53,
-        "start_y": 53,
-        "start_z": 48
+        "start_x": 34,
+        "start_y": 40,
+        "start_z": 41,
+        "ratio": 0.9089404296875
     },
     "138": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 55
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 47,
+        "ratio": 0.981336669921875
     },
     "139": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 83
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 65,
+        "ratio": 0.9025091552734374
     },
     "140": {
-        "start_x": 59,
-        "start_y": 59,
-        "start_z": 74
+        "start_x": 26,
+        "start_y": 40,
+        "start_z": 63,
+        "ratio": 0.9517413330078125
     },
     "141": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 49
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 34,
+        "ratio": 0.949110107421875
     },
     "142": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 86
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 62,
+        "ratio": 0.975523681640625
     },
     "143": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 95
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 71,
+        "ratio": 0.968966064453125
     },
     "144": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 43
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 39,
+        "ratio": 0.977408447265625
     },
     "145": {
-        "start_x": 57,
-        "start_y": 57,
-        "start_z": 49
+        "start_x": 39,
+        "start_y": 40,
+        "start_z": 38,
+        "ratio": 0.947886962890625
     },
     "146": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 85
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 75,
+        "ratio": 0.967484130859375
     },
     "147": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 86
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 69,
+        "ratio": 0.9627166748046875
     },
     "148": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 67
+        "start_x": 27,
+        "start_y": 27,
+        "start_z": 58,
+        "ratio": 0.965916748046875
     },
     "149": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 88
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 74,
+        "ratio": 0.981390380859375
     },
     "150": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 44
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 38,
+        "ratio": 0.9569281005859375
     },
     "151": {
-        "start_x": 60,
-        "start_y": 60,
-        "start_z": 68
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 53,
+        "ratio": 0.910758056640625
     },
     "152": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 92
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 73,
+        "ratio": 0.93555908203125
     },
     "153": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 102
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 85,
+        "ratio": 0.9618511962890625
     },
     "154": {
-        "start_x": 49,
-        "start_y": 49,
-        "start_z": 53
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 48,
+        "ratio": 0.9847686767578125
     },
     "155": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 77
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 62,
+        "ratio": 0.9742230224609375
     },
     "156": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 63
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 47,
+        "ratio": 0.893682861328125
     },
     "157": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 39
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 39,
+        "ratio": 0.9869598388671875
     },
     "158": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 77
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 60,
+        "ratio": 0.9566162109375
     },
     "159": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 74
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 54,
+        "ratio": 0.940775146484375
     },
     "160": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 76
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 63,
+        "ratio": 0.877989501953125
     },
     "161": {
-        "start_x": 51,
-        "start_y": 51,
-        "start_z": 53
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 35,
+        "ratio": 0.89301513671875
     },
     "162": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 52
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 43,
+        "ratio": 0.98725830078125
     },
     "163": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 91
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 80,
+        "ratio": 0.938536376953125
     },
     "164": {
-        "start_x": 50,
-        "start_y": 50,
-        "start_z": 39
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 35,
+        "ratio": 0.9659539794921875
     },
     "165": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 89
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 75,
+        "ratio": 0.9442529296875
     },
     "166": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 81
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 61,
+        "ratio": 0.9304461669921875
     },
     "167": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 52
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 39,
+        "ratio": 0.904422607421875
     },
     "168": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 73
+        "start_x": 33,
+        "start_y": 40,
+        "start_z": 65,
+        "ratio": 0.9537152099609375
     },
     "169": {
-        "start_x": 58,
-        "start_y": 58,
-        "start_z": 79
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 66,
+        "ratio": 0.865548095703125
     },
     "170": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 73
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 59,
+        "ratio": 0.90016845703125
     },
     "171": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 42
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 26,
+        "ratio": 0.93556396484375
     },
     "172": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 85
+        "start_x": 30,
+        "start_y": 40,
+        "start_z": 62,
+        "ratio": 0.9081658935546875
     },
     "173": {
-        "start_x": 53,
-        "start_y": 53,
-        "start_z": 56
+        "start_x": 25,
+        "start_y": 40,
+        "start_z": 44,
+        "ratio": 0.9056011962890625
     },
     "174": {
-        "start_x": 50,
-        "start_y": 50,
-        "start_z": 48
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 33,
+        "ratio": 0.8995611572265625
     },
     "175": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 76
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 64,
+        "ratio": 0.91679443359375
     },
     "176": {
-        "start_x": 61,
-        "start_y": 61,
-        "start_z": 53
+        "start_x": 33,
+        "start_y": 40,
+        "start_z": 43,
+        "ratio": 0.887369384765625
     },
     "177": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 59
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 40,
+        "ratio": 0.904522705078125
     },
     "178": {
-        "start_x": 61,
-        "start_y": 61,
-        "start_z": 52
+        "start_x": 33,
+        "start_y": 40,
+        "start_z": 42,
+        "ratio": 0.888345947265625
     },
     "179": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 69
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 51,
+        "ratio": 0.9499920654296875
     },
     "180": {
-        "start_x": 51,
-        "start_y": 51,
-        "start_z": 48
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 37,
+        "ratio": 0.9693707275390625
     },
     "181": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 40
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 40,
+        "ratio": 0.9630987548828125
     },
     "182": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 35
+        "start_x": 34,
+        "start_y": 34,
+        "start_z": 19,
+        "ratio": 0.9865838623046875
     },
     "183": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 61
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 48,
+        "ratio": 0.972462158203125
     },
     "184": {
-        "start_x": 54,
-        "start_y": 54,
-        "start_z": 53
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 42,
+        "ratio": 0.9723626708984375
     },
     "185": {
-        "start_x": 45,
-        "start_y": 45,
-        "start_z": 55
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 40,
+        "ratio": 0.927738037109375
     },
     "186": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 70
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 58,
+        "ratio": 0.817095947265625
     },
     "187": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 65
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 55,
+        "ratio": 0.925089111328125
     },
     "188": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 44
+        "start_x": 51,
+        "start_y": 40,
+        "start_z": 33,
+        "ratio": 0.899520263671875
     },
     "189": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 97
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 78,
+        "ratio": 0.9898394775390625
     },
     "190": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 68
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 56,
+        "ratio": 0.9386529541015625
     },
     "191": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 76
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 59,
+        "ratio": 0.961337890625
     },
     "192": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 74
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 67,
+        "ratio": 0.985086669921875
     },
     "193": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 65
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 56,
+        "ratio": 0.9917852783203125
     },
     "194": {
-        "start_x": 55,
-        "start_y": 55,
-        "start_z": 71
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 56,
+        "ratio": 0.92745849609375
     },
     "195": {
-        "start_x": 55,
-        "start_y": 55,
-        "start_z": 77
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 62,
+        "ratio": 0.90664306640625
     },
     "196": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 71
+        "start_x": 34,
+        "start_y": 40,
+        "start_z": 58,
+        "ratio": 0.9634075927734375
     },
     "197": {
-        "start_x": 61,
-        "start_y": 61,
-        "start_z": 53
+        "start_x": 33,
+        "start_y": 40,
+        "start_z": 42,
+        "ratio": 0.88922119140625
     },
     "198": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 104
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 93,
+        "ratio": 0.95257568359375
     },
     "199": {
-        "start_x": 61,
-        "start_y": 61,
-        "start_z": 49
+        "start_x": 38,
+        "start_y": 40,
+        "start_z": 40,
+        "ratio": 0.9056591796875
     },
     "200": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 44
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 39,
+        "ratio": 0.954305419921875
     },
     "201": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 83
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 66,
+        "ratio": 0.92787353515625
     },
     "202": {
-        "start_x": 52,
-        "start_y": 52,
-        "start_z": 44
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 30,
+        "ratio": 0.90578125
     },
     "203": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 70
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 63,
+        "ratio": 0.9900347900390625
     },
     "204": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 75
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 70,
+        "ratio": 0.98831298828125
     },
     "205": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 91
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 83,
+        "ratio": 0.9407135009765625
     },
     "206": {
-        "start_x": 55,
-        "start_y": 55,
-        "start_z": 44
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 37,
+        "ratio": 0.9426910400390625
     },
     "207": {
-        "start_x": 61,
-        "start_y": 61,
-        "start_z": 51
+        "start_x": 34,
+        "start_y": 40,
+        "start_z": 41,
+        "ratio": 0.90857421875
     },
     "208": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 81
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 61,
+        "ratio": 0.923895263671875
     },
     "209": {
-        "start_x": 52,
-        "start_y": 52,
-        "start_z": 51
+        "start_x": 39,
+        "start_y": 39,
+        "start_z": 39,
+        "ratio": 0.9538812255859375
     },
     "210": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 74
+        "start_x": 35,
+        "start_y": 40,
+        "start_z": 61,
+        "ratio": 0.906282958984375
     },
     "211": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 102
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 102,
+        "ratio": 0.8236785888671875
     },
     "212": {
-        "start_x": 57,
-        "start_y": 57,
-        "start_z": 33
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 23,
+        "ratio": 0.979586181640625
     },
     "213": {
-        "start_x": 51,
-        "start_y": 51,
-        "start_z": 76
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 67,
+        "ratio": 0.9184197998046875
     },
     "214": {
-        "start_x": 58,
-        "start_y": 58,
-        "start_z": 61
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 45,
+        "ratio": 0.8752044677734375
     },
     "215": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 81
+        "start_x": 31,
+        "start_y": 40,
+        "start_z": 62,
+        "ratio": 0.923427734375
     },
     "216": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 54
+        "start_x": 33,
+        "start_y": 40,
+        "start_z": 48,
+        "ratio": 0.959266357421875
     },
     "217": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 66
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 52,
+        "ratio": 0.8758740234375
     },
     "218": {
-        "start_x": 53,
-        "start_y": 53,
-        "start_z": 102
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 82,
+        "ratio": 0.948994140625
     },
     "219": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 51
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 35,
+        "ratio": 0.932581787109375
     },
     "220": {
-        "start_x": 55,
-        "start_y": 55,
-        "start_z": 48
+        "start_x": 28,
+        "start_y": 40,
+        "start_z": 36,
+        "ratio": 0.9430828857421875
     },
     "221": {
-        "start_x": 48,
-        "start_y": 48,
-        "start_z": 49
+        "start_x": 26,
+        "start_y": 26,
+        "start_z": 36,
+        "ratio": 0.95299560546875
     },
     "222": {
-        "start_x": 54,
-        "start_y": 54,
-        "start_z": 41
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 21,
+        "ratio": 0.9659625244140625
     },
     "223": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 89
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 87,
+        "ratio": 0.9920843505859375
     },
     "224": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 73
+        "start_x": 36,
+        "start_y": 40,
+        "start_z": 60,
+        "ratio": 0.904520263671875
     },
     "225": {
-        "start_x": 58,
-        "start_y": 58,
-        "start_z": 65
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 39,
+        "ratio": 0.9693951416015625
     },
     "226": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 90
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 70,
+        "ratio": 0.9031524658203125
     },
     "227": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 79
+        "start_x": 31,
+        "start_y": 40,
+        "start_z": 58,
+        "ratio": 0.91677978515625
     },
     "228": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 45
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 39,
+        "ratio": 0.9699493408203125
     },
     "229": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 61
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 61,
+        "ratio": 0.9843603515625
     },
     "230": {
-        "start_x": 47,
-        "start_y": 47,
-        "start_z": 51
+        "start_x": 30,
+        "start_y": 40,
+        "start_z": 46,
+        "ratio": 0.9182623291015625
     },
     "231": {
-        "start_x": 55,
-        "start_y": 55,
-        "start_z": 74
+        "start_x": 37,
+        "start_y": 40,
+        "start_z": 43,
+        "ratio": 0.9367767333984375
     },
     "232": {
-        "start_x": 54,
-        "start_y": 54,
-        "start_z": 49
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 31,
+        "ratio": 0.9321258544921875
     },
     "233": {
-        "start_x": 54,
-        "start_y": 54,
-        "start_z": 49
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 31,
+        "ratio": 0.9294891357421875
     },
     "234": {
-        "start_x": 58,
-        "start_y": 58,
-        "start_z": 37
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 22,
+        "ratio": 0.94755859375
     },
     "235": {
-        "start_x": 62,
-        "start_y": 62,
-        "start_z": 36
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 24,
+        "ratio": 0.987333984375
     },
     "236": {
-        "start_x": 57,
-        "start_y": 57,
-        "start_z": 58
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 37,
+        "ratio": 0.911240234375
     },
     "237": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 70
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 61,
+        "ratio": 0.882169189453125
     },
     "238": {
-        "start_x": 57,
-        "start_y": 57,
-        "start_z": 40
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 31,
+        "ratio": 0.948148193359375
     },
     "239": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 38
+        "start_x": 30,
+        "start_y": 40,
+        "start_z": 36,
+        "ratio": 0.94615234375
     },
     "240": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 78
+        "start_x": 30,
+        "start_y": 40,
+        "start_z": 65,
+        "ratio": 0.9227789306640625
     },
     "241": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 70
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 58,
+        "ratio": 0.8751019287109375
     },
     "242": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 42
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 42,
+        "ratio": 0.988470458984375
     },
     "243": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 37
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 31,
+        "ratio": 0.994825439453125
     },
     "244": {
-        "start_x": 58,
-        "start_y": 58,
-        "start_z": 50
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 37,
+        "ratio": 0.923101806640625
     },
     "245": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 73
+        "start_x": 36,
+        "start_y": 40,
+        "start_z": 44,
+        "ratio": 0.927821044921875
     },
     "246": {
-        "start_x": 61,
-        "start_y": 61,
-        "start_z": 50
+        "start_x": 21,
+        "start_y": 40,
+        "start_z": 43,
+        "ratio": 0.893360595703125
     },
     "247": {
-        "start_x": 58,
-        "start_y": 58,
-        "start_z": 50
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 35,
+        "ratio": 0.8822637939453125
     },
     "248": {
-        "start_x": 46,
-        "start_y": 46,
-        "start_z": 46
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 33,
+        "ratio": 0.9495068359375
     },
     "249": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 40
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 31,
+        "ratio": 0.9662615966796875
     },
     "250": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 40
+        "start_x": 37,
+        "start_y": 37,
+        "start_z": 28,
+        "ratio": 0.965107421875
     },
     "251": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 36
+        "start_x": 35,
+        "start_y": 35,
+        "start_z": 33,
+        "ratio": 0.9862164306640625
     },
     "252": {
-        "start_x": 53,
-        "start_y": 53,
-        "start_z": 50
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 32,
+        "ratio": 0.9458056640625
     },
     "253": {
-        "start_x": 59,
-        "start_y": 59,
-        "start_z": 40
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 38,
+        "ratio": 0.9860223388671875
     },
     "254": {
-        "start_x": 54,
-        "start_y": 54,
-        "start_z": 76
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 64,
+        "ratio": 0.926781005859375
     },
     "255": {
-        "start_x": 58,
-        "start_y": 58,
-        "start_z": 37
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 29,
+        "ratio": 0.9716119384765625
     },
     "256": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 77
+        "start_x": 38,
+        "start_y": 40,
+        "start_z": 63,
+        "ratio": 0.93540771484375
     },
     "257": {
-        "start_x": 50,
-        "start_y": 50,
-        "start_z": 75
+        "start_x": 30,
+        "start_y": 40,
+        "start_z": 54,
+        "ratio": 0.9060906982421875
     },
     "258": {
-        "start_x": 41,
-        "start_y": 41,
-        "start_z": 53
+        "start_x": 37,
+        "start_y": 40,
+        "start_z": 37,
+        "ratio": 0.8477947998046875
     },
     "259": {
-        "start_x": 55,
-        "start_y": 55,
-        "start_z": 76
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 61,
+        "ratio": 0.8706768798828125
     },
     "260": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 82
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 67,
+        "ratio": 0.927239990234375
     },
     "261": {
-        "start_x": 52,
-        "start_y": 52,
-        "start_z": 53
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 39,
+        "ratio": 0.960137939453125
     },
     "262": {
-        "start_x": 58,
-        "start_y": 58,
-        "start_z": 61
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 47,
+        "ratio": 0.928895263671875
     },
     "263": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 90
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 64,
+        "ratio": 0.9757110595703125
     },
     "264": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 91
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 63,
+        "ratio": 0.9776068115234375
     },
     "265": {
-        "start_x": 46,
-        "start_y": 46,
-        "start_z": 46
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 33,
+        "ratio": 0.9495025634765625
     },
     "266": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 74
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 65,
+        "ratio": 0.98028564453125
     },
     "267": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 74
+        "start_x": 33,
+        "start_y": 33,
+        "start_z": 60,
+        "ratio": 0.9468316650390625
     },
     "268": {
-        "start_x": 41,
-        "start_y": 41,
-        "start_z": 53
+        "start_x": 37,
+        "start_y": 40,
+        "start_z": 37,
+        "ratio": 0.8477984619140625
     },
     "269": {
-        "start_x": 54,
-        "start_y": 54,
-        "start_z": 69
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 58,
+        "ratio": 0.9818072509765625
     },
     "270": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 62
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 46,
+        "ratio": 0.88665771484375
     },
     "271": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 36
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 25,
+        "ratio": 0.977818603515625
     },
     "272": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 52
+        "start_x": 30,
+        "start_y": 40,
+        "start_z": 48,
+        "ratio": 0.8910540771484375
     },
     "273": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 84
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 68,
+        "ratio": 0.9450103759765625
     },
     "274": {
-        "start_x": 49,
-        "start_y": 49,
-        "start_z": 49
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 33,
+        "ratio": 0.8978436279296875
     },
     "275": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 63
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 47,
+        "ratio": 0.9619488525390625
     },
     "276": {
-        "start_x": 62,
-        "start_y": 62,
-        "start_z": 56
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 42,
+        "ratio": 0.899385986328125
     },
     "277": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 67
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 53,
+        "ratio": 0.8467999267578125
     },
     "278": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 48
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 37,
+        "ratio": 0.951256103515625
     },
     "279": {
-        "start_x": 48,
-        "start_y": 48,
-        "start_z": 50
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 32,
+        "ratio": 0.9441082763671875
     },
     "280": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 77
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 66,
+        "ratio": 0.912218017578125
     },
     "281": {
-        "start_x": 53,
-        "start_y": 53,
-        "start_z": 73
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 51,
+        "ratio": 0.9453668212890625
     },
     "282": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 73
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 61,
+        "ratio": 0.8913323974609375
     },
     "283": {
-        "start_x": 54,
-        "start_y": 54,
-        "start_z": 64
+        "start_x": 33,
+        "start_y": 33,
+        "start_z": 49,
+        "ratio": 0.928865966796875
     },
     "284": {
-        "start_x": 52,
-        "start_y": 52,
-        "start_z": 36
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 21,
+        "ratio": 0.92440673828125
     },
     "285": {
-        "start_x": 62,
-        "start_y": 62,
-        "start_z": 54
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 35,
+        "ratio": 0.8850152587890625
     },
     "286": {
-        "start_x": 58,
-        "start_y": 58,
-        "start_z": 75
+        "start_x": 31,
+        "start_y": 40,
+        "start_z": 53,
+        "ratio": 0.90200927734375
     },
     "287": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 95
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 69,
+        "ratio": 0.980267333984375
     },
     "288": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 47
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 43,
+        "ratio": 0.98470458984375
     },
     "289": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 38
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 36,
+        "ratio": 0.9487884521484375
     },
     "290": {
-        "start_x": 57,
-        "start_y": 57,
-        "start_z": 95
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 59,
+        "ratio": 0.9758648681640625
     },
     "291": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 60
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 49,
+        "ratio": 0.939453125
     },
     "292": {
-        "start_x": 58,
-        "start_y": 58,
-        "start_z": 80
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 66,
+        "ratio": 0.8628070068359375
     },
     "293": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 88
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 74,
+        "ratio": 0.9551776123046875
     },
     "294": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 55
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 36,
+        "ratio": 0.87797119140625
     },
     "295": {
-        "start_x": 60,
-        "start_y": 60,
-        "start_z": 61
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 49,
+        "ratio": 0.8732794189453125
     },
     "296": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 72
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 55,
+        "ratio": 0.9717169189453125
     },
     "297": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 50
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 49,
+        "ratio": 0.9938348388671875
     },
     "298": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 49
+        "start_x": 33,
+        "start_y": 40,
+        "start_z": 42,
+        "ratio": 0.9067047119140625
     },
     "299": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 64
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 48,
+        "ratio": 0.9176739501953125
     },
     "300": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 68
+        "start_x": 30,
+        "start_y": 40,
+        "start_z": 59,
+        "ratio": 0.9543524169921875
     },
     "301": {
-        "start_x": 48,
-        "start_y": 48,
-        "start_z": 48
+        "start_x": 25,
+        "start_y": 25,
+        "start_z": 35,
+        "ratio": 0.9460833740234375
     },
     "302": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 65
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 51,
+        "ratio": 0.8940570068359375
     },
     "303": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 93
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 81,
+        "ratio": 0.977503662109375
     },
     "304": {
-        "start_x": 51,
-        "start_y": 51,
-        "start_z": 42
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 33,
+        "ratio": 0.967713623046875
     },
     "305": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 40
+        "start_x": 33,
+        "start_y": 40,
+        "start_z": 41,
+        "ratio": 0.9634979248046875
     },
     "306": {
-        "start_x": 55,
-        "start_y": 55,
-        "start_z": 68
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 38,
+        "ratio": 0.971131591796875
     },
     "307": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 76
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 43,
+        "ratio": 0.9834490966796875
     },
     "308": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 70
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 58,
+        "ratio": 0.9683514404296875
     },
     "309": {
-        "start_x": 46,
-        "start_y": 46,
-        "start_z": 33
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 29,
+        "ratio": 0.976614990234375
     },
     "310": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 95
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 69,
+        "ratio": 0.982142333984375
     },
     "311": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 75
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 61,
+        "ratio": 0.904383544921875
     },
     "312": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 82
+        "start_x": 39,
+        "start_y": 40,
+        "start_z": 72,
+        "ratio": 0.9664013671875
     },
     "313": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 39
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 32,
+        "ratio": 0.972657470703125
     },
     "314": {
-        "start_x": 52,
-        "start_y": 52,
-        "start_z": 32
+        "start_x": 23,
+        "start_y": 40,
+        "start_z": 18,
+        "ratio": 0.907335205078125
     },
     "315": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 70
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 52,
+        "ratio": 0.923577880859375
     },
     "316": {
-        "start_x": 51,
-        "start_y": 51,
-        "start_z": 52
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 37,
+        "ratio": 0.9596929931640625
     },
     "317": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 51
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 28,
+        "ratio": 0.953724365234375
     },
     "318": {
-        "start_x": 60,
-        "start_y": 60,
-        "start_z": 36
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 23,
+        "ratio": 0.9538531494140625
     },
     "319": {
-        "start_x": 52,
-        "start_y": 52,
-        "start_z": 74
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 61,
+        "ratio": 0.9810125732421875
     },
     "320": {
-        "start_x": 52,
-        "start_y": 52,
-        "start_z": 35
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 26,
+        "ratio": 0.9821539306640625
     },
     "321": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 51
+        "start_x": 31,
+        "start_y": 40,
+        "start_z": 41,
+        "ratio": 0.8952130126953125
     },
     "322": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 92
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 75,
+        "ratio": 0.978134765625
     },
     "323": {
-        "start_x": 53,
-        "start_y": 53,
-        "start_z": 74
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 60,
+        "ratio": 0.85950927734375
     },
     "324": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 84
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 66,
+        "ratio": 0.97489990234375
     },
     "325": {
-        "start_x": 52,
-        "start_y": 52,
-        "start_z": 67
+        "start_x": 28,
+        "start_y": 40,
+        "start_z": 53,
+        "ratio": 0.9017352294921875
     },
     "326": {
-        "start_x": 60,
-        "start_y": 60,
-        "start_z": 60
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 48,
+        "ratio": 0.87707763671875
     },
     "327": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 46
+        "start_x": 32,
+        "start_y": 32,
+        "start_z": 44,
+        "ratio": 0.973515625
     },
     "328": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 67
+        "start_x": 25,
+        "start_y": 25,
+        "start_z": 58,
+        "ratio": 0.9642449951171875
     },
     "329": {
-        "start_x": 51,
-        "start_y": 51,
-        "start_z": 39
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 33,
+        "ratio": 0.961434326171875
     },
     "330": {
-        "start_x": 54,
-        "start_y": 54,
-        "start_z": 63
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 45,
+        "ratio": 0.92517333984375
     },
     "331": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 81
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 62,
+        "ratio": 0.954326171875
     },
     "332": {
-        "start_x": 55,
-        "start_y": 55,
-        "start_z": 43
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 32,
+        "ratio": 0.95529541015625
     },
     "333": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 74
+        "start_x": 39,
+        "start_y": 39,
+        "start_z": 70,
+        "ratio": 0.9874957275390625
     },
     "334": {
-        "start_x": 50,
-        "start_y": 50,
-        "start_z": 37
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 25,
+        "ratio": 0.9641009521484375
     },
     "335": {
-        "start_x": 61,
-        "start_y": 61,
-        "start_z": 42
+        "start_x": 34,
+        "start_y": 34,
+        "start_z": 36,
+        "ratio": 0.9651678466796875
     },
     "336": {
-        "start_x": 57,
-        "start_y": 57,
-        "start_z": 58
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 43,
+        "ratio": 0.9155810546875
     },
     "337": {
-        "start_x": 53,
-        "start_y": 53,
-        "start_z": 31
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 23,
+        "ratio": 0.9690338134765625
     },
     "338": {
-        "start_x": 43,
-        "start_y": 43,
-        "start_z": 63
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 48,
+        "ratio": 0.966566162109375
     },
     "339": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 75
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 63,
+        "ratio": 0.8765570068359375
     },
     "340": {
-        "start_x": 52,
-        "start_y": 52,
-        "start_z": 53
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 39,
+        "ratio": 0.9209564208984375
     },
     "341": {
-        "start_x": 52,
-        "start_y": 52,
-        "start_z": 63
+        "start_x": 28,
+        "start_y": 40,
+        "start_z": 56,
+        "ratio": 0.947459716796875
     },
     "342": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 78
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 66,
+        "ratio": 0.871380615234375
     },
     "343": {
-        "start_x": 58,
-        "start_y": 58,
-        "start_z": 72
+        "start_x": 39,
+        "start_y": 40,
+        "start_z": 41,
+        "ratio": 0.9423980712890625
     },
     "344": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 79
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 56,
+        "ratio": 0.9148504638671875
     },
     "345": {
-        "start_x": 59,
-        "start_y": 59,
-        "start_z": 42
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 31,
+        "ratio": 0.9607257080078125
     },
     "346": {
-        "start_x": 62,
-        "start_y": 62,
-        "start_z": 51
+        "start_x": 35,
+        "start_y": 40,
+        "start_z": 41,
+        "ratio": 0.9023736572265625
     },
     "347": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 64
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 48,
+        "ratio": 0.91767578125
     },
     "348": {
-        "start_x": 59,
-        "start_y": 59,
-        "start_z": 76
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 61,
+        "ratio": 0.9243951416015626
     },
     "349": {
-        "start_x": 51,
-        "start_y": 51,
-        "start_z": 75
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 61,
+        "ratio": 0.9472998046875
     },
     "350": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 65
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 41,
+        "ratio": 0.967447509765625
     },
     "351": {
-        "start_x": 55,
-        "start_y": 55,
-        "start_z": 33
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 24,
+        "ratio": 0.955682373046875
     },
     "352": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 65
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 50,
+        "ratio": 0.910802001953125
     },
     "353": {
-        "start_x": 58,
-        "start_y": 58,
-        "start_z": 40
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 29,
+        "ratio": 0.9921588134765625
     },
     "354": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 42
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 16,
+        "ratio": 0.9780035400390625
     },
     "355": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 83
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 60,
+        "ratio": 0.97408935546875
     },
     "356": {
-        "start_x": 51,
-        "start_y": 51,
-        "start_z": 50
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 37,
+        "ratio": 0.959227294921875
     },
     "357": {
-        "start_x": 55,
-        "start_y": 55,
-        "start_z": 69
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 59,
+        "ratio": 0.8538427734375
     },
     "358": {
-        "start_x": 61,
-        "start_y": 61,
-        "start_z": 59
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 42,
+        "ratio": 0.87484130859375
     },
     "359": {
-        "start_x": 57,
-        "start_y": 57,
-        "start_z": 66
+        "start_x": 25,
+        "start_y": 40,
+        "start_z": 47,
+        "ratio": 0.8582855224609375
     },
     "360": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 75
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 57,
+        "ratio": 0.90940185546875
     },
     "361": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 92
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 88,
+        "ratio": 0.9868072509765625
     },
     "362": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 75
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 70,
+        "ratio": 0.9783697509765625
     },
     "363": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 67
+        "start_x": 28,
+        "start_y": 40,
+        "start_z": 52,
+        "ratio": 0.9095611572265625
     },
     "364": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 59
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 49,
+        "ratio": 0.9657373046875
     },
     "365": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 74
+        "start_x": 27,
+        "start_y": 40,
+        "start_z": 51,
+        "ratio": 0.95625
     },
     "366": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 83
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 69,
+        "ratio": 0.962825927734375
     },
     "367": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 85
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 79,
+        "ratio": 0.9865948486328125
     },
     "368": {
-        "start_x": 46,
-        "start_y": 46,
-        "start_z": 52
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 37,
+        "ratio": 0.9035064697265625
     },
     "369": {
-        "start_x": 57,
-        "start_y": 57,
-        "start_z": 57
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 41,
+        "ratio": 0.9080157470703125
     },
     "370": {
-        "start_x": 47,
-        "start_y": 47,
-        "start_z": 44
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 35,
+        "ratio": 0.97572509765625
     },
     "371": {
-        "start_x": 54,
-        "start_y": 54,
-        "start_z": 45
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 35,
+        "ratio": 0.959306640625
     },
     "372": {
-        "start_x": 48,
-        "start_y": 48,
-        "start_z": 62
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 57,
+        "ratio": 0.9853863525390625
     },
     "373": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 60
+        "start_x": 34,
+        "start_y": 34,
+        "start_z": 52,
+        "ratio": 0.961455078125
     },
     "374": {
-        "start_x": 50,
-        "start_y": 50,
-        "start_z": 51
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 38,
+        "ratio": 0.9391943359375
     },
     "375": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 66
+        "start_x": 33,
+        "start_y": 40,
+        "start_z": 49,
+        "ratio": 0.943623046875
     },
     "376": {
-        "start_x": 51,
-        "start_y": 51,
-        "start_z": 41
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 32,
+        "ratio": 0.9732684326171875
     },
     "377": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 74
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 42,
+        "ratio": 0.9620526123046875
     },
     "378": {
-        "start_x": 48,
-        "start_y": 48,
-        "start_z": 40
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 29,
+        "ratio": 0.9390509033203125
     },
     "379": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 83
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 62,
+        "ratio": 0.97424072265625
     },
     "380": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 84
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 59,
+        "ratio": 0.956759033203125
     },
     "381": {
-        "start_x": 59,
-        "start_y": 59,
-        "start_z": 72
+        "start_x": 33,
+        "start_y": 40,
+        "start_z": 48,
+        "ratio": 0.94547119140625
     },
     "382": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 83
+        "start_x": 33,
+        "start_y": 40,
+        "start_z": 65,
+        "ratio": 0.9486065673828125
     },
     "383": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 80
+        "start_x": 31,
+        "start_y": 40,
+        "start_z": 66,
+        "ratio": 0.8771881103515625
     },
     "384": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 60
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 40,
+        "ratio": 0.9333465576171875
     },
     "385": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 77
+        "start_x": 35,
+        "start_y": 40,
+        "start_z": 54,
+        "ratio": 0.9108123779296875
     },
     "386": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 44
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 29,
+        "ratio": 0.943004150390625
     },
     "387": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 72
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 64,
+        "ratio": 0.9057696533203125
     },
     "388": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 46
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 52,
+        "ratio": 0.9767535400390625
     },
     "389": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 80
+        "start_x": 37,
+        "start_y": 37,
+        "start_z": 70,
+        "ratio": 0.9719537353515625
     },
     "390": {
-        "start_x": 48,
-        "start_y": 48,
-        "start_z": 76
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 58,
+        "ratio": 0.9040484619140625
     },
     "391": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 45
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 40,
+        "ratio": 0.954334716796875
     },
     "392": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 66
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 56,
+        "ratio": 0.92517578125
     },
     "393": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 79
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 67,
+        "ratio": 0.924957275390625
     },
     "394": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 71
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 62,
+        "ratio": 0.98977783203125
     },
     "395": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 40
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 26,
+        "ratio": 0.9771551513671874
     },
     "396": {
-        "start_x": 60,
-        "start_y": 60,
-        "start_z": 39
+        "start_x": 39,
+        "start_y": 40,
+        "start_z": 32,
+        "ratio": 0.9562835693359375
     },
     "397": {
-        "start_x": 51,
-        "start_y": 51,
-        "start_z": 54
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 37,
+        "ratio": 0.8986431884765625
     },
     "398": {
-        "start_x": 52,
-        "start_y": 52,
-        "start_z": 50
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 40,
+        "ratio": 0.952833251953125
     },
     "399": {
-        "start_x": 63,
-        "start_y": 63,
-        "start_z": 43
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 26,
+        "ratio": 0.9518951416015625
     },
     "400": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 58
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 40,
+        "ratio": 0.9543267822265625
     },
     "401": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 76
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 67,
+        "ratio": 0.9671710205078125
     },
     "402": {
-        "start_x": 54,
-        "start_y": 54,
-        "start_z": 46
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 34,
+        "ratio": 0.94670166015625
     },
     "403": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 78
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 66,
+        "ratio": 0.8713677978515625
     },
     "404": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 70
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 48,
+        "ratio": 0.8790289306640625
     },
     "405": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 55
+        "start_x": 25,
+        "start_y": 40,
+        "start_z": 43,
+        "ratio": 0.9203411865234375
     },
     "406": {
-        "start_x": 53,
-        "start_y": 53,
-        "start_z": 37
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 29,
+        "ratio": 0.9643353271484375
     },
     "407": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 43
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 30,
+        "ratio": 0.951021728515625
     },
     "408": {
-        "start_x": 50,
-        "start_y": 50,
-        "start_z": 82
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 58,
+        "ratio": 0.9288916015625
     },
     "409": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 80
+        "start_x": 31,
+        "start_y": 40,
+        "start_z": 57,
+        "ratio": 0.9177886962890625
     },
     "410": {
-        "start_x": 50,
-        "start_y": 50,
-        "start_z": 35
+        "start_x": 25,
+        "start_y": 40,
+        "start_z": 35,
+        "ratio": 0.916331787109375
     },
     "411": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 73
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 63,
+        "ratio": 0.9188214111328125
     },
     "412": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 82
+        "start_x": 36,
+        "start_y": 36,
+        "start_z": 68,
+        "ratio": 0.9500445556640625
     },
     "413": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 69
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 54,
+        "ratio": 0.962313232421875
     },
     "414": {
-        "start_x": 60,
-        "start_y": 60,
-        "start_z": 52
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 39,
+        "ratio": 0.938424072265625
     },
     "415": {
-        "start_x": 59,
-        "start_y": 59,
-        "start_z": 48
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 45,
+        "ratio": 0.9922052001953126
     },
     "416": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 68
+        "start_x": 28,
+        "start_y": 40,
+        "start_z": 51,
+        "ratio": 0.9087603759765625
     },
     "417": {
-        "start_x": 49,
-        "start_y": 49,
-        "start_z": 51
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 38,
+        "ratio": 0.9377105712890625
     },
     "418": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 82
+        "start_x": 34,
+        "start_y": 40,
+        "start_z": 64,
+        "ratio": 0.9440972900390625
     },
     "419": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 69
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 48,
+        "ratio": 0.947012939453125
     },
     "420": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 74
+        "start_x": 39,
+        "start_y": 39,
+        "start_z": 70,
+        "ratio": 0.9874957275390625
     },
     "421": {
-        "start_x": 52,
-        "start_y": 52,
-        "start_z": 67
+        "start_x": 28,
+        "start_y": 40,
+        "start_z": 53,
+        "ratio": 0.8999468994140625
     },
     "422": {
-        "start_x": 61,
-        "start_y": 61,
-        "start_z": 49
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 40,
+        "ratio": 0.9330242919921875
     },
     "423": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 83
+        "start_x": 33,
+        "start_y": 33,
+        "start_z": 67,
+        "ratio": 0.961522216796875
     },
     "424": {
-        "start_x": 54,
-        "start_y": 54,
-        "start_z": 53
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 44,
+        "ratio": 0.967132568359375
     },
     "425": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 75
+        "start_x": 33,
+        "start_y": 33,
+        "start_z": 61,
+        "ratio": 0.948907470703125
     },
     "426": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 82
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 70,
+        "ratio": 0.9344586181640625
     },
     "427": {
-        "start_x": 49,
-        "start_y": 49,
-        "start_z": 76
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 55,
+        "ratio": 0.9618023681640625
     },
     "428": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 79
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 68,
+        "ratio": 0.9055133056640625
     },
     "429": {
-        "start_x": 55,
-        "start_y": 55,
-        "start_z": 75
+        "start_x": 33,
+        "start_y": 40,
+        "start_z": 49,
+        "ratio": 0.9251776123046875
     },
     "430": {
-        "start_x": 54,
-        "start_y": 54,
-        "start_z": 47
+        "start_x": 34,
+        "start_y": 40,
+        "start_z": 41,
+        "ratio": 0.9190118408203125
     },
     "431": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 102
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 96,
+        "ratio": 0.9032958984375
     },
     "432": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 83
+        "start_x": 33,
+        "start_y": 33,
+        "start_z": 67,
+        "ratio": 0.961522216796875
     },
     "433": {
-        "start_x": 52,
-        "start_y": 52,
-        "start_z": 53
+        "start_x": 37,
+        "start_y": 40,
+        "start_z": 40,
+        "ratio": 0.910657958984375
     },
     "434": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 61
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 49,
+        "ratio": 0.9392279052734375
     },
     "435": {
-        "start_x": 43,
-        "start_y": 43,
-        "start_z": 40
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 31,
+        "ratio": 0.9514013671875
     },
     "436": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 72
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 64,
+        "ratio": 0.987264404296875
     },
     "437": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 78
+        "start_x": 31,
+        "start_y": 40,
+        "start_z": 63,
+        "ratio": 0.913538818359375
     },
     "438": {
-        "start_x": 49,
-        "start_y": 49,
-        "start_z": 66
+        "start_x": 36,
+        "start_y": 40,
+        "start_z": 38,
+        "ratio": 0.869654541015625
     },
     "439": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 73
+        "start_x": 32,
+        "start_y": 40,
+        "start_z": 64,
+        "ratio": 0.8969512939453125
     },
     "440": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 81
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 66,
+        "ratio": 0.9249969482421875
     },
     "441": {
-        "start_x": 48,
-        "start_y": 48,
-        "start_z": 57
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 54,
+        "ratio": 0.983638916015625
     },
     "442": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 55
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 39,
+        "ratio": 0.958768310546875
     },
     "443": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 57
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 35,
+        "ratio": 0.912481689453125
     },
     "444": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 38
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 30,
+        "ratio": 0.9521771240234375
     },
     "445": {
-        "start_x": 53,
-        "start_y": 53,
-        "start_z": 102
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 80,
+        "ratio": 0.94627685546875
     },
     "446": {
-        "start_x": 47,
-        "start_y": 47,
-        "start_z": 32
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 32,
+        "ratio": 0.9874298095703125
     },
     "447": {
-        "start_x": 59,
-        "start_y": 59,
-        "start_z": 67
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 39,
+        "ratio": 0.9618878173828125
     },
     "448": {
-        "start_x": 52,
-        "start_y": 52,
-        "start_z": 47
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 31,
+        "ratio": 0.8967962646484375
     },
     "449": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 92
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 88,
+        "ratio": 0.9868096923828125
     },
     "450": {
-        "start_x": 55,
-        "start_y": 55,
-        "start_z": 32
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 23,
+        "ratio": 0.966456298828125
     },
     "451": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 43
+        "start_x": 34,
+        "start_y": 34,
+        "start_z": 31,
+        "ratio": 0.975947265625
     },
     "452": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 67
+        "start_x": 35,
+        "start_y": 40,
+        "start_z": 43,
+        "ratio": 0.940701904296875
     },
     "453": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 62
+        "start_x": 26,
+        "start_y": 40,
+        "start_z": 49,
+        "ratio": 0.9633203125
     },
     "454": {
-        "start_x": 46,
-        "start_y": 46,
-        "start_z": 59
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 46,
+        "ratio": 0.9395849609375
     },
     "455": {
-        "start_x": 55,
-        "start_y": 55,
-        "start_z": 39
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 37,
+        "ratio": 0.9658966064453125
     },
     "456": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 89
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 77,
+        "ratio": 0.933843994140625
     },
     "457": {
-        "start_x": 58,
-        "start_y": 58,
-        "start_z": 79
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 70,
+        "ratio": 0.964744873046875
     },
     "458": {
-        "start_x": 59,
-        "start_y": 59,
-        "start_z": 58
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 37,
+        "ratio": 0.925938720703125
     },
     "459": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 53
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 40,
+        "ratio": 0.926007080078125
     },
     "460": {
-        "start_x": 58,
-        "start_y": 58,
-        "start_z": 51
+        "start_x": 27,
+        "start_y": 40,
+        "start_z": 39,
+        "ratio": 0.8918658447265625
     },
     "461": {
-        "start_x": 58,
-        "start_y": 58,
-        "start_z": 78
+        "start_x": 38,
+        "start_y": 40,
+        "start_z": 60,
+        "ratio": 0.9239349365234375
     },
     "462": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 71
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 53,
+        "ratio": 0.9336370849609374
     },
     "463": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 87
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 68,
+        "ratio": 0.944652099609375
     },
     "464": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 80
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 67,
+        "ratio": 0.914884033203125
     },
     "465": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 77
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 64,
+        "ratio": 0.9406109619140625
     },
     "466": {
-        "start_x": 54,
-        "start_y": 54,
-        "start_z": 54
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 35,
+        "ratio": 0.914112548828125
     },
     "467": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 77
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 67,
+        "ratio": 0.9441162109375
     },
     "468": {
-        "start_x": 63,
-        "start_y": 63,
-        "start_z": 38
+        "start_x": 24,
+        "start_y": 40,
+        "start_z": 33,
+        "ratio": 0.9446435546875
     },
     "469": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 68
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 57,
+        "ratio": 0.912213134765625
     },
     "470": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 45
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 46,
+        "ratio": 0.9662493896484375
     },
     "471": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 80
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 63,
+        "ratio": 0.9420196533203125
     },
     "472": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 53
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 43,
+        "ratio": 0.9511285400390626
     },
     "473": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 73
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 56,
+        "ratio": 0.94220947265625
     },
     "474": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 47
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 35,
+        "ratio": 0.9507025146484375
     },
     "475": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 51
+        "start_x": 30,
+        "start_y": 40,
+        "start_z": 41,
+        "ratio": 0.899017333984375
     },
     "476": {
-        "start_x": 61,
-        "start_y": 61,
-        "start_z": 48
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 40,
+        "ratio": 0.9496112060546875
     },
     "477": {
-        "start_x": 55,
-        "start_y": 55,
-        "start_z": 73
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 59,
+        "ratio": 0.9493890380859376
     },
     "478": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 51
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 37,
+        "ratio": 0.9106243896484375
     },
     "479": {
-        "start_x": 53,
-        "start_y": 53,
-        "start_z": 48
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 34,
+        "ratio": 0.948226318359375
     },
     "480": {
-        "start_x": 57,
-        "start_y": 57,
-        "start_z": 82
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 69,
+        "ratio": 0.925308837890625
     },
     "481": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 87
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 82,
+        "ratio": 0.954232177734375
     },
     "482": {
-        "start_x": 58,
-        "start_y": 58,
-        "start_z": 41
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 41,
+        "ratio": 0.943250732421875
     },
     "483": {
-        "start_x": 56,
-        "start_y": 56,
-        "start_z": 82
+        "start_x": 40,
+        "start_y": 40,
+        "start_z": 62,
+        "ratio": 0.933857421875
     }
 }

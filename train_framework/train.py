@@ -33,14 +33,7 @@ def tf_train_model(args, model, train_set, valid_set):
     #tf.keras.metrics.IoU, tf.keras.metrics.MeanIoU
     # tf.keras.metrics.OneHotIoU, tf.keras.metrics.OneHotMeanIoU
     optimizer = tf.keras.optimizers.Adam(learning_rate=args.learning_rate)
-    model.compile(optimizer=optimizer, loss=soft_dice_loss,
-            #metrics=[dice_coefficient, soft_dice_coefficient, precision,
-            #        sensitivity, specificity, iou])
-            metrics=[iou, tf.keras.metrics.IoU, tf.keras.metrics.OneHotIoU,
-            precision, specificity, tf.keras.metrics.Precision,
-            sensitivity, tf.keras.metrics.Recall
-            ])
-
+    model.compile(optimizer=optimizer, loss=soft_dice_loss, metrics=args.metrics)
 
     if args.wandb:
         # monitor the val_loss to save the best model        
@@ -49,7 +42,12 @@ def tf_train_model(args, model, train_set, valid_set):
     else:
         train_curves = tf.keras.callbacks.TensorBoard(histogram_freq=1, log_dir=args.train_dir)
     
-    checkpoint_fp =  os.path.join(args.output_dir, f"best_model/{model.name}")
+    model_dir = f"{args.output_dir}/best_model/"
+
+    if not os.path.exists(model_dir):
+        os.makedirs(model_dir)
+
+    checkpoint_fp =  os.path.join(model_dir, model.name)
     callback_lst = [
         train_curves,
         tf.keras.callbacks.ModelCheckpoint(checkpoint_fp, monitor='val_loss', verbose=0, save_best_only=True),
