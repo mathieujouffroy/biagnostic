@@ -51,7 +51,8 @@ def tf_train_model(args, model, train_set, valid_set):
     callback_lst = [
         train_curves,
         tf.keras.callbacks.ModelCheckpoint(checkpoint_fp, monitor='val_loss', verbose=0, save_best_only=True),
-        tf.keras.callbacks.LearningRateScheduler(scheduler, verbose=1)
+        #tf.keras.callbacks.LearningRateScheduler(scheduler, verbose=1)
+        tf.keras.callbacks.ReduceLROnPlateau(monitor="val_loss", patience=3, factor=args.lr_decay_rate, verbose=1),
     ]
 
     logger.info("\n\n")

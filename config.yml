@@ -14,6 +14,7 @@ val_test_split: 0.50
 batch_size: 3
 n_epochs: 3 #30
 learning_rate: 0.0001
+lr_decay_rate: 0.1
 
 evaluate_during_training: True
 overwrite_output_dir: True
