@@ -190,8 +190,7 @@ class BratsDatasetGenerator:
 
         best_bgrd_ratio = 1
 
-
-        if (max_z - min_z <= output_z):
+        if (max_z - min_z <= 64):
             best_z = min_z
             if best_z + output_z >= orig_z:
                 best_z = orig_z - output_z
@@ -279,7 +278,11 @@ class BratsDatasetGenerator:
             for z in range(image.shape[3]):
                 image_slice = image[c, :, : ,z]
                 centered = image_slice - np.mean(image_slice)
-                centered_scaled = centered / np.std(centered)
+                if np.std(centered) == 0:
+                    print(np.unique(image_slice))
+                    centered_scaled = centered
+                else:
+                    centered_scaled = centered / np.std(centered)
                 standardized_image[c, :, :, z] = centered_scaled
 
         return standardized_image
@@ -327,6 +330,7 @@ class BratsDatasetGenerator:
         # exclude background class in the 'n_classes' dimension
         mask = y[1:, :, :, :]
 
+        print(idx)
         image = self.standardize(X)
 
         if not store:
@@ -391,10 +395,10 @@ class BratsDatasetGenerator:
             'Normal': 0.,
             'Edema': 1.,
             'Non-enhancing tumor': 2.,
-            'Enhancing tumor': 3. 
+            'Enhancing tumor': 3.
         }
         image, label = self.load_example(id)
-        
+
         fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(8, 5))
         ax[0].imshow(image[:, :, layer, channel], cmap='gray')
         ax[1].imshow(label[:, :, layer])
@@ -415,7 +419,7 @@ class BratsDatasetGenerator:
         ## Normalize Flair channel
         #image = image[:, :, :, 0]
         image = cv2.normalize(image[:, :, :, 0], None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_32F).astype(np.uint8)
-        
+
         # create array without taking into account the background label
         labeled_image = np.zeros_like(label[:, :, :, 1:])
 
@@ -480,22 +484,22 @@ class BratsDatasetGenerator:
         fig.subplots_adjust(wspace=0, hspace=0)
 
 
-    def visualize_patch(self, idx, image, mask, title=None):
+    def visualize_patch(self, depth, img_chan, image, mask, title=None):
         plt.figure("image", (8, 6))
         plt.subplot(1, 2, 1)
         plt.title('MRI Flair Channel')
-        plt.imshow(image[0, :, :, idx], cmap="gray")
+        plt.imshow(image[img_chan, :, :, depth], cmap="gray")
         plt.subplot(1, 2, 2)
         plt.title('Mask')
-        plt.imshow(mask[:, :, idx])
+        plt.imshow(mask[:, :, depth])
         if title:
             plt.suptitle(title)
         plt.show()
 
 
-    def visualize_patch_pred(self, idx, image, mask, pred_mask):
-        self.visualize_patch(idx, image, mask, "true mask")
-        self.visualize_patch(idx, image, pred_mask, "pred mask")
+    def visualize_patch_pred(self, idx, img_chan, image, mask, pred_mask):
+        self.visualize_patch(idx, img_chan, image, mask, "true mask")
+        self.visualize_patch(idx, img_chan, image, pred_mask, "pred mask")
 
 
     def predict_and_viz(self, image, label, model, threshold, loc=(100, 100, 50)):
@@ -611,9 +615,7 @@ class TFVolumeDataGenerator(tf.keras.utils.Sequence):
 
         # Initialization
         X = np.zeros((self.batch_size, *self.dim, self.n_channels),
-        #X = np.zeros((self.batch_size, self.n_channels, *self.dim),
                      dtype=np.float64)
-        #y = np.zeros((self.batch_size, self.n_classes, *self.dim),
         y = np.zeros((self.batch_size, *self.dim, self.n_classes),
                      dtype=np.float64)
 
