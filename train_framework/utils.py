@@ -57,9 +57,10 @@ def wandb_cfg(args):
         "nbr_train_batch": args.nbr_train_batch,
         "train_steps": args.n_training_steps,
         "learning_rate": args.learning_rate,
-
+        "img_shape": args.crop_shape,
     }
     return config_dict
+
 
 
 def set_wandb_project_run(args, run_name):

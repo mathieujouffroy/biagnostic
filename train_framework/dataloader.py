@@ -3,6 +3,7 @@ import json
 import cv2
 import h5py
 import logging
+import multiprocessing
 import numpy as np
 import nilearn as nl
 import nibabel as nib
@@ -581,7 +582,6 @@ class BratsDatasetGenerator:
 
 
 
-
 class TFVolumeDataGenerator(tf.keras.utils.Sequence):
     def __init__(self,
                  list_IDs,
@@ -591,6 +591,7 @@ class TFVolumeDataGenerator(tf.keras.utils.Sequence):
                  dim=(160, 160, 64),
                  n_channels=4,
                  n_classes=4,
+                 augmentation=False,
                  verbose=0):
         self.batch_size = batch_size
         self.shuffle = shuffle
@@ -600,6 +601,7 @@ class TFVolumeDataGenerator(tf.keras.utils.Sequence):
         self.n_classes = n_classes - 1
         self.verbose = verbose
         self.list_IDs = list_IDs
+        self.augmentation = augmentation
         self.on_epoch_end()
 
 
@@ -613,9 +615,9 @@ class TFVolumeDataGenerator(tf.keras.utils.Sequence):
 
         # Initialization
         X = np.zeros((self.batch_size, *self.dim, self.n_channels),
-                     dtype=np.float64)
+                     dtype=np.float32)
         y = np.zeros((self.batch_size, *self.dim, self.n_classes),
-                     dtype=np.float64)
+                     dtype=np.float32)
 
         # Generate data
         for i, ID in enumerate(list_IDs_temp):
@@ -630,6 +632,12 @@ class TFVolumeDataGenerator(tf.keras.utils.Sequence):
         return X, y
 
 
+    def __data_augmentation(self, X, y):
+        "Apply augmentation"
+        X_augm, y_augm = augment_data(X, y)
+        return X_augm, y_augm 
+
+
     def __getitem__(self, index):
         'Generate one batch of data'
         # Generate indexes of the batch
@@ -640,6 +648,9 @@ class TFVolumeDataGenerator(tf.keras.utils.Sequence):
         # Generate data
         X, y = self.__data_generation(list_IDs_temp)
 
+        if self.augmentation:
+            X, y = self.__data_augmentation(X, y)
+
         return X, y
 
 
@@ -649,6 +660,54 @@ class TFVolumeDataGenerator(tf.keras.utils.Sequence):
         if self.shuffle == True:
             np.random.shuffle(self.indexes)
 
+
+
+def augment_data(img, msk):
+    """
+    Data augmentation
+    Flip image and mask. Rotate image and mask.
+    """
+    
+    # Determine if axes are equal and can be rotated
+    # If the axes aren't equal then we can't rotate them.
+    equal_dim_axis = []
+    crop_dim = [160, 160, 64]
+    for idx in range(0, len(crop_dim)):
+        for jdx in range(idx+1, len(crop_dim)):
+            if crop_dim[idx] == crop_dim[jdx]:
+                equal_dim_axis.append([idx, jdx])  # Valid rotation axes
+    
+    dim_to_rotate = equal_dim_axis
+    
+    # make sure to use at least the 50% of original images
+    if np.random.rand() > 0.5:
+        # Random 0,1 (axes to flip)
+        ax = np.random.choice(np.arange(len(crop_dim)-1))
+        img = np.flip(img, ax)
+        msk = np.flip(msk, ax)
+        
+    elif (len(dim_to_rotate) > 0) and (np.random.rand() > 0.5):
+        rot = np.random.choice([1, 2, 3])  # 90, 180, or 270 degrees
+        # This will choose the axes to rotate
+        # Axes must be equal in size
+        random_axis = dim_to_rotate[np.random.choice(len(dim_to_rotate))]
+        img = np.rot90(img, rot, axes=random_axis)  # Rotate axes 0 and 1
+        msk = np.rot90(msk, rot, axes=random_axis)  # Rotate axes 0 and 1
+
+    return img, msk
+
+def augment_batch(img_b, msk_b):
+    batch_size = len(img_b)
+    new_img_b, new_msk_b = np.empty_like(img_b), np.empty_like(msk_b)
+    
+    data_inputs = [(x, y) for x, y in zip(img_b, msk_b)]
+    pool = multiprocessing.Pool(multiprocessing.cpu_count())
+    res = pool.starmap(augment_data, data_inputs)
+    for i in range(len(img_b)):
+        new_img_b[i], new_msk_b[i] = res[i][0], res[i][1]
+    pool.close()
+
+    return new_img_b, new_img_b
 
 ## ADD PYTORCH DATALOADER
 #class PTVolumeDataGenerator(torch.utils.data.Dataset):

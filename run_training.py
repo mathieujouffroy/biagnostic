@@ -47,8 +47,11 @@ def main():
         set_wandb_project_run(args, args.m_name)
 
     # Get generators for training and validation sets
-    train_generator = TFVolumeDataGenerator(set_filenames['train'], f"{args.ds_path}subvolumes/", batch_size=args.batch_size, dim=args.crop_shape)
-    valid_generator = TFVolumeDataGenerator(set_filenames['val'], f"{args.ds_path}subvolumes/", batch_size=args.batch_size, dim=args.crop_shape)
+    train_generator = TFVolumeDataGenerator(set_filenames['train'], f"{args.ds_path}subvolumes/", 
+                        batch_size=args.batch_size, dim=args.crop_shape, augmentation=True)
+                        
+    valid_generator = TFVolumeDataGenerator(set_filenames['val'], f"{args.ds_path}subvolumes/",
+                        batch_size=args.batch_size, dim=args.crop_shape)
 
     logger.info(f"\n  ***** Running training *****\n")
     logger.info(f"  train_set = {train_generator}")

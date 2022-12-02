@@ -7,9 +7,9 @@ import tensorflow.keras.layers as tfl
 #https://github.com/rohan-paul/MachineLearning-DeepLearning-Code-for-my-YouTube-Channel/blob/master/Computer_Vision/Unet-Brain-MRI-Segmentation-Tensorflow-Keras/unet.py
 #https://github.com/IntelAI/unet/blob/master/3D/model.py
 
-def ConvolutionBlock(x, n_filts, n_conv, params, batch_normalization, name):
+def ConvolutionBlock(x, n_filts, params, batch_normalization, name):
 
-    for i in range(n_conv):
+    for i in range(2):
         x = tfl.Conv3D(n_filts, **params, name=f"{name}_conv{i}")(x)
         if batch_normalization:
             x = tfl.BatchNormalization(name=f"{name}_bn{i}")(x)
@@ -30,8 +30,8 @@ def UpConvBlock(x, n_filts, pool_size, upsampling, name):
     return x
 
 
-def unet_model_3d(m_name, input_shape=(128, 128, 32, 4),
-                  pool_size=(2, 2, 2), n_labels=3, n_conv=2, depth=5,
+def unet_model_3d(m_name, input_shape=(160, 160, 64, 4),
+                  pool_size=(2, 2, 2), n_labels=3, depth=5,
                   n_filts=16, activation_name="sigmoid",
                   upsampling=True, batch_norm=False, dropout=False):
 
@@ -47,7 +47,7 @@ def unet_model_3d(m_name, input_shape=(128, 128, 32, 4),
     for layer_depth in range(depth):
         # filters -> 16, 32, 64, 128, 256 
         n_f = n_filts * (2 ** layer_depth)
-        encode_block = ConvolutionBlock(layer, n_f, n_conv, params, batch_norm, f"encode_{layer_depth}")
+        encode_block = ConvolutionBlock(layer, n_f, params, batch_norm, f"encode_{layer_depth}")
         
         if layer_depth < depth - 1:
             layer = tfl.MaxPooling3D(name=f"pool_{layer_depth}", pool_size=pool_size)(encode_block)        
@@ -61,7 +61,7 @@ def unet_model_3d(m_name, input_shape=(128, 128, 32, 4),
 
     up_conv = UpConvBlock(encode_block, n_filts*8, pool_size, upsampling, f"Up_{layer_depth}")
     concat = tfl.concatenate([up_conv, levels[layer_depth-1]], axis=-1, name=f"concat_{layer_depth-1}")
-    decode = ConvolutionBlock(concat, n_filts*8, n_conv, params, batch_norm, f"decode_{layer_depth-2}",)
+    decode = ConvolutionBlock(concat, n_filts*8, params, batch_norm, f"decode_{layer_depth-2}",)
 
     n = 4
     # iterate from layer[-2] to layer[0] to add up-convolution or up-sampling
@@ -72,12 +72,9 @@ def unet_model_3d(m_name, input_shape=(128, 128, 32, 4),
             name = f"decode_{layer_depth-1}"
         else:
             name = "convOut"
-        decode = ConvolutionBlock(concat, n_filts*n, n_conv, params, batch_norm, name)
-        #else:
-        #    convout = ConvolutionBlock(concat, n_filts, params, batch_norm, f"convOut")
+        decode = ConvolutionBlock(concat, n_filts*n, params, batch_norm, name)
         n /= 2
 
-    #outputs = tfl.Conv3D(n_labels, (1, 1, 1), activation=activation_name, name="PredictionMask")(convout)
     outputs = tfl.Conv3D(n_labels, (1, 1, 1), activation=activation_name, name="PredictionMask")(decode)
     model =  tf.keras.Model(inputs=inputs, outputs=outputs, name=m_name)
     return model
