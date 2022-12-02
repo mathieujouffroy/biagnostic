@@ -1,11 +1,10 @@
 import tensorflow as tf
 import tensorflow.keras.layers as tfl
 
-# ideas 
-#https://github.com/IAmSuyogJadhav/3d-mri-brain-tumor-segmentation-using-autoencoder-regularization/blob/master/model.py
-#https://github.com/icerain-alt/brats-unet/blob/main/networks/AttentionUnet.py
-#https://github.com/rohan-paul/MachineLearning-DeepLearning-Code-for-my-YouTube-Channel/blob/master/Computer_Vision/Unet-Brain-MRI-Segmentation-Tensorflow-Keras/unet.py
-#https://github.com/IntelAI/unet/blob/master/3D/model.py
+
+# ADD Attention Unet 
+# Create classes for 3d unet and 3d attention unet
+
 
 def ConvolutionBlock(x, n_filts, params, batch_normalization, name):
 
