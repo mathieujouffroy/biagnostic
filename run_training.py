@@ -52,7 +52,7 @@ def main():
                         
     valid_generator = TFVolumeDataGenerator(set_filenames['val'], f"{args.ds_path}subvolumes/",
                         batch_size=args.batch_size, dim=args.crop_shape)
-
+                        
     logger.info(f"\n  ***** Running training *****\n")
     logger.info(f"  train_set = {train_generator}")
     logger.info(f"  Nbr of class = {args.n_classes}")

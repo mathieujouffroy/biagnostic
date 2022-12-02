@@ -3,11 +3,11 @@ import json
 import cv2
 import h5py
 import logging
-import multiprocessing
 import numpy as np
 import nilearn as nl
 import nibabel as nib
 import tensorflow as tf
+import multiprocessing
 import matplotlib.pyplot as plt
 import nilearn.plotting as nlplt
 
@@ -559,27 +559,6 @@ class BratsDatasetGenerator:
 
         return model_label_reformatted
 
-    #def get_dataset(self):
-    #    ds = tf.data.Dataset.range(self.numFiles).shuffle(self.numFiles, self.seed) # Shuffle the dataset
-    #    ds_train = ds.take(self.len_train)
-    #    ds_val_test = ds.skip(self.len_train)
-    #    ds_val = ds_val_test.take(int(self.val_test_len * self.val_test_split))
-    #    ds_test = ds_val_test.skip(int(self.val_test_len * self.val_test_split))
-    #    ds_train = ds_train.map(lambda x: tf.py_function(self.generate_sub_volume, [x], [tf.float32, tf.float32]), num_parallel_calls=tf.data.experimental.AUTOTUNE)
-    #    ds_val = ds_val.map(lambda x: tf.py_function(self.generate_sub_volume, [x], [tf.float32, tf.float32]), num_parallel_calls=tf.data.experimental.AUTOTUNE)
-    #    ds_test = ds_test.map(lambda x: tf.py_function(self.generate_sub_volume, [x], [tf.float32, tf.float32]), num_parallel_calls=tf.data.experimental.AUTOTUNE)
-    #    ds_train = ds_train.batch(1)
-    #    ds_train = ds_train.prefetch(tf.data.experimental.AUTOTUNE)
-    #    ds_val = ds_val.batch(1)
-    #    ds_val = ds_val.prefetch(tf.data.experimental.AUTOTUNE)
-    #    ds_test = ds_test.batch(1)
-    #    ds_test = ds_test.prefetch(tf.data.experimental.AUTOTUNE)
-    #    return ds_train, ds_val, ds_test
-    #def get_training_sets(self):
-    #    return self.ds_train, self.ds_val
-    #def get_test_set(self):
-    #    return self.ds_test
-
 
 
 class TFVolumeDataGenerator(tf.keras.utils.Sequence):
@@ -634,7 +613,7 @@ class TFVolumeDataGenerator(tf.keras.utils.Sequence):
 
     def __data_augmentation(self, X, y):
         "Apply augmentation"
-        X_augm, y_augm = augment_data(X, y)
+        X_augm, y_augm = augment_batch(X, y)
         return X_augm, y_augm 
 
 
@@ -678,14 +657,13 @@ def augment_data(img, msk):
                 equal_dim_axis.append([idx, jdx])  # Valid rotation axes
     
     dim_to_rotate = equal_dim_axis
-    
     # make sure to use at least the 50% of original images
     if np.random.rand() > 0.5:
         # Random 0,1 (axes to flip)
         ax = np.random.choice(np.arange(len(crop_dim)-1))
         img = np.flip(img, ax)
         msk = np.flip(msk, ax)
-        
+    
     elif (len(dim_to_rotate) > 0) and (np.random.rand() > 0.5):
         rot = np.random.choice([1, 2, 3])  # 90, 180, or 270 degrees
         # This will choose the axes to rotate
@@ -703,11 +681,11 @@ def augment_batch(img_b, msk_b):
     data_inputs = [(x, y) for x, y in zip(img_b, msk_b)]
     pool = multiprocessing.Pool(multiprocessing.cpu_count())
     res = pool.starmap(augment_data, data_inputs)
-    for i in range(len(img_b)):
+    for i in range(batch_size):
         new_img_b[i], new_msk_b[i] = res[i][0], res[i][1]
     pool.close()
 
-    return new_img_b, new_img_b
+    return new_img_b, new_msk_b
 
 ## ADD PYTORCH DATALOADER
 #class PTVolumeDataGenerator(torch.utils.data.Dataset):
