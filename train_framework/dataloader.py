@@ -157,15 +157,12 @@ class BratsDatasetGenerator:
                 (n_classes, output_x, output_y, output_z)
         """
 
-        orig_x, orig_y = self.img_shape[0], self.img_shape[1]
+        orig_x, orig_y, orig_z = self.img_shape[0], self.img_shape[1], self.img_shape[2]
         output_x, output_y, output_z = self.crop_shape[0], self.crop_shape[1], self.crop_shape[2]
 
         _, label = self.load_example(idx)
         tries = 0
 
-        print(label.shape)
-        print(np.unique(label))
-        print(np.where(label != 0))
         #min_x = min(np.where(label != 0)[0])
         #max_x = max(np.where(label != 0)[0])
         #min_y = min(np.where(label != 0)[1])
@@ -193,8 +190,12 @@ class BratsDatasetGenerator:
 
         best_bgrd_ratio = 1
 
-        if (max_z - min_z <= 64):
+
+        if (max_z - min_z <= output_z):
             best_z = min_z
+            if best_z + output_z >= orig_z:
+                best_z = orig_z - output_z
+
             y = label[start_x: start_x + output_x,
                       start_y: start_y + output_y,
                       best_z: best_z + output_z]
@@ -318,6 +319,10 @@ class BratsDatasetGenerator:
         X = np.moveaxis(X,3,0)
         # (x_dim, y_dim, z_dim, n_classes) -> (n_classes, x_dim, y_dim, z_dim)
         y = np.moveaxis(y,3,0)
+
+        assert X.shape[1] == y.shape[1] == output_x
+        assert X.shape[2] == y.shape[2] == output_y
+        assert X.shape[3] == y.shape[3] == output_z
 
         # exclude background class in the 'n_classes' dimension
         mask = y[1:, :, :, :]
