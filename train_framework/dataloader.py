@@ -279,7 +279,6 @@ class BratsDatasetGenerator:
                 image_slice = image[c, :, : ,z]
                 centered = image_slice - np.mean(image_slice)
                 if np.std(centered) == 0:
-                    print(np.unique(image_slice))
                     centered_scaled = centered
                 else:
                     centered_scaled = centered / np.std(centered)
@@ -330,7 +329,6 @@ class BratsDatasetGenerator:
         # exclude background class in the 'n_classes' dimension
         mask = y[1:, :, :, :]
 
-        print(idx)
         image = self.standardize(X)
 
         if not store:
