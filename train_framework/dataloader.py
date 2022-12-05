@@ -28,10 +28,10 @@ def store_hdf5(name, images, masks):
 
     # Create a new HDF5 file
     file = h5py.File(name, "w")
-
-    # Images are store as uint8 -> 0-255
-    file.create_dataset("images", np.shape(images),h5py.h5t.STD_U8BE, data=images)
-    file.create_dataset("masks", np.shape(masks),h5py.h5t.STD_U8BE, data=masks)
+    
+    # Images are store as float 32 & Masks as uint8 
+    file.create_dataset("images", np.shape(images), data=images)
+    file.create_dataset("masks", np.shape(masks), h5py.h5t.STD_U8BE, data=masks)
     file.close()
     return file
 
@@ -333,7 +333,7 @@ class BratsDatasetGenerator:
         image = self.standardize(X)
 
         if not store:
-            return X, y
+            return image, y
         else:
             name = f"subvolumes/BRATS_{idx}_{start_x}_{start_y}_{start_z}.h5"
             path_name = os.path.join(self.ds_path, name)
@@ -614,7 +614,7 @@ class TFVolumeDataGenerator(tf.keras.utils.Sequence):
     def __data_augmentation(self, X, y):
         "Apply augmentation"
         X_augm, y_augm = augment_batch(X, y)
-        return X_augm, y_augm 
+        return X_augm, y_augm
 
 
     def __getitem__(self, index):
@@ -677,7 +677,6 @@ def augment_data(img, msk):
 def augment_batch(img_b, msk_b):
     batch_size = len(img_b)
     new_img_b, new_msk_b = np.empty_like(img_b), np.empty_like(msk_b)
-    
     data_inputs = [(x, y) for x, y in zip(img_b, msk_b)]
     pool = multiprocessing.Pool(multiprocessing.cpu_count())
     res = pool.starmap(augment_data, data_inputs)

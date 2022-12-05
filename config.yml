@@ -1,7 +1,7 @@
 ## Configuration file
 
-#ds_path: "resources/Task01_BrainTumour/"
-ds_path: "../block_storage/resources/Task01_BrainTumour/"
+ds_path: "resources/Task01_BrainTumour/"
+#ds_path: "../block_storage/resources/Task01_BrainTumour/"
 crop_shape: [160, 160, 64]
 
 m_name: "Unet3D-imp"

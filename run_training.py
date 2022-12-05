@@ -76,7 +76,7 @@ def main():
         # load best model & evaluate on test set
         test_generator = TFVolumeDataGenerator(set_filenames['test'], f"{args.ds_path}subvolumes/", batch_size=args.batch_size, dim=args.crop_shape)
         history = trained_model.evaluate(test_generator)
-        logger.info(history)
+        logger.info(f"  history:{history}")
         #print(f"Loss: {loss}")
         #print(f"Average Dice Coefficient on test dataset = {dice_coef:.4f}")
         #print(f"Average Soft Dice Coefficient on test dataset = {soft_dice_coef:.4f}")
@@ -87,3 +87,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+## add class weights
