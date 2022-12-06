@@ -16,6 +16,10 @@ n_epochs: 30
 learning_rate: 0.0001
 lr_decay_rate: 0.1
 
+# for attention models
+#n_epochs: 100
+#learning_rate: 0.00001
+
 evaluate_during_training: True
 overwrite_output_dir: True
 
@@ -24,3 +28,8 @@ wandb: True
 output_dir: "resources"
 
 framework: "tf"
+
+
+optimizer: "AdamW"
+#loss: "per_chan_loss"
+#eval_metric: "per_chan_dice_loss"

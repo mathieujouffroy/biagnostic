@@ -2,27 +2,9 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.keras import backend as K
 
-def precision(y_true, y_pred):
-    """
-
-
-    Args:
-        y_true (Tensorflow tensor): tensor of ground truth values for all classes.
-                                    shape: (batch, x_dim, y_dim, z_dim, n_classes)
-        y_pred (Tensorflow tensor): tensor of soft predictions for all classes.
-                                    shape: (batch, x_dim, y_dim, z_dim, n_classes)
-    Returns:
-
-    """
-    true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
-    predicted_positives = K.sum(K.round(K.clip(y_pred, 0, 1)))
-    precision = true_positives / (predicted_positives + K.epsilon())
-    return precision
-
-
 def sensitivity(y_true, y_pred):
     """
-
+    tp / (tp+fn)    
 
     Args:
         y_true (Tensorflow tensor): tensor of ground truth values for all classes.
@@ -39,7 +21,9 @@ def sensitivity(y_true, y_pred):
 
 def specificity(y_true, y_pred):
     """
+    Specificity — Out of all the people that do not have the disease, how many got negative results?
 
+    tn / (tn+fp)
 
     Args:
         y_true (Tensorflow tensor): tensor of ground truth values for all classes.

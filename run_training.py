@@ -3,12 +3,15 @@ import json
 import math
 import wandb
 import logging
+import torch
 import tensorflow as tf
 from train_framework.tf_metrics import *
+from train_framework.pt_metrics import *
 from train_framework.train import tf_train_model
-from train_framework.tf_model import unet_model_3d
+from train_framework.tf_model import Unet3D, AttentionUnet3D
+from train_framework.pt_model import AttentionUNet
 from train_framework.utils import set_seed, set_wandb_project_run, parse_args, set_logging
-from train_framework.dataloader import BratsDatasetGenerator, TFVolumeDataGenerator
+from train_framework.dataloader import BratsDatasetGenerator, TFVolumeDataGenerator, VolumeDataset
 
 logger = logging.getLogger(__name__)
 print(logger)
@@ -47,12 +50,19 @@ def main():
         set_wandb_project_run(args, args.m_name)
 
     # Get generators for training and validation sets
-    train_generator = TFVolumeDataGenerator(set_filenames['train'], f"{args.ds_path}subvolumes/", 
-                        batch_size=args.batch_size, dim=args.crop_shape, augmentation=True)
-                        
-    valid_generator = TFVolumeDataGenerator(set_filenames['val'], f"{args.ds_path}subvolumes/",
-                        batch_size=args.batch_size, dim=args.crop_shape)
-                        
+    if args.framework == 'tf':
+        train_generator = TFVolumeDataGenerator(set_filenames['train'], f"{args.ds_path}subvolumes/", 
+                            batch_size=args.batch_size, dim=args.crop_shape, shuffle=True, augmentation=True)
+
+        valid_generator = TFVolumeDataGenerator(set_filenames['val'], f"{args.ds_path}subvolumes/",
+                            batch_size=args.batch_size, dim=args.crop_shape, shuffle=True)
+    else:
+        train_set = VolumeDataset(set_filenames['train'], f"{args.ds_path}subvolumes/", dim=args.crop_shape, transform=True)
+        val_set = VolumeDataset(set_filenames['val'], f"{args.ds_path}subvolumes/", dim=args.crop_shape)
+        train_generator = torch.utils.data.DataLoader(train_set, {'batch_size': 4,'shuffle': True,'num_workers': 6})
+        valid_generator  = torch.utils.data.DataLoader(val_set, {'batch_size': 4,'shuffle': True,'num_workers': 6})
+                
+
     logger.info(f"\n  ***** Running training *****\n")
     logger.info(f"  train_set = {train_generator}")
     logger.info(f"  Nbr of class = {args.n_classes}")
@@ -64,12 +74,13 @@ def main():
     logger.info(f"  Nbr of training batch = {args.nbr_train_batch}")
     logger.info(f"  Nbr training steps = {args.n_training_steps}")
 
-    if args.framework == "tf":
-        model = unet_model_3d(args.m_name)
-        args.metrics =[dice_coefficient, soft_dice_coefficient, iou_coeff, tf.keras.metrics.OneHotMeanIoU(args.n_classes), precision, specificity, sensitivity]
-        
-        trained_model = tf_train_model(args,  model, train_generator, valid_generator)
 
+    if args.framework == "tf":
+        model = Unet3D(args.m_name, (160, 160, 64, 4), 3)
+        #model = AttentionUnet3D(args.m_name, (160, 160, 64, 4), 3)
+        model = model.build()
+        args.metrics =[dice_coefficient, soft_dice_coefficient, iou_coeff, tf.keras.metrics.OneHotMeanIoU(args.n_classes)]
+        trained_model = tf_train_model(args,  model, train_generator, valid_generator)
 
 
     if args.evaluate_during_training:

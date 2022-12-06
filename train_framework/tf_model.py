@@ -1,12 +1,7 @@
 import tensorflow as tf
 import tensorflow.keras.layers as tfl
 
-
-# ADD Attention Unet 
-# Create classes for 3d unet and 3d attention unet
-
-class Unet3D:#(tf.keras.Model):
-
+class Unet3D:
 
     def __init__(
         self,
@@ -33,6 +28,7 @@ class Unet3D:#(tf.keras.Model):
         self.dropout = dropout
         self.params = dict(kernel_size=(3, 3, 3), strides=(1, 1, 1), padding="same", kernel_initializer="he_uniform")
         self.model = self.build()
+
 
     def conv_block(self, x, n_filts, name):
 
@@ -97,7 +93,6 @@ class Unet3D:#(tf.keras.Model):
         outputs = tfl.Conv3D(self.n_labels, (1, 1, 1), activation=self.activation_name, name="PredictionMask")(decode)
         model =  tf.keras.Model(inputs=inputs, outputs=outputs, name=self.m_name)
         
-        #return outputs
         return model
 
 
@@ -107,8 +102,8 @@ class AttentionUnet3D(tf.keras.Model):
     def __init__(
         self,
         m_name,
-        vol_shape,
-        n_labels,
+        vol_shape=(160, 160, 64, 4),
+        n_labels=3,
         depth=5,
         pool_size=(2, 2, 2),
         n_filts = 16,
@@ -130,23 +125,22 @@ class AttentionUnet3D(tf.keras.Model):
         self.dropout = dropout
         self.params = dict(kernel_size=(3, 3, 3), strides=(1, 1, 1), padding="same", kernel_initializer="he_uniform")
 
-    def conv_block(self, x, name):
 
+    def conv_block(self, x, n_filts, name):
         for i in range(2):
-            x = tfl.Conv3D(self.n_filts, **self.params, name=f"{name}_conv{i}")(x)
+            x = tfl.Conv3D(n_filts, **self.params, name=f"{name}_conv{i}")(x)
             if self.batch_norm:
                 x = tfl.BatchNormalization(name=f"{name}_bn{i}")(x)
             x = tfl.Activation("relu", name=f"{name}_relu{i}")(x)
-
         return x
 
 
-    def deconv_block(self, x, name):
+    def deconv_block(self, x, n_filts, name):
         x = tfl.UpSampling3D(size=self.pool_size, name=name)(x)
-        x = tfl.Conv3D(self.n_filts, **self.params)(x)
+        x = tfl.Conv3D(n_filts, **self.params, name=f"{name}_conv")(x)
         if self.batch_norm:
-            x = tfl.BatchNormalization(name=name)(x)
-        x = tfl.Activation("relu", name=name)(x)
+            x = tfl.BatchNormalization(name=f"{name}_bn")(x)
+        x = tfl.Activation("relu", name=f"{name}_relu")(x)
         return x
 
 
@@ -165,7 +159,7 @@ class AttentionUnet3D(tf.keras.Model):
         return tfl.Multiply()([F_l, psi])
 
 
-    def call(self):
+    def build(self):
         inputs = tfl.Input(self.vol_shape)
         levels = list()
 
@@ -175,6 +169,7 @@ class AttentionUnet3D(tf.keras.Model):
             # filters -> 16, 32, 64, 128, 256 
             n_f = self.n_filts * (2 ** layer_depth)
             encode_block = self.conv_block(layer, n_f, f"encode_{layer_depth}")
+            print(f"encode_{layer_depth} :  filters= {n_f}")
 
             if layer_depth < self.depth - 1:
                 layer = tfl.MaxPooling3D(name=f"pool_{layer_depth}", pool_size=self.pool_size)(encode_block)        
@@ -182,51 +177,38 @@ class AttentionUnet3D(tf.keras.Model):
                 layer = encode_block
             
             if self.dropout and layer_depth == 0:
-                layer = tfl.SpatialDropout3D(0.2, data_format='channels_first')(layer)
+                layer = tfl.SpatialDropout3D(0.2, data_format='channels_first',name=f"dropout_{layer_depth}")(layer)
             
             levels.append(encode_block)
         
-        up_conv = self.deconv_block(encode_block, self.n_filts*8, self.pool_size, self.upsampling, f"Up_{layer_depth}")
-        conv6 = self.attention_block(up_conv, levels[layer_depth-1], self.n_filts*8)
-        concat = tfl.concatenate([up_conv, conv6], axis=-1, name=f"concat_0")
+
+        up_conv = self.deconv_block(encode_block, self.n_filts*8, f"Up_{layer_depth-1}")
+        att = self.attention_block(up_conv, levels[layer_depth-1], self.n_filts*8)
+        concat = tfl.concatenate([up_conv, att], axis=-1, name=f"concat_{layer_depth-1}")
+        conv = self.conv_block(concat, self.n_filts*8, f"conv_up_{layer_depth-1}_encode")
+        print(f"Up_{layer_depth-1}:             filters={self.n_filts*8}")
+        print(f"concat_{layer_depth}")
+        print(f"conv_up_{layer_depth}_encode")
         
+
         n = 4
         # iterate from layer[-2] to layer[0] to add up-convolution or up-sampling
         for layer_depth in range(self.depth - 3, -1, -1):
-            up_conv = self.up_conv_block(decode, self.n_filts*n,  self.pool_size, self.upsampling, f"Up_{layer_depth}")
-            concat = tfl.concatenate([up_conv, levels[layer_depth]], axis=-1, name=f"concat_{layer_depth}")
+            up_conv = self.deconv_block(conv, self.n_filts*n, f"Up_{layer_depth}")
+            att = self.attention_block(up_conv, levels[layer_depth], self.n_filts*n)
+            concat = tfl.concatenate([up_conv, att], axis=-1, name=f"concat_{layer_depth}")
             if layer_depth > 0:
-                name = f"decode_{layer_depth-1}"
+                name = f"conv_up_{layer_depth}_encode"
             else:
                 name = "convOut"
-            decode = self.conv_block(concat, self.n_filts*n, name)
+            conv = self.conv_block(concat, self.n_filts*n, name)
             n /= 2
+            print(f"Up_{layer_depth}:          filters={self.n_filts*n}")
+            print(f"concat_{layer_depth}")
+            print(f"{name}")
         
-        outputs = tfl.Conv3D(self.n_labels, (1, 1, 1), activation=self.activation_name, name="PredictionMask")(decode)
+
+        outputs = tfl.Conv3D(self.n_labels, (1, 1, 1), activation=self.activation_name, name="PredictionMask")(conv)
         model =  tf.keras.Model(inputs=inputs, outputs=outputs, name=self.m_name)
         
         return model
-
-
-#up6 = deconv3d(conv5, 512)
-#conv6 = attention_block(up6, conv4, 512)
-#up6 = Concatenate()([up6, conv6])
-#conv6 = conv3d(up6, 512)
-#up7 = deconv3d(conv6, 256)
-#conv7 = attention_block(up7, conv3, 256)
-#up7 = Concatenate()([up7, conv7])
-#conv7 = conv3d(up7, 256)
-#up8 = deconv3d(conv7, 128)
-#conv8 = attention_block(up8, conv2, 128)
-#up8 = Concatenate()([up8, conv8])
-#conv8 = conv3d(up8, 128)
-#up9 = deconv3d(conv8, 64)
-#conv9 = attention_block(up9, conv1, 64)
-#up9 = Concatenate()([up9, conv9])
-#conv9 = conv3d(up9, 64)
-#output = Conv3D(4, 1, activation="softmax")(conv9)
-#return Model(inputs=inputs, outputs=output, name="Attention_Unet")        
-
-#https://github.com/mahsaama/BrainTumorSegmentation/blob/main/models/att_unet_model.py
-#https://github.com/arkanivasarkar/Retinal-Vessel-Segmentation-using-variants-of-UNET/blob/main/model.py 
-#https://github.com/lixiaolei1982/Keras-Implementation-of-U-Net-R2U-Net-Attention-U-Net-Attention-R2U-Net.-/blob/master/network.py 

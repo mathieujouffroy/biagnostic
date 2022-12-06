@@ -10,11 +10,37 @@ from train_framework.tf_metrics import *
 logger = logging.getLogger(__name__)
 
 
-def scheduler(epoch, lr):
-  if epoch <= 10:
-    return lr
-  else:
-    return lr * tf.math.exp(-0.1*epoch)
+class lr_polynomial_decay:
+	def __init__(self, epochs, initial_learning_rate, power=1.0):
+		self.epochs = epochs
+		self.initial_learning_rate = initial_learning_rate
+		self.power = power
+
+	def __call__(self, epoch):
+		# compute the new learning rate based on polynomial decay
+		decay = (1 - (epoch / float(self.epochs))) ** self.power
+		updated_eta = self.initial_learning_rate * decay
+		return float(updated_eta)
+
+
+class lr_exponential_decay:
+	def __init__(self, epochs, initial_learning_rate):
+		self.epochs = epochs
+		self.initial_learning_rate = initial_learning_rate
+
+	def __call__(self, epoch):
+		k = 0.1
+		return self.initial_learning_rate * math.exp(-k*epoch)
+
+
+class lr_time_based_decay:
+	def __init__(self, epochs, initial_learning_rate):
+		self.epochs = epochs
+		self.initial_learning_rate = initial_learning_rate
+		self.decay = self.initial_learning_rate/self.epochs
+
+	def __call__(self, epoch, lr):
+		return lr * 1 / (1 + self.decay * epoch)
 
 
 def tf_train_model(args, model, train_set, valid_set):
@@ -29,10 +55,9 @@ def tf_train_model(args, model, train_set, valid_set):
     Returns:
         model(tensorflow.Model): trained model
     """
-    #tf.keras.metrics.Precision
-    #tf.keras.metrics.IoU, tf.keras.metrics.MeanIoU
-    # tf.keras.metrics.OneHotIoU, tf.keras.metrics.OneHotMeanIoU
+
     optimizer = tf.keras.optimizers.Adam(learning_rate=args.learning_rate)
+    #optimizer = tf.keras.optimizers.experimental.AdamW(learning_rate=args.learning_rate)
     model.compile(optimizer=optimizer, loss=soft_dice_loss, metrics=args.metrics)
 
     if args.wandb:
@@ -52,7 +77,7 @@ def tf_train_model(args, model, train_set, valid_set):
         train_curves,
         tf.keras.callbacks.ModelCheckpoint(checkpoint_fp, monitor='val_loss', verbose=0, save_best_only=True),
         #tf.keras.callbacks.LearningRateScheduler(scheduler, verbose=1)
-        tf.keras.callbacks.ReduceLROnPlateau(monitor="val_loss", patience=3, factor=args.lr_decay_rate, verbose=1),
+        #tf.keras.callbacks.ReduceLROnPlateau(monitor="val_loss", patience=3, factor=args.lr_decay_rate, verbose=1),
     ]
 
     logger.info("\n\n")

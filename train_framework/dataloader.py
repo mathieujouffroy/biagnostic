@@ -2,6 +2,7 @@ import os
 import json
 import cv2
 import h5py
+import torch
 import logging
 import numpy as np
 import nilearn as nl
@@ -10,6 +11,7 @@ import tensorflow as tf
 import multiprocessing
 import matplotlib.pyplot as plt
 import nilearn.plotting as nlplt
+import monai.transforms as transforms
 
 logger = logging.getLogger(__name__)
 
@@ -566,10 +568,10 @@ class TFVolumeDataGenerator(tf.keras.utils.Sequence):
                  list_IDs,
                  base_dir,
                  batch_size=1,
-                 shuffle=True,
                  dim=(160, 160, 64),
                  n_channels=4,
                  n_classes=4,
+                 shuffle=False,
                  augmentation=False,
                  verbose=0):
         self.batch_size = batch_size
@@ -641,6 +643,7 @@ class TFVolumeDataGenerator(tf.keras.utils.Sequence):
 
 
 
+
 def augment_data(img, msk):
     """
     Data augmentation
@@ -674,6 +677,7 @@ def augment_data(img, msk):
 
     return img, msk
 
+
 def augment_batch(img_b, msk_b):
     batch_size = len(img_b)
     new_img_b, new_msk_b = np.empty_like(img_b), np.empty_like(msk_b)
@@ -686,25 +690,67 @@ def augment_batch(img_b, msk_b):
 
     return new_img_b, new_msk_b
 
+
 ## ADD PYTORCH DATALOADER
-#class PTVolumeDataGenerator(torch.utils.data.Dataset):
-#  'Characterizes a dataset for PyTorch'
-#  def __init__(self, list_IDs, labels):
-#        'Initialization'
-#        self.labels = labels
-#        self.list_IDs = list_IDs
-#
-#  def __len__(self):
-#        'Denotes the total number of samples'
-#        return len(self.list_IDs)
-#
-#  def __getitem__(self, index):
-#        'Generates one sample of data'
-#        # Select sample
-#        ID = self.list_IDs[index]
-#
-#        # Load data and get label
-#        X = torch.load('data/' + ID + '.pt')
-#        y = self.labels[ID]
-#
-#        return X, y
+class VolumeDataset(torch.utils.data.Dataset):
+  
+    def __init__(self,
+                 list_IDs,
+                 base_dir,
+                 batch_size=1,
+                 shuffle=True,
+                 dim=(160, 160, 64),
+                 n_channels=4,
+                 n_classes=4,
+                 transform=False,
+                 verbose=0
+    ):
+        self.batch_size = batch_size
+        self.shuffle = shuffle
+        self.base_dir = base_dir
+        self.dim = dim
+        self.n_channels = n_channels
+        self.n_classes = n_classes - 1
+        self.verbose = verbose
+        self.list_IDs = list_IDs
+        self.transform = transform
+
+    def __len__(self):
+        'Denotes the total number of samples'
+        return len(self.list_IDs)
+
+
+    def __getitem__(self, index):
+        if self.verbose == 1:
+            print(f"Training on: {self.base_dir}{index}")
+        
+        ID = self.list_IDs[index]
+
+        with h5py.File(self.base_dir + ID, 'r') as f:
+            X = np.array(f.get("images")) #(4, 160, 160, 64)
+            y = np.array(f.get("masks")) #(3, 160, 160, 64)
+
+        if self.transform:
+            X, y = self.__data_augmentation(X, y)
+            #data_aug = transforms.Compose([
+            #    # spatial aug
+            #    transforms.RandFlipd(keys=["image", 'label'], prob=0.5, spatial_axis=0),
+            #    transforms.RandFlipd(keys=["image", 'label'], prob=0.5, spatial_axis=1),
+            #    transforms.RandFlipd(keys=["image", 'label'], prob=0.5, spatial_axis=2),
+            #    # intensity aug
+            ##    transforms.RandGaussianNoised(keys='image', prob=0.15, mean=0.0, std=0.33),
+            ##    transforms.RandGaussianSmoothd(keys='image', prob=0.15, sigma_x=(0.5, 1.5), sigma_y=(0.5, 1.5), sigma_z=(0.5, 1.5)),
+            ##    transforms.RandAdjustContrastd(keys='image', prob=0.15, gamma=(0.7, 1.3)),
+            #])
+            #X, y = data_aug({"image":X, "label":y})
+        return X, y
+
+
+def get_train_loader(args, dataset, set_type):
+    if set_type == "train":
+        data_ld = torch.utils.data.DataLoader(dataset, batch_size=args.batch_size, shuffle=True, drop_last=False,
+                                            num_workers=args.num_workers, pin_memory=True)
+    else:
+        data_ld = torch.utils.data.DataLoader(dataset, batch_size=args.batch_size, shuffle=False, drop_last=False,
+                                            num_workers=args.num_workers, pin_memory=True)
+    return data_ld
