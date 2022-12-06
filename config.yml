@@ -4,7 +4,7 @@ ds_path: "resources/Task01_BrainTumour/"
 #ds_path: "../block_storage/resources/Task01_BrainTumour/"
 crop_shape: [160, 160, 64]
 
-m_name: "Unet3D-imp"
+m_name: "Attention-Unet3D-adamW"
 
 n_classes: 4
 seed: 42
@@ -14,8 +14,8 @@ val_test_split: 0.50
 batch_size: 4
 n_epochs: 30
 learning_rate: 0.0001
-lr_decay_rate: 0.1
-
+decay_rate: 0.2
+min_learnin_rate: 0.00000001
 # for attention models
 #n_epochs: 100
 #learning_rate: 0.00001

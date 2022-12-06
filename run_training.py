@@ -76,10 +76,12 @@ def main():
 
 
     if args.framework == "tf":
-        model = Unet3D(args.m_name, (160, 160, 64, 4), 3)
-        #model = AttentionUnet3D(args.m_name, (160, 160, 64, 4), 3)
+        if args.m_name.split('-')[0] == 'Attention':
+            model = AttentionUnet3D(args.m_name, (160, 160, 64, 4), 3)
+        else:
+            model = Unet3D(args.m_name, (160, 160, 64, 4), 3)
         model = model.build()
-        args.metrics =[dice_coefficient, soft_dice_coefficient, iou_coeff, tf.keras.metrics.OneHotMeanIoU(args.n_classes)]
+        args.metrics =[dice_loss, dice_coefficient, soft_dice_coefficient, iou_coeff, tf.keras.metrics.OneHotMeanIoU(args.n_classes)]
         trained_model = tf_train_model(args,  model, train_generator, valid_generator)
 
 

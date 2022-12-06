@@ -56,8 +56,8 @@ def tf_train_model(args, model, train_set, valid_set):
         model(tensorflow.Model): trained model
     """
 
-    optimizer = tf.keras.optimizers.Adam(learning_rate=args.learning_rate)
-    #optimizer = tf.keras.optimizers.experimental.AdamW(learning_rate=args.learning_rate)
+    #optimizer = tf.keras.optimizers.Adam(learning_rate=args.learning_rate)
+    optimizer = tf.keras.optimizers.experimental.AdamW(learning_rate=args.learning_rate, weight_decay=args.decay_rate)
     model.compile(optimizer=optimizer, loss=soft_dice_loss, metrics=args.metrics)
 
     if args.wandb:
@@ -77,7 +77,7 @@ def tf_train_model(args, model, train_set, valid_set):
         train_curves,
         tf.keras.callbacks.ModelCheckpoint(checkpoint_fp, monitor='val_loss', verbose=0, save_best_only=True),
         #tf.keras.callbacks.LearningRateScheduler(scheduler, verbose=1)
-        #tf.keras.callbacks.ReduceLROnPlateau(monitor="val_loss", patience=3, factor=args.lr_decay_rate, verbose=1),
+        tf.keras.callbacks.ReduceLROnPlateau(monitor="val_loss", patience=2, factor=args.rate, min_lr=args.min_learnin_rate, verbose=1),
     ]
 
     logger.info("\n\n")

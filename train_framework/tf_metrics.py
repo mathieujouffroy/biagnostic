@@ -145,6 +145,23 @@ def soft_dice_loss(y_true, y_pred, axis=(1, 2, 3), epsilon=0.0001):
     return dice_loss
 
 
+def dice_loss(target, prediction, axis=(1, 2, 3), smooth=0.0001):
+    """
+    Sorenson (Soft) Dice loss
+    Using -log(Dice) as the loss since it is better behaved.
+    Also, the log allows avoidance of the division which
+    can help prevent underflow when the numbers are very small.
+    """
+    intersection = tf.reduce_sum(prediction * target, axis=axis)
+    p = tf.reduce_sum(prediction, axis=axis)
+    t = tf.reduce_sum(target, axis=axis)
+    numerator = tf.reduce_mean(intersection + smooth)
+    denominator = tf.reduce_mean(t + p + smooth)
+    dice_loss = -tf.math.log(2.*numerator) + tf.math.log(denominator)
+
+    return dice_loss
+
+
 def compute_class_sens_spec(pred, label, class_num):
     """
     Compute sensitivity and specificity for a particular example

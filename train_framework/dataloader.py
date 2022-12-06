@@ -562,7 +562,6 @@ class BratsDatasetGenerator:
         return model_label_reformatted
 
 
-
 class TFVolumeDataGenerator(tf.keras.utils.Sequence):
     def __init__(self,
                  list_IDs,
@@ -691,7 +690,6 @@ def augment_batch(img_b, msk_b):
     return new_img_b, new_msk_b
 
 
-## ADD PYTORCH DATALOADER
 class VolumeDataset(torch.utils.data.Dataset):
   
     def __init__(self,
