@@ -5,7 +5,7 @@ import torch
 # compare specificity, dice_loss, dice_coeff, IOU with torch internal metrics
 # check https://github.com/wolny/pytorch-3dunet/tree/master/pytorch3dunet/unet3d for more metrics & loss implementations
 
-def dice_coefficient(y_true, y_pred, axis=(1, 2, 3), epsilon=0.0001):
+def pt_dice_coefficient(y_true, y_pred, axis=(1, 2, 3), epsilon=0.0001):
     """
     Compute mean dice coefficient over all abnormality classes.
 
@@ -32,7 +32,7 @@ def dice_coefficient(y_true, y_pred, axis=(1, 2, 3), epsilon=0.0001):
     return dice_coeff
 
 
-def soft_dice_coefficient(y_true, y_pred, axis=(1, 2, 3), epsilon=0.0001):
+def pt_soft_dice_coefficient(y_true, y_pred, axis=(1, 2, 3), epsilon=0.0001):
     """
     Compute mean dice coefficient over all abnormality classes.
 
@@ -60,7 +60,7 @@ def soft_dice_coefficient(y_true, y_pred, axis=(1, 2, 3), epsilon=0.0001):
     return dice_coeff
 
 
-def iou(y_true, y_pred, axis=(1, 2, 3), epsilon=0.0001):
+def pt_iou(y_true, y_pred, axis=(1, 2, 3), epsilon=0.0001):
     """
     Compute Intersection Over Union over all abnormality classes.
 
@@ -84,7 +84,7 @@ def iou(y_true, y_pred, axis=(1, 2, 3), epsilon=0.0001):
     return iou
 
 
-def soft_dice_loss(y_true, y_pred, axis=(1, 2, 3), epsilon=1.):
+def pt_soft_dice_loss(y_true, y_pred, axis=(1, 2, 3), epsilon=1.):
     """
     Compute mean soft dice loss over all abnormality classes.
 
