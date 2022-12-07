@@ -6,7 +6,7 @@ import logging
 import torch
 import tensorflow as tf
 from train_framework.tf_metrics import *
-from train_framework.pt_metrics import *
+#from train_framework.pt_metrics import *
 from train_framework.train import tf_train_model
 from train_framework.tf_model import Unet3D, AttentionUnet3D
 from train_framework.pt_model import AttentionUNet
@@ -21,12 +21,10 @@ def main():
     args = parse_args()
 
     args.train_dir = f"{args.output_dir}/train" 
-
     if not os.path.exists(args.train_dir):
         os.makedirs(args.train_dir)
 
     set_seed(args)
-    
     set_logging(args, 'train')
 
     brats_generator = BratsDatasetGenerator(args)
@@ -34,7 +32,6 @@ def main():
     args.len_train = brats_generator.len_train
     args.len_valid = brats_generator.len_val
     args.len_test = brats_generator.len_test
-    #args.class_names = [v for k, v in brats_generator.output_channels.items()]
     args.class_names = list(brats_generator.output_channels.values())
 
     with open(f"{args.ds_path}split_sets.json", "r") as f:
@@ -42,22 +39,22 @@ def main():
 
     # Set training parameters
     args.nbr_train_batch = int(math.ceil(args.len_train / args.batch_size))
-    # Nbr training steps is [number of batches] x [number of epochs].
     args.n_training_steps = args.nbr_train_batch * args.n_epochs
 
     # define wandb run and project
     if args.wandb:
         set_wandb_project_run(args, args.m_name)
 
+
     # Get generators for training and validation sets
     if args.framework == 'tf':
         train_generator = TFVolumeDataGenerator(set_filenames['train'], f"{args.ds_path}subvolumes/", 
-                            batch_size=args.batch_size, dim=args.crop_shape, shuffle=True, augmentation=True)
+                            batch_size=args.batch_size, dim=args.crop_shape, shuffle=True, augmentation=args.augmentation)
 
         valid_generator = TFVolumeDataGenerator(set_filenames['val'], f"{args.ds_path}subvolumes/",
                             batch_size=args.batch_size, dim=args.crop_shape, shuffle=True)
     else:
-        train_set = VolumeDataset(set_filenames['train'], f"{args.ds_path}subvolumes/", dim=args.crop_shape, transform=True)
+        train_set = VolumeDataset(set_filenames['train'], f"{args.ds_path}subvolumes/", dim=args.crop_shape, transform=args.augmentation)
         val_set = VolumeDataset(set_filenames['val'], f"{args.ds_path}subvolumes/", dim=args.crop_shape)
         train_generator = torch.utils.data.DataLoader(train_set, {'batch_size': 4,'shuffle': True,'num_workers': 6})
         valid_generator  = torch.utils.data.DataLoader(val_set, {'batch_size': 4,'shuffle': True,'num_workers': 6})
@@ -81,7 +78,8 @@ def main():
         else:
             model = Unet3D(args.m_name, (160, 160, 64, 4), 3)
         model = model.build()
-        args.metrics =[dice_loss, dice_coefficient, soft_dice_coefficient, iou_coeff, tf.keras.metrics.OneHotMeanIoU(args.n_classes)]
+        args.loss = LOSS_MAPPINGS[args.loss]
+        args.metrics =[dice_coefficient, soft_dice_coefficient, iou_coeff, tf.keras.metrics.OneHotMeanIoU(args.n_classes)]
         trained_model = tf_train_model(args,  model, train_generator, valid_generator)
 
 
@@ -90,9 +88,14 @@ def main():
         test_generator = TFVolumeDataGenerator(set_filenames['test'], f"{args.ds_path}subvolumes/", batch_size=args.batch_size, dim=args.crop_shape)
         history = trained_model.evaluate(test_generator)
         logger.info(f"  history:{history}")
-        #print(f"Loss: {loss}")
-        #print(f"Average Dice Coefficient on test dataset = {dice_coef:.4f}")
-        #print(f"Average Soft Dice Coefficient on test dataset = {soft_dice_coef:.4f}")
+        loss, dice_coef, soft_dice_coef = history[0], history[2], history[2]
+        iou_coef, mean_iou = history[3], history[4]
+        
+        logger.info(f"Loss on test dataset = {loss}")
+        logger.info(f"Average Dice Coefficient on test dataset = {dice_coef:.4f}")
+        logger.info(f"Average Soft Dice Coefficient on test dataset = {soft_dice_coef:.4f}")
+        logger.info(f"Average IOU Coefficient on test dataset = {iou_coef:.4f}")
+        logger.info(f"Average Mean IOU on test dataset = {mean_iou:.4f}")
 
 
     if args.wandb:

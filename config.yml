@@ -1,35 +1,52 @@
 ## Configuration file
 
-ds_path: "resources/Task01_BrainTumour/"
-#ds_path: "../block_storage/resources/Task01_BrainTumour/"
+#ds_path: "resources/Task01_BrainTumour/"
+ds_path: "../block_storage/resources/Task01_BrainTumour/"
 crop_shape: [160, 160, 64]
-
-m_name: "Attention-Unet3D-adamW"
-
-n_classes: 4
-seed: 42
-
-train_val_split: 0.75
+train_val_split: 0.80
 val_test_split: 0.50
+#augmentation: True
+augmentation: False
+
+seed: 42
+n_classes: 4
+n_epochs: 30 #100
 batch_size: 4
-n_epochs: 30
-learning_rate: 0.0001
-decay_rate: 0.2
-min_learnin_rate: 0.00000001
-# for attention models
-#n_epochs: 100
-#learning_rate: 0.00001
-
-evaluate_during_training: True
-overwrite_output_dir: True
-
-wandb: True
-
-output_dir: "resources"
-
-framework: "tf"
 
 
 optimizer: "AdamW"
-#loss: "per_chan_loss"
-#eval_metric: "per_chan_dice_loss"
+# default weight_decay for AdamW is 0.004 in Keras and 0.01 in torrk
+# default weight_decay for Adam (keras) is None
+weight_decay: 0.004
+
+
+loss: "dice"
+track_metric: "val_loss"
+track_obj: "min"
+
+
+
+learning_rate: 0.0001 #0.00001
+lr_decay_rate: 0.2
+min_learnin_rate: 0.00000001
+# possible lr_scheduler: 'cosine', 'polynomial', 'exponential', 'time', 
+#                 'plateau_reduce', 'tf_cosine', 'tf_exp', 'tf_invtime'
+lr_scheduler: 'tf_exp'
+warmup_epoch: 3
+
+
+evaluate_during_training: False
+wandb: True
+framework: "tf"
+
+
+output_dir: "resources"
+overwrite_output_dir: True
+
+
+#m_name: "Attention-Unet3D-adamW"
+m_name: "Unet3D-AdamW-Cosine"
+
+
+## Inference
+infer_batch_size: 2
