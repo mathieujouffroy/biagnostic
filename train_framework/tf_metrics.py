@@ -194,3 +194,10 @@ def compute_class_sens_spec(pred, label, class_num):
     specificity = tn / (tn + fp)
 
     return sensitivity, specificity
+
+
+LOSS_MAPPINGS = {
+    "soft_dice": soft_dice_loss,
+    "dice": dice_loss,
+    #focal
+}
