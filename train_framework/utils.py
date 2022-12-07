@@ -48,11 +48,16 @@ def wandb_cfg(args):
     # SETUP WANDB
     config_dict = {
         "dataset": args.ds_path,
-        "nbr_epochs": args.n_epochs,
-        "nbr_classes": args.n_classes,
         "len_train": args.len_train,
         "len_valid": args.len_valid,
         "len_test": args.len_test,
+
+        "nbr_epochs": args.n_epochs,
+        "nbr_classes": args.n_classes,
+
+        "loss": args.loss,
+        
+
         "batch_size": args.batch_size,
         "nbr_train_batch": args.nbr_train_batch,
         "train_steps": args.n_training_steps,
