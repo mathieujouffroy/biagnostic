@@ -1,23 +1,18 @@
 ## Configuration file
 
-#ds_path: "resources/Task01_BrainTumour/"
-ds_path: "../block_storage/resources/Task01_BrainTumour/"
-crop_shape: [160, 160, 64]
+ds_path: "resources/Task01_BrainTumour/"
+#ds_path: "../block_storage/resources/Task01_BrainTumour/"
+crop_shape: [160, 160, 64] # [160, 160, 64, 4]
 train_val_split: 0.80
 val_test_split: 0.50
-#augmentation: True
-augmentation: False
+augmentation: True
+#augmentation: False
 
 seed: 42
 n_classes: 4
+n_channels: 4
 n_epochs: 30 #100
 batch_size: 4
-
-
-optimizer: "AdamW"
-# default weight_decay for AdamW is 0.004 in Keras and 0.01 in torrk
-# default weight_decay for Adam (keras) is None
-weight_decay: 0.004
 
 
 loss: "dice"
@@ -25,27 +20,31 @@ track_metric: "val_loss"
 track_obj: "min"
 
 
+optimizer: "AdamW"
+# default weight_decay for AdamW is 0.004 in Keras and 0.01 in pytorch
+# default weight_decay for Adam (keras) is None
+weight_decay: null
 
-learning_rate: 0.0001 #0.00001
+
+learning_rate: 0.001 #0.00001
 lr_decay_rate: 0.2
 min_learnin_rate: 0.00000001
-# possible lr_scheduler: 'cosine', 'polynomial', 'exponential', 'time', 
-#                 'plateau_reduce', 'tf_cosine', 'tf_exp', 'tf_invtime'
-lr_scheduler: 'tf_exp'
+# lr_scheduler in ['cosine', 'polynomial', 'exponential', 'time', 'plateau_reduce',
+#                  'tf_cosine', 'tf_exp', 'tf_invtime', null]    # tf_exp -> promising
+lr_scheduler: 'tf_cosine'
+# warmup_epoch for cosine
 warmup_epoch: 3
 
 
 evaluate_during_training: False
-wandb: True
+wandb: False
 framework: "tf"
-
 
 output_dir: "resources"
 overwrite_output_dir: True
 
-
 #m_name: "Attention-Unet3D-adamW"
-m_name: "Unet3D-AdamW-Cosine"
+m_name: "Unet3D-augm-Adam-bn-cosine"
 
 
 ## Inference

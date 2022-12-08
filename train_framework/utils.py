@@ -24,11 +24,16 @@ def set_logging(args, log_type):
     elif log_type == 'infer':
         log_file = os.path.join(f"{args.output_dir}/infer", f"{args.m_name}_{date}.log")
 
+    for handler in logging.root.handlers[:]:
+        logging.root.removeHandler(handler)
+
     logging.basicConfig(
         format="%(asctime)s - %(levelname)s - %(name)s -   %(message)s", datefmt="%m/%d/%Y %H:%M:%S",
         level=logging.INFO,
-        handlers=[logging.StreamHandler(), logging.FileHandler(log_file)]
+        handlers=[logging.StreamHandler(), logging.FileHandler(log_file)],
+        #force=True
     )
+    
 
 
 class YamlNamespace(argparse.Namespace):

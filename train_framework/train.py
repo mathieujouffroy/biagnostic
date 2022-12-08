@@ -34,10 +34,14 @@ def tf_train_model(args, model, train_set, valid_set):
 
     optimizer = OPTIMIZER_MAPPINGS[args.optimizer]
     if args.optimizer != 'SGD':
-        optimizer = optimizer(learning_rate=args.learning_rate, weight_decay=args.weight_decay)
+        if args.weight_decay:
+            optimizer = optimizer(learning_rate=args.learning_rate, weight_decay=args.weight_decay)
+        else:
+            optimizer = optimizer(learning_rate=args.learning_rate)
     else:
         optimizer = optimizer(learning_rate=args.learning_rate)
-    model.compile(optimizer=optimizer, loss=dice_loss, metrics=args.metrics)
+    model.compile(optimizer=optimizer, loss=soft_dice_loss, metrics=args.metrics)
+
 
     if args.lr_scheduler in ['polynomial', 'exponential', 'time']:
         scheduler = LR_MAPPINGS[args.lr_scheduler]
@@ -62,6 +66,7 @@ def tf_train_model(args, model, train_set, valid_set):
     elif args.lr_scheduler == 'plateau_reduce':
         lr_callback = tf.keras.callbacks.ReduceLROnPlateau(monitor="val_loss", patience=2, factor=args.lr_decay_rate, min_lr=args.min_learnin_rate, verbose=1),
 
+
     if args.wandb:
         # monitor the val_loss to save the best model        
         train_curves = wandb.keras.WandbCallback(monitor=args.track_metric, log_weights=True)
@@ -69,13 +74,15 @@ def tf_train_model(args, model, train_set, valid_set):
     else:
         train_curves = tf.keras.callbacks.TensorBoard(histogram_freq=1, log_dir=args.train_dir)
 
+
     checkpoint_fp =  os.path.join(model_dir, model.name)
     callback_lst = [
         train_curves,
         tf.keras.callbacks.ModelCheckpoint(checkpoint_fp, monitor=args.track_metric, verbose=0, save_best_only=True),
-        lr_callback,
         LRLogger(optimizer),
     ]
+    if args.lr_scheduler:
+        callback_lst.append(lr_callback)
 
     logger.info("\n\n")
     logger.info(f"=========== TRAINING MODEL {model.name} ===========")

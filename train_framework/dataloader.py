@@ -393,7 +393,7 @@ class BratsDatasetGenerator:
 
     def explore_3D_image(self, id, layer, channel):
         classes_dict = {
-            'Normal': 0.,
+            'Background': 0.,
             'Edema': 1.,
             'Non-enhancing tumor': 2.,
             'Enhancing tumor': 3.
@@ -607,7 +607,19 @@ class TFVolumeDataGenerator(tf.keras.utils.Sequence):
             with h5py.File(self.base_dir + ID, 'r') as f:
                 #X[i] = np.array(f.get("images")) #(4, 160, 160, 64)
                 #y[i] = np.array(f.get("masks")) #(3, 160, 160, 64)
-                X[i] = np.moveaxis(np.array(f.get("images")), 0, 3)
+                if self.n_channels == 1:
+                    img = np.array(f.get("images"))
+                    img = img[0, ...]
+                    X[i] = np.moveaxis(img, 0, 3)
+                else:
+                    X[i] = np.moveaxis(np.array(f.get("images")), 0, 3)
+                if self.n_classes == 1:
+                    mask = np.array(f.get("masks"))
+                    mask = np.argmax(mask, axis=0)
+                    mask[mask > 0] = 1.0
+                    #mask = np.expand_dims(mask, -1)
+                    print(mask.shape)
+
                 y[i] = np.moveaxis(np.array(f.get("masks")), 0, 3)
         return X, y
 

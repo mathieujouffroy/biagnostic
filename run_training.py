@@ -14,7 +14,6 @@ from train_framework.utils import set_seed, set_wandb_project_run, parse_args, s
 from train_framework.dataloader import BratsDatasetGenerator, TFVolumeDataGenerator, VolumeDataset
 
 logger = logging.getLogger(__name__)
-print(logger)
 
 def main():
 
@@ -48,16 +47,50 @@ def main():
 
     # Get generators for training and validation sets
     if args.framework == 'tf':
-        train_generator = TFVolumeDataGenerator(set_filenames['train'], f"{args.ds_path}subvolumes/", 
-                            batch_size=args.batch_size, dim=args.crop_shape, shuffle=True, augmentation=args.augmentation)
+        train_generator = TFVolumeDataGenerator(
+                            set_filenames['train'],
+                            f"{args.ds_path}subvolumes/", 
+                            batch_size=args.batch_size, 
+                            dim=args.crop_shape,
+                            n_channels=args.n_channels,
+                            n_classes=args.n_classes,
+                            shuffle=True,
+                            augmentation=args.augmentation
+                        )
 
-        valid_generator = TFVolumeDataGenerator(set_filenames['val'], f"{args.ds_path}subvolumes/",
-                            batch_size=args.batch_size, dim=args.crop_shape, shuffle=True)
+        valid_generator = TFVolumeDataGenerator(
+                            set_filenames['val'], 
+                            f"{args.ds_path}subvolumes/",
+                            batch_size=args.batch_size,
+                            dim=args.crop_shape,
+                            n_channels=args.n_channels,
+                            n_classes=args.n_classes,
+                            shuffle=True
+                        )
     else:
-        train_set = VolumeDataset(set_filenames['train'], f"{args.ds_path}subvolumes/", dim=args.crop_shape, transform=args.augmentation)
-        val_set = VolumeDataset(set_filenames['val'], f"{args.ds_path}subvolumes/", dim=args.crop_shape)
-        train_generator = torch.utils.data.DataLoader(train_set, {'batch_size': 4,'shuffle': True,'num_workers': 6})
-        valid_generator  = torch.utils.data.DataLoader(val_set, {'batch_size': 4,'shuffle': True,'num_workers': 6})
+        train_set = VolumeDataset(
+                        set_filenames['train'], 
+                        f"{args.ds_path}subvolumes/",
+                        dim=args.crop_shape,
+                        n_channels=args.n_channels,
+                        n_classes=args.n_classes,
+                        transform=args.augmentation
+                    )
+        val_set = VolumeDataset(
+                    set_filenames['val'],
+                    f"{args.ds_path}subvolumes/",
+                    dim=args.crop_shape,
+                    n_channels=args.n_channels,
+                    n_classes=args.n_classes,
+                )
+        train_generator = torch.utils.data.DataLoader(
+                            train_set, 
+                            {'batch_size': args.batch_size,'shuffle': True,'num_workers': 6}
+                        )
+        valid_generator  = torch.utils.data.DataLoader(
+                            val_set, 
+                            {'batch_size': args.batch_size,'shuffle': True,'num_workers': 6}
+                        )
                 
 
     logger.info(f"\n  ***** Running training *****\n")
@@ -70,6 +103,7 @@ def main():
     logger.info(f"  Nbr Epochs = {args.n_epochs}")
     logger.info(f"  Nbr of training batch = {args.nbr_train_batch}")
     logger.info(f"  Nbr training steps = {args.n_training_steps}")
+
 
 
     if args.framework == "tf":
