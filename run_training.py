@@ -9,11 +9,11 @@ from train_framework.tf_metrics import *
 #from train_framework.pt_metrics import *
 from train_framework.train import tf_train_model
 from train_framework.tf_model import Unet3D, AttentionUnet3D
-from train_framework.pt_model import AttentionUNet
 from train_framework.utils import set_seed, set_wandb_project_run, parse_args, set_logging
 from train_framework.dataloader import BratsDatasetGenerator, TFVolumeDataGenerator, VolumeDataset
 
 logger = logging.getLogger(__name__)
+print(logger)
 
 def main():
 
@@ -32,7 +32,8 @@ def main():
     args.len_valid = brats_generator.len_val
     args.len_test = brats_generator.len_test
     args.class_names = list(brats_generator.output_channels.values())
-
+    args.crop_dim = (args.crop_shape[0], args.crop_shape[1], args.crop_shape[2], args.n_channels)
+    
     with open(f"{args.ds_path}split_sets.json", "r") as f:
         set_filenames = json.load(f)
 
@@ -40,57 +41,41 @@ def main():
     args.nbr_train_batch = int(math.ceil(args.len_train / args.batch_size))
     args.n_training_steps = args.nbr_train_batch * args.n_epochs
 
-    # define wandb run and project
-    if args.wandb:
-        set_wandb_project_run(args, args.m_name)
-
 
     # Get generators for training and validation sets
     if args.framework == 'tf':
-        train_generator = TFVolumeDataGenerator(
-                            set_filenames['train'],
-                            f"{args.ds_path}subvolumes/", 
-                            batch_size=args.batch_size, 
-                            dim=args.crop_shape,
-                            n_channels=args.n_channels,
-                            n_classes=args.n_classes,
-                            shuffle=True,
-                            augmentation=args.augmentation
-                        )
+        #train_generator = TFVolumeDataGenerator(
+        #                    set_filenames['train'],
+        #                    f"{args.ds_path}subvolumes/", 
+        #                    batch_size=args.batch_size, 
+        #                    dim=args.crop_shape,
+        #                    n_channels=args.n_channels,
+        #                    n_classes=args.n_classes,
+        #                    shuffle=True,
+        #                    augmentation=args.augmentation
+        #                )
+        #valid_generator = TFVolumeDataGenerator(
+        #                    set_filenames['val'], 
+        #                    f"{args.ds_path}subvolumes/",
+        #                    batch_size=args.batch_size,
+        #                    dim=args.crop_shape,
+        #                    n_channels=args.n_channels,
+        #                    n_classes=args.n_classes,
+        #                    shuffle=True
+        #                )
+        #for elem in train_generator.__getitem__(1):
+        #    logger.info(f"batch shape is {elem.shape}, type is {elem.dtype}")
+        train_generator = brats_generator.get_train()
+        valid_generator = brats_generator.get_valid()
+        for elem, label in train_generator.take(1):
+           logger.info(f"elem shape is {elem.shape} type: {elem.dtype}, {elem.shape.ndims}")
+           logger.info(f"label shape is {label.shape} type: {label.dtype}, {label.shape.ndims}")
 
-        valid_generator = TFVolumeDataGenerator(
-                            set_filenames['val'], 
-                            f"{args.ds_path}subvolumes/",
-                            batch_size=args.batch_size,
-                            dim=args.crop_shape,
-                            n_channels=args.n_channels,
-                            n_classes=args.n_classes,
-                            shuffle=True
-                        )
     else:
-        train_set = VolumeDataset(
-                        set_filenames['train'], 
-                        f"{args.ds_path}subvolumes/",
-                        dim=args.crop_shape,
-                        n_channels=args.n_channels,
-                        n_classes=args.n_classes,
-                        transform=args.augmentation
-                    )
-        val_set = VolumeDataset(
-                    set_filenames['val'],
-                    f"{args.ds_path}subvolumes/",
-                    dim=args.crop_shape,
-                    n_channels=args.n_channels,
-                    n_classes=args.n_classes,
-                )
-        train_generator = torch.utils.data.DataLoader(
-                            train_set, 
-                            {'batch_size': args.batch_size,'shuffle': True,'num_workers': 6}
-                        )
-        valid_generator  = torch.utils.data.DataLoader(
-                            val_set, 
-                            {'batch_size': args.batch_size,'shuffle': True,'num_workers': 6}
-                        )
+        train_set = VolumeDataset(set_filenames['train'], f"{args.ds_path}subvolumes/", dim=args.crop_shape, transform=args.augmentation)
+        val_set = VolumeDataset(set_filenames['val'], f"{args.ds_path}subvolumes/", dim=args.crop_shape)
+        train_generator = torch.utils.data.DataLoader(train_set, {'batch_size': 4,'shuffle': True,'num_workers': 6})
+        valid_generator  = torch.utils.data.DataLoader(val_set, {'batch_size': 4,'shuffle': True,'num_workers': 6})
                 
 
     logger.info(f"\n  ***** Running training *****\n")
@@ -105,21 +90,27 @@ def main():
     logger.info(f"  Nbr training steps = {args.n_training_steps}")
 
 
+    # define wandb run and project
+    if args.wandb:
+        set_wandb_project_run(args, args.m_name)
+
 
     if args.framework == "tf":
         if args.m_name.split('-')[0] == 'Attention':
-            model = AttentionUnet3D(args.m_name, (160, 160, 64, 4), 3)
+            model = AttentionUnet3D(args.m_name, args.crop_dim, 3)
         else:
-            model = Unet3D(args.m_name, (160, 160, 64, 4), 3)
+            model = Unet3D(args.m_name, args.crop_dim, 3)
+
         model = model.build()
         args.loss = LOSS_MAPPINGS[args.loss]
-        args.metrics =[dice_coefficient, soft_dice_coefficient, iou_coeff, tf.keras.metrics.OneHotMeanIoU(args.n_classes)]
+        args.metrics =[dice_coefficient, soft_dice_coefficient, iou_coeff]#, tf.keras.metrics.OneHotMeanIoU(args.n_classes)]
         trained_model = tf_train_model(args,  model, train_generator, valid_generator)
 
 
     if args.evaluate_during_training:
         # load best model & evaluate on test set
-        test_generator = TFVolumeDataGenerator(set_filenames['test'], f"{args.ds_path}subvolumes/", batch_size=args.batch_size, dim=args.crop_shape)
+        #test_generator = TFVolumeDataGenerator(set_filenames['test'], f"{args.ds_path}subvolumes/", batch_size=args.batch_size, dim=args.crop_shape)
+        test_generator = brats_generator.get_test()
         history = trained_model.evaluate(test_generator)
         logger.info(f"  history:{history}")
         loss, dice_coef, soft_dice_coef = history[0], history[2], history[2]

@@ -43,15 +43,17 @@ class BratsDatasetGenerator:
     def __init__(self, args):
 
         self.ds_path = args.ds_path
+        self.n_channels = args.n_channels
         self.batch_size = args.batch_size
         self.crop_shape = args.crop_shape
+        self.n_classes = args.n_classes
+        self.crop_dim = (args.crop_shape[0], args.crop_shape[1], args.crop_shape[2], args.n_channels)
         self.train_val_split = args.train_val_split
         self.val_test_split = args.val_test_split
-        self.n_classes = args.n_classes
         self.seed = args.seed
         self.create_file_list()
-        #self.ds_train, self.ds_val, self.ds_test = self.get_dataset()
-
+        self.ds_train, self.ds_val, self.ds_test = self.get_dataset()
+        #print("got ds")
 
     def create_file_list(self):
         """
@@ -393,7 +395,7 @@ class BratsDatasetGenerator:
 
     def explore_3D_image(self, id, layer, channel):
         classes_dict = {
-            'Background': 0.,
+            'Normal': 0.,
             'Edema': 1.,
             'Non-enhancing tumor': 2.,
             'Enhancing tumor': 3.
@@ -562,6 +564,196 @@ class BratsDatasetGenerator:
         return model_label_reformatted
 
 
+
+    def z_normalize_img(self, img):
+        """
+        Normalize the image so that the mean value for each image
+        is 0 and the standard deviation is 1.
+        """
+        for channel in range(img.shape[-1]):
+
+            img_temp = img[..., channel]
+            img_temp = (img_temp - np.mean(img_temp)) / np.std(img_temp)
+
+            img[..., channel] = img_temp
+
+        return img
+
+    def crop(self, img, msk, randomize):
+        """
+        Randomly crop the image and mask
+        """
+
+        slices = []
+
+        # Do we randomize?
+        is_random = randomize and np.random.rand() > 0.5
+
+        for idx in range(len(img.shape)-1):  # Go through each dimension
+
+            cropLen = self.crop_dim[idx]
+            imgLen = img.shape[idx]
+
+            start = (imgLen-cropLen)//2
+
+            ratio_crop = 0.20  # Crop up this this % of pixels for offset
+            # Number of pixels to offset crop in this dimension
+            offset = int(np.floor(start*ratio_crop))
+
+            if offset > 0:
+                if is_random:
+                    start += np.random.choice(range(-offset, offset))
+                    if ((start + cropLen) > imgLen):  # Don't fall off the image
+                        start = (imgLen-cropLen)//2
+            else:
+                start = 0
+
+            slices.append(slice(start, start+cropLen))
+
+        return img[tuple(slices)], msk[tuple(slices)]
+
+    def augment_data(self, img, msk):
+        """
+        Data augmentation
+        Flip image and mask. Rotate image and mask.
+        """
+
+        # Determine if axes are equal and can be rotated
+        # If the axes aren't equal then we can't rotate them.
+        equal_dim_axis = []
+        for idx in range(0, len(self.crop_dim)):
+            for jdx in range(idx+1, len(self.crop_dim)):
+                if self.crop_dim[idx] == self.crop_dim[jdx]:
+                    equal_dim_axis.append([idx, jdx])  # Valid rotation axes
+        dim_to_rotate = equal_dim_axis
+
+        if np.random.rand() > 0.5:
+            # Random 0,1 (axes to flip)
+            ax = np.random.choice(np.arange(len(self.crop_dim)-1))
+            img = np.flip(img, ax)
+            msk = np.flip(msk, ax)
+
+        elif (len(dim_to_rotate) > 0) and (np.random.rand() > 0.5):
+            rot = np.random.choice([1, 2, 3])  # 90, 180, or 270 degrees
+
+            # This will choose the axes to rotate
+            # Axes must be equal in size
+            random_axis = dim_to_rotate[np.random.choice(len(dim_to_rotate))]
+
+            img = np.rot90(img, rot, axes=random_axis)  # Rotate axes 0 and 1
+            msk = np.rot90(msk, rot, axes=random_axis)  # Rotate axes 0 and 1
+
+        return img, msk
+
+
+    def read_nifti_file(self, idx, randomize=False):
+        """
+        Read Nifti file
+        """
+
+        #idx = idx.numpy()
+        #imgFile = self.filenames[idx][0]
+        #mskFile = self.filenames[idx][1]
+        #img = np.array(nib.load(imgFile).dataobj)
+        #msk = np.array(nib.load(mskFile).dataobj)
+
+        img, msk = self.load_example(idx)        
+
+        if self.crop_dim[-1] == 1:
+            img = np.rot90(img[..., [0]])  # Just take the FLAIR channel (0)
+        else:
+            img = np.rot90(img)
+
+        msk = np.rot90(msk)
+
+        """
+        "labels": {
+             "0": "background",
+             "1": "edema",
+             "2": "non-enhancing tumor",
+             "3": "enhancing tumour"}
+         """
+        # Combine all masks but background
+        if self.n_classes == 1:
+            msk[msk > 0] = 1.0
+            msk = np.expand_dims(msk, -1)
+        else:
+            msk_temp = np.zeros(list(msk.shape) + [self.n_classes])
+            for channel in range(self.n_classes):
+                msk_temp[msk == channel, channel] = 1.0
+            msk = msk_temp
+
+        # Crop
+        img, msk = self.crop(img, msk, randomize)
+
+        # Normalize
+        img = self.z_normalize_img(img)
+
+        # Randomly rotate
+        if randomize:
+            img, msk = self.augment_data(img, msk)
+
+        return img, msk
+
+
+    def get_train(self):
+        """
+        Return train dataset
+        """
+        return self.ds_train
+
+    def get_test(self):
+        """
+        Return test dataset
+        """
+        return self.ds_test
+
+    def get_valid(self):
+        """
+        Return validation dataset
+        """
+        return self.ds_val
+
+
+    def get_dataset(self):
+        """
+        Create a TensorFlow data loader
+        """
+
+        ds = tf.data.Dataset.range(self.numFiles).shuffle(self.numFiles, 42)  # Shuffle the dataset
+
+        ds_train = ds.take(self.len_train)
+        ds_val_test = ds.skip(self.len_train)
+        ds_val = ds_val_test.take(self.len_val)
+        ds_test = ds_val_test.skip(self.len_val)
+
+        ds_train = ds_train.map(lambda x: tf.py_function(self.read_nifti_file,
+                                                         [x, True], [tf.float32, tf.float32]),
+                                num_parallel_calls=tf.data.experimental.AUTOTUNE)
+        ds_val = ds_val.map(lambda x: tf.py_function(self.read_nifti_file,
+                                                     [x, False], [tf.float32, tf.float32]),
+                            num_parallel_calls=tf.data.experimental.AUTOTUNE)
+        ds_test = ds_test.map(lambda x: tf.py_function(self.read_nifti_file,
+                                                       [x, False], [tf.float32, tf.float32]),
+                              num_parallel_calls=tf.data.experimental.AUTOTUNE)
+
+        ds_train = ds_train.repeat()
+        ds_train = ds_train.batch(self.batch_size)
+        ds_train = ds_train.prefetch(tf.data.experimental.AUTOTUNE)
+
+        batch_size_val = 4
+        ds_val = ds_val.batch(batch_size_val)
+        ds_val = ds_val.prefetch(tf.data.experimental.AUTOTUNE)
+
+        batch_size_test = 1
+        ds_test = ds_test.batch(batch_size_test)
+        ds_test = ds_test.prefetch(tf.data.experimental.AUTOTUNE)
+
+        return ds_train, ds_val, ds_test
+
+
+
+
 class TFVolumeDataGenerator(tf.keras.utils.Sequence):
     def __init__(self,
                  list_IDs,
@@ -569,7 +761,7 @@ class TFVolumeDataGenerator(tf.keras.utils.Sequence):
                  batch_size=1,
                  dim=(160, 160, 64),
                  n_channels=4,
-                 n_classes=4,
+                 n_classes=3,
                  shuffle=False,
                  augmentation=False,
                  verbose=0):
@@ -578,7 +770,7 @@ class TFVolumeDataGenerator(tf.keras.utils.Sequence):
         self.base_dir = base_dir
         self.dim = dim
         self.n_channels = n_channels
-        self.n_classes = n_classes - 1
+        self.n_classes = n_classes
         self.verbose = verbose
         self.list_IDs = list_IDs
         self.augmentation = augmentation
@@ -601,27 +793,23 @@ class TFVolumeDataGenerator(tf.keras.utils.Sequence):
 
         # Generate data
         for i, ID in enumerate(list_IDs_temp):
+
             if self.verbose == 1:
                 print(f"Training on: {self.base_dir}{ID}")
-            # Store sample
+
             with h5py.File(self.base_dir + ID, 'r') as f:
-                #X[i] = np.array(f.get("images")) #(4, 160, 160, 64)
-                #y[i] = np.array(f.get("masks")) #(3, 160, 160, 64)
+                img = np.array(f.get("images")) #(4, 160, 160, 64)
+                mask = np.array(f.get("masks")) #(3, 160, 160, 64)
+
                 if self.n_channels == 1:
                     img = np.array(f.get("images"))
-                    img = img[0, ...]
-                    X[i] = np.moveaxis(img, 0, 3)
-                else:
-                    X[i] = np.moveaxis(np.array(f.get("images")), 0, 3)
-                if self.n_classes == 1:
-                    mask = np.array(f.get("masks"))
-                    mask = np.argmax(mask, axis=0)
-                    mask[mask > 0] = 1.0
-                    #mask = np.expand_dims(mask, -1)
-                    print(mask.shape)
+                    img = img[[0], ...]
 
-                y[i] = np.moveaxis(np.array(f.get("masks")), 0, 3)
+                y[i] = np.rot90(np.moveaxis(mask, 0, 3))
+                X[i] = np.rot90(np.moveaxis(img, 0, 3))
+                
         return X, y
+
 
 
     def __data_augmentation(self, X, y):
