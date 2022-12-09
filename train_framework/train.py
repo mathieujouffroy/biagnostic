@@ -15,6 +15,22 @@ OPTIMIZER_MAPPINGS = {
     'SGD': tf.keras.optimizers.SGD,
 }
 
+
+class LoggingCallback(tf.keras.callbacks.Callback):
+    """Callback that logs message at end of epoch.
+    """
+
+    def __init__(self, print_fcn=print):
+        super(LoggingCallback, self).__init__()
+        self.print_fcn = print_fcn
+
+    def on_epoch_end(self, epoch, logs={}):
+        #msg = "{Epoch: %i} %s" % (epoch, ", ".join("%s: %f" % (k, v) for k, v in logs.items()))
+        #f"{ {name: pk for name, pk in zip(names, pks)} }"
+        msg = f"Epoch: {epoch} - { {metric: value for metric,value in logs.items()} }"
+        self.print_fcn(msg)
+
+
 def tf_train_model(args, model, train_set, valid_set):
     """
     Compiles and fits the model.
@@ -80,6 +96,7 @@ def tf_train_model(args, model, train_set, valid_set):
         train_curves,
         tf.keras.callbacks.ModelCheckpoint(checkpoint_fp, monitor=args.track_metric, verbose=0, save_best_only=True),
         LRLogger(optimizer),
+        LoggingCallback(logging.info),
     ]
     if args.lr_scheduler:
         callback_lst.append(lr_callback)
@@ -91,6 +108,8 @@ def tf_train_model(args, model, train_set, valid_set):
     logger.info(f"learning rate = {args.learning_rate}")
     logger.info('\n')
 
+
+    #model.fit(train_set, epochs=args.n_epochs, steps_per_epoch=args.nbr_train_batch-1, validation_data=valid_set, callbacks=callback_lst)
     model.fit(train_set, epochs=args.n_epochs, validation_data=valid_set, callbacks=callback_lst)
     
     return model
