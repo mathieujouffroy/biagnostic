@@ -77,7 +77,7 @@ def set_wandb_project_run(args, run_name):
     """ Initialize wandb directory to keep track of our models. """
 
     cfg = wandb_cfg(args)
-    run = wandb.init(project='brats-3d-segm',
+    run = wandb.init(project=args.project_name,
                      job_type="train", name=run_name, config=cfg, reinit=True)
     assert run is wandb.run
 
@@ -89,12 +89,21 @@ def parse_args():
         description='Train a model for plant disease classification.')
     parser.add_argument('--config', '-c', type=str, required=True,
                         help="The YAML config file")
+    parser.add_argument('--sweep', '-c', type=str, required=False,
+                        help="The YAML config file")    
     cli_args = parser.parse_args()
 
     # parse the config file
     with open(cli_args.config, 'r') as f:
         config = yaml.load(f, Loader=yaml.FullLoader)
+    
     config = YamlNamespace(config)
 
-    return config
+    if cli_args.sweep:
+        with open(cli_args.sweep, 'r') as f:
+            sweep = yaml.load(f, Loader=yaml.FullLoader)
+        sweep_config = YamlNamespace(sweep)
+        return config, sweep_config
+    else:
+        return config
 

@@ -27,7 +27,7 @@ weight_decay: null
 
 
 learning_rate: 0.001 #0.00001
-lr_decay_rate: 0.2
+lr_decay: 0.2
 min_learnin_rate: 0.00000001
 # lr_scheduler in ['cosine', 'polynomial', 'exponential', 'time', 'plateau_reduce',
 #                  'tf_cosine', 'tf_exp', 'tf_invtime', null]    # tf_exp -> promising
@@ -38,6 +38,7 @@ warmup_epoch: 3
 
 evaluate_during_training: False
 wandb: True
+project_name: "brats-3d-segm"
 framework: "tf"
 
 
@@ -46,7 +47,7 @@ overwrite_output_dir: True
 
 
 #m_name: "Attention-Unet3D-adamW"
-m_name: "Unet3D-simple-intedt-adam-4chan-3out"
+m_name: "Unet3D-intedt-sw"
 
 
 ## Inference

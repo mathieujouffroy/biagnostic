@@ -69,7 +69,7 @@ def tf_train_model(args, model, train_set, valid_set):
         if args.lr_scheduler == 'tf_cosine':
             scheduler = scheduler(args.learning_rate, args.n_training_steps)
         else:
-            scheduler = scheduler(args.learning_rate, args.n_training_steps, args.lr_decay_rate)
+            scheduler = scheduler(args.learning_rate, args.n_training_steps, args.lr_decay)
 
         lr_callback = tf.keras.callbacks.LearningRateScheduler(scheduler, verbose=1)
     
@@ -80,7 +80,7 @@ def tf_train_model(args, model, train_set, valid_set):
                         #warmup_steps=warmup_steps, hold=(args.len_train / args.batch_size), min_lr=args.min_learnin_rate)
 
     elif args.lr_scheduler == 'plateau_reduce':
-        lr_callback = tf.keras.callbacks.ReduceLROnPlateau(monitor="val_loss", patience=2, factor=args.lr_decay_rate, min_lr=args.min_learnin_rate, verbose=1),
+        lr_callback = tf.keras.callbacks.ReduceLROnPlateau(monitor="val_loss", patience=2, factor=args.lr_decay, min_lr=args.min_learnin_rate, verbose=1),
 
 
     if args.wandb:

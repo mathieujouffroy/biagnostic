@@ -657,7 +657,7 @@ class BratsDatasetGenerator:
         #img = np.array(nib.load(imgFile).dataobj)
         #msk = np.array(nib.load(mskFile).dataobj)
 
-        img, msk = self.load_example(idx)        
+        img, msk = self.load_example(idx.numpy())        
 
         if self.crop_dim[-1] == 1:
             img = np.rot90(img[..., [0]])  # Just take the FLAIR channel (0)

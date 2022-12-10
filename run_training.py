@@ -4,6 +4,7 @@ import math
 import wandb
 import logging
 import torch
+import yaml
 import tensorflow as tf
 from train_framework.tf_metrics import *
 #from train_framework.pt_metrics import *
@@ -15,9 +16,7 @@ from train_framework.dataloader import BratsDatasetGenerator, TFVolumeDataGenera
 logger = logging.getLogger(__name__)
 print(logger)
 
-def main():
-
-    args = parse_args()
+def run_model(args):
 
     args.train_dir = f"{args.output_dir}/train" 
     if not os.path.exists(args.train_dir):
@@ -38,7 +37,9 @@ def main():
         set_filenames = json.load(f)
 
     # Set training parameters
-    args.nbr_train_batch = int(math.ceil(args.len_train / args.batch_size))
+    #args.nbr_train_batch = int(math.ceil(args.len_train / args.batch_size))
+    args.nbr_train_batch = args.len_train // args.batch_size
+    print(args.nbr_train_batch)
     args.n_training_steps = args.nbr_train_batch * args.n_epochs
 
 
@@ -127,6 +128,7 @@ def main():
         wandb.run.finish()
 
 if __name__ == "__main__":
-    main()
+    args = parse_args()
+    run_model(args)
 
 ## add class weights
