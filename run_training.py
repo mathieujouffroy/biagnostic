@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 print(logger)
 
 def run_model(args):
-
+    print("running")
     args.train_dir = f"{args.output_dir}/train" 
     if not os.path.exists(args.train_dir):
         os.makedirs(args.train_dir)
@@ -37,9 +37,7 @@ def run_model(args):
         set_filenames = json.load(f)
 
     # Set training parameters
-    #args.nbr_train_batch = int(math.ceil(args.len_train / args.batch_size))
     args.nbr_train_batch = args.len_train // args.batch_size
-    print(args.nbr_train_batch)
     args.n_training_steps = args.nbr_train_batch * args.n_epochs
 
 
@@ -81,19 +79,18 @@ def run_model(args):
 
     logger.info(f"\n  ***** Running training *****\n")
     logger.info(f"  train_set = {train_generator}")
+    logger.info(f"  Nbr of channels = {args.n_channels}")
     logger.info(f"  Nbr of class = {args.n_classes}")
     logger.info(f"  Class names = {args.class_names}")
+    logger.info(f"  Input Shape : {(args.crop_shape[0], args.crop_shape[1], args.crop_shape[2], args.n_channels)}")
     logger.info(f"  Nbr training examples = {args.len_train}")
     logger.info(f"  Nbr validation examples = {args.len_valid}")
-    logger.info(f"  Batch size = {args.batch_size}")
-    logger.info(f"  Nbr Epochs = {args.n_epochs}")
-    logger.info(f"  Nbr of training batch = {args.nbr_train_batch}")
-    logger.info(f"  Nbr training steps = {args.n_training_steps}")
 
 
     # define wandb run and project
     if args.wandb:
-        set_wandb_project_run(args, args.m_name)
+        args = set_wandb_project_run(args, args.m_name)
+        print(args)
 
 
     if args.framework == "tf":
@@ -103,9 +100,14 @@ def run_model(args):
             model = Unet3D(args.m_name, args.crop_dim, 3)
 
         model = model.build()
-        args.loss = LOSS_MAPPINGS[args.loss]
-        args.metrics =[dice_coefficient, soft_dice_coefficient, iou_coeff]#, tf.keras.metrics.OneHotMeanIoU(args.n_classes)]
-        trained_model = tf_train_model(args,  model, train_generator, valid_generator)
+        args.metrics =[dice_loss, dice_coefficient, soft_dice_coefficient, iou_coeff]
+        args.loss = LOSS_MAPPINGS[args.loss_name]
+        if args.loss_name == 'soft_dice_loss':
+            args.metrics.append(dice_loss)
+        else:
+            args.metrics.append(soft_dice_loss)
+
+        trained_model = tf_train_model(args, model, train_generator, valid_generator)
 
 
     if args.evaluate_during_training:

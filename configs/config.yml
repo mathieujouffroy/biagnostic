@@ -11,17 +11,18 @@ augmentation: True
 seed: 42
 n_classes: 3
 n_channels: 4
-n_epochs: 30 #100
-batch_size: 4
+#n_epochs: 30 #100
+n_epochs: 13 #100
+batch_size: 5
 
 
-loss: "dice"
+loss_name: "soft_dice"
 track_metric: "val_loss"
 track_obj: "min"
 
 
-optimizer: "Adam"
-# default weight_decay for AdamW is 0.004 in Keras and 0.01 in torrk
+optimizer: "AdamW"
+# default weight_decay for AdamW is 0.004 in Keras and 0.01 in torch
 # default weight_decay for Adam (keras) is None
 weight_decay: null
 
@@ -33,7 +34,7 @@ min_learnin_rate: 0.00000001
 #                  'tf_cosine', 'tf_exp', 'tf_invtime', null]    # tf_exp -> promising
 lr_scheduler: null
 # warmup_epoch for cosine
-warmup_epoch: 3
+warmup_epoch: 2
 
 
 evaluate_during_training: False

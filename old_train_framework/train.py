@@ -51,7 +51,6 @@ def tf_train_model(args, model, train_set, valid_set):
     optimizer = OPTIMIZER_MAPPINGS[args.optimizer]
     if args.optimizer != 'SGD':
         if args.weight_decay:
-            print(f"weight decay: {args.weight_decay}")
             optimizer = optimizer(learning_rate=args.learning_rate, weight_decay=args.weight_decay)
         else:
             optimizer = optimizer(learning_rate=args.learning_rate)
@@ -59,7 +58,7 @@ def tf_train_model(args, model, train_set, valid_set):
         optimizer = optimizer(learning_rate=args.learning_rate)
 
 
-    model.compile(optimizer=optimizer, loss=args.loss, metrics=args.metrics)
+    model.compile(optimizer=optimizer, loss=args.loss_fct, metrics=args.metrics)
 
 
     if args.lr_scheduler in ['polynomial', 'exponential', 'time']:
@@ -110,17 +109,17 @@ def tf_train_model(args, model, train_set, valid_set):
     logger.info(f"  Batch size = {args.batch_size}")
     logger.info(f"  Nbr of training batch = {args.nbr_train_batch}")
     logger.info(f"  Nbr training steps = {args.n_training_steps}")
-    logger.info(f"  Loss = {args.loss}")
+    logger.info(f"  Loss = {args.loss_fct}")
     logger.info(f"  Optimizer = {optimizer}")
     logger.info(f"  Learning rate = {args.learning_rate}")
     if args.weight_decay:
-        logger.info(f"  Weight decay = {args.weight_decay}")
+        logger.info(f"Weight decay = {args.weight_decay}")
     if args.lr_scheduler:
-        logger.info(f"  Learning rate scheduler = {args.lr_scheduler}")
+        logger.info(f"Learning rate scheduler = {args.lr_scheduler}")
     if args.lr_decay:
-        logger.info(f"  Learning rate decay = {args.lr_decay}")
+        logger.info(f"Learning rate decay = {args.lr_decay}")
     if args.warmup_epoch:
-        logger.info(f"  Warmup epoch = {args.warmup_epoch}")
+        logger.info(f"Warmup epoch = {args.warmup_epoch}")
     
     logger.info('\n')
 

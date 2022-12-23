@@ -57,15 +57,15 @@ def wandb_cfg(args):
         "len_valid": args.len_valid,
         "len_test": args.len_test,
 
-        "n_epochs": args.n_epochs,
+        "nbr_epochs": args.n_epochs,
         "nbr_classes": args.n_classes,
 
-        "loss_name": args.loss_name,
+        "loss": args.loss,
         
 
         "batch_size": args.batch_size,
         "nbr_train_batch": args.nbr_train_batch,
-        "n_training_steps": args.n_training_steps,
+        "train_steps": args.n_training_steps,
         "learning_rate": args.learning_rate,
         "img_shape": args.crop_shape,
 
@@ -85,17 +85,7 @@ def set_wandb_project_run(args, run_name):
     cfg = wandb_cfg(args)
     run = wandb.init(project=args.project_name,
                      job_type="train", name=run_name, config=cfg, reinit=True)
-    
     assert run is wandb.run
-    args.batch_size = wandb.config.batch_size
-    args.n_epochs = wandb.config.n_epochs
-    args.learning_rate = wandb.config.learning_rate
-    args.optimizer = wandb.config.optimizer
-    args.weight_decay = wandb.config.weight_decay
-    args.lr_decay = wandb.config.lr_decay
-    args.lr_scheduler = wandb.config.lr_scheduler
-    args.warmup_epoch = wandb.config.warmup_epoch
-    return args
 
 
 def parse_args():
